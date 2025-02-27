@@ -9,7 +9,7 @@ from scipy.io import savemat
 bumper_names = ['LEFT', 'CENTER', 'RIGHT']
 state_names = ['RELEASED', 'PRESSED']
 
-bumped: int
+bumped: int = 0
 
 
 def bumper_cb(msg):
