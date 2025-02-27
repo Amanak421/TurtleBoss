@@ -69,11 +69,16 @@ def turn(angle: int):
 
 
 def run():
+    turtle.reset_odometry()
     for i in range(3):
         save_telemetry(f"tel{i}.mat")
+        print(f"{i} [o]'\tR60 {turtle.get_odometry()}")
         turn(-60)
+        print(f"{i} R60\t->> {turtle.get_odometry()}")
         go()
+        print(f"{i} ->>\tL120 {turtle.get_odometry()}")
         turn(120)
+        print(f"{i} L120\t[o]' {turtle.get_odometry()}")
 
 
 if __name__ == "__main__":
