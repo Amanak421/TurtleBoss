@@ -58,6 +58,7 @@ def go(length: int = 1):
     rate = Rate(10)
     reset_telemetry()
     distance = turtle.get_odometry()[0]
+    length *= 0.97
 
     while distance < length:
         turtle.cmd_velocity(linear=0.6)
