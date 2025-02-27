@@ -1,0 +1,86 @@
+from __future__ import print_function
+
+import sys
+from datetime import datetime
+from robolab_turtlebot import Turtlebot, sleep, Rate, get_time
+from scipy.io import savemat
+
+# Name bumpers and events
+bumper_names = ['LEFT', 'CENTER', 'RIGHT']
+state_names = ['RELEASED', 'PRESSED']
+
+bumped: int
+
+
+def bumper_cb(msg):
+    """Bumber callback."""
+    bumper = bumper_names[msg.bumper]
+    state = state_names[msg.state]
+    print('{} bumper {}'.format(bumper, state))
+    # Update global variable  # TODO delete
+    global bumped
+    bumped = msg.state
+
+
+def check_bump():
+    if bumped:
+        print("Bumped!")
+        sys.exit(66)
+
+
+def save_telemetry(fname: str = datetime.today().strftime("%Y-%m-%d-%H-%M-%S") + ".mat"):
+    # Get K, images, and point cloud
+    data = dict()
+    data['K_rgb'] = turtle.get_rgb_K()
+    data['K_depth'] = turtle.get_depth_K()
+    data['image_rgb'] = turtle.get_rgb_image()
+    data['image_depth'] = turtle.get_depth_image()
+    data['point_cloud'] = turtle.get_point_cloud()
+    data['odometry'] = turtle.get_odometry()
+    # Save data to .mat file
+    filename = fname
+    savemat(filename, data)
+    print('Data saved in {}'.format(filename))
+
+
+def go(length: int = 5):
+    rate = Rate(10)
+    t = get_time()
+
+    while get_time() - t < length:
+        turtle.cmd_velocity(linear=0.1)
+        check_bump()
+        rate.sleep()
+    turtle.cmd_velocity()
+
+
+def turn(angle: int):
+    turn_time = 5
+    radian_angle = angle * 3.141592653 / 180
+    radian_angle_per_sec = radian_angle / turn_time
+    rate = Rate(10)
+    t = get_time()
+
+    while get_time() - t < turn_time:
+        turtle.cmd_velocity(angular=radian_angle_per_sec)
+        check_bump()
+        rate.sleep()
+    turtle.cmd_velocity()
+
+
+def run():
+    for i in range(3):
+        save_telemetry(f"tel{1}.mat")
+        turn(60)
+        go()
+        turn(-120)
+
+
+if __name__ == "__main__":
+    # Initialize Turlebot
+    turtle = Turtlebot(rgb=True, depth=True, pc=True)
+    sleep(2)
+    turtle.play_sound(1)
+    sleep(0.3)
+    turtle.register_bumper_event_cb(bumper_cb)
+    run()
