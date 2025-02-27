@@ -37,6 +37,7 @@ def reset_telemetry():
     global_y_pos = turtle.get_odometry()[1]
     global_angle = turtle.get_odometry()[2]
     turtle.reset_odometry()
+    sleep(0.1)
 
 
 def save_telemetry(fname: str = datetime.today().strftime("%Y-%m-%d-%H-%M-%S") + ".mat"):
@@ -69,16 +70,17 @@ def go(length: int = 1):
 
 
 def turn(target_angle: int):
-    target_angle = target_angle * 3.141592653 / 90
+    target_angle = target_angle * 3.141592653 / 180
     rate = Rate(10)
     reset_telemetry()
     angle = turtle.get_odometry()[2]
 
-    cond = lambda a: a <= target_angle if a > 0 else a > target_angle
+    cond = lambda a: a <= target_angle if target_angle > 0 else a > target_angle
 
     while cond(angle):
-        turtle.cmd_velocity(angular=0.3)
+        turtle.cmd_velocity(angular=0.5)
         check_bump()
+        print(turtle.get_odometry())
         rate.sleep()
         angle = turtle.get_odometry()[2]
     turtle.cmd_velocity()
@@ -86,9 +88,13 @@ def turn(target_angle: int):
 
 def run():
     turtle.reset_odometry()
-    turn(360)
-    print(f"{turtle.get_odometry()}")
-    return
+    #turn(120)
+    #print("next 120")
+    #turn(120)
+    #print("next 120")
+    #turn(120)
+    #print(f"{turtle.get_odometry()}")
+    #return
     for i in range(3):
         save_telemetry(f"tel{i}.mat")
         print(f"{i} [o]'\tR60 {turtle.get_odometry()}")
