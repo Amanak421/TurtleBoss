@@ -69,12 +69,12 @@ def go(length: int = 1):
 
 
 def turn(target_angle: int):
-    radian_angle = target_angle * 3.141592653 / 180
+    target_angle = target_angle * 3.141592653 / 90
     rate = Rate(10)
     reset_telemetry()
     angle = turtle.get_odometry()[2]
 
-    cond = lambda a: a < target_angle if a > 0 else a > target_angle
+    cond = lambda a: a <= target_angle if a > 0 else a > target_angle
 
     while cond(angle):
         turtle.cmd_velocity(angular=0.3)
@@ -86,7 +86,7 @@ def turn(target_angle: int):
 
 def run():
     turtle.reset_odometry()
-    go()
+    turn(360)
     print(f"{turtle.get_odometry()}")
     return
     for i in range(3):
