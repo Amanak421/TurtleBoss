@@ -58,10 +58,10 @@ def go(length: int = 1):
     rate = Rate(10)
     reset_telemetry()
     distance = turtle.get_odometry()[0]
-    length *= 0.97
+    length *= 0.96
 
     while distance < length:
-        turtle.cmd_velocity(linear=0.6)
+        turtle.cmd_velocity(linear=0.3)
         check_bump()
         rate.sleep()
         distance = turtle.get_odometry()[0]
@@ -77,7 +77,7 @@ def turn(target_angle: int):
     cond = lambda a: a < target_angle if a > 0 else a > target_angle
 
     while cond(angle):
-        turtle.cmd_velocity(angular=0.6)
+        turtle.cmd_velocity(angular=0.3)
         check_bump()
         rate.sleep()
         angle = turtle.get_odometry()[2]
