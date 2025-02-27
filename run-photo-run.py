@@ -68,7 +68,7 @@ def go(length: int = 1):
 
 
 def turn(target_angle: int):
-    radian_angle = target_angle * 3.141592653 / 18
+    radian_angle = target_angle * 3.141592653 / 180
     rate = Rate(10)
     reset_telemetry()
     angle = turtle.get_odometry()[2]
