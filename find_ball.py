@@ -3,49 +3,47 @@ import numpy as np
 import scipy.io
 
 
+LOWER_YELLOW = np.array([20, 100, 100])
+UPPER_YELLOW = np.array([30, 255, 255])
 
 
-# Read .mat file
-data = scipy.io.loadmat("test_data/2025-02-27-19-20-02.mat")
-rgb_img = data["image_rgb"]
 
 
-# Convert to HSV
-hsv = cv2.cvtColor(rgb_img, cv2.COLOR_BGR2HSV)#overeno Tomem
+def find_ball(rgb_img, lower_y = LOWER_YELLOW, upper_y = UPPER_YELLOW) -> tuple | None:
+    # Convert to HSV
+    hsv = cv2.cvtColor(rgb_img, cv2.COLOR_BGR2HSV)
+    mask = cv2.inRange(hsv, lower_y, upper_y)
 
-########################
-# Definování rozsahu pro žlutou barvu
-lower_yellow = np.array([20, 100, 100])
-upper_yellow = np.array([30, 255, 255])
+    contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 
-# Maskování pouze žlutých oblastí
-mask = cv2.inRange(hsv, lower_yellow, upper_yellow)
+    if contours:
+        largest_contour = max(contours, key=cv2.contourArea)
+
+        (x, y), radius = cv2.minEnclosingCircle(largest_contour)
+        center = (int(x), int(y))
+        radius = int(radius)
+
+        draw_circle(rgb_img, center, radius)
+
+        return center, radius
+    else:
+        return None
 
 
-# Najdeme obrysy (kontury) v masce
-contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-
-if contours:
-    # Najdeme největší obrys (předpokládáme, že míč je největší objekt)
-    largest_contour = max(contours, key=cv2.contourArea)
-
-    # Najdeme obalující kruh kolem největšího obrysu
-    (x, y), radius = cv2.minEnclosingCircle(largest_contour)
-    center = (int(x), int(y))
-    radius = int(radius)
-
-    # Oprava: Chybělo správné použití obrázku pro kreslení
-    output_img = cv2.cvtColor(mask, cv2.COLOR_GRAY2BGR)  # Převod na BGR pro kreslení barevných prvků
-
+def draw_circle(rgb_img, center, r) -> None:
     # Kreslení detekovaného míče
-    cv2.circle(hsv, center, radius, (0, 255, 0), 3)
-    cv2.circle(hsv, center, 5, (0, 0, 255), -1)
-    print(f"Střed: {center}, radius: {radius}")
+    cv2.circle(rgb_img, center, r, (0, 255, 0), 3)
+    cv2.circle(rgb_img, center, 5, (0, 0, 255), -1)
+    print(f"Center: {center}, radius: {r}")
 
+    #cv2.imshow("Win HSV", hsv)
+    cv2.imshow("Win RGB", rgb_img)
+    #cv2.imshow("Win MASK", mask)
+    cv2.waitKey()
+    cv2.destroyAllWindows() 
 
-######################################
-
-cv2.imshow("Win HSV", hsv)
-cv2.imshow("Win RGB", rgb_img)
-cv2.waitKey()
-cv2.destroyAllWindows() 
+for i in range(1,9):
+    # Read .mat file
+    data = scipy.io.loadmat(f"test_data/test_y{i}.mat")
+    rgb_img = data["K_rgb"]
+    find_ball(rgb_img)
