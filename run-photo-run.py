@@ -86,6 +86,9 @@ def turn(target_angle: int):
 
 def run():
     turtle.reset_odometry()
+    go()
+    print(f"{turtle.get_odometry()}")
+    return
     for i in range(3):
         save_telemetry(f"tel{i}.mat")
         print(f"{i} [o]'\tR60 {turtle.get_odometry()}")
