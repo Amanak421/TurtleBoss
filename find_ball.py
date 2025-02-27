@@ -1,11 +1,14 @@
 import cv2
 import numpy as np
-
 import scipy.io
 
+
+
+
 # Read .mat file
-data = scipy.io.loadmat("test3.mat")
+data = scipy.io.loadmat("test_data/2025-02-27-19-20-02.mat")
 rgb_img = data["image_rgb"]
+
 
 # Convert to HSV
 hsv = cv2.cvtColor(rgb_img, cv2.COLOR_BGR2HSV)#overeno Tomem
