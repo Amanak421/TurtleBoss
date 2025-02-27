@@ -70,10 +70,10 @@ def turn(angle: int):
 
 def run():
     for i in range(3):
-        save_telemetry(f"tel{1}.mat")
-        turn(60)
+        save_telemetry(f"tel{i}.mat")
+        turn(-60)
         go()
-        turn(-120)
+        turn(120)
 
 
 if __name__ == "__main__":
