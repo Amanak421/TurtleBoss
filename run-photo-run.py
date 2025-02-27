@@ -10,6 +10,9 @@ bumper_names = ['LEFT', 'CENTER', 'RIGHT']
 state_names = ['RELEASED', 'PRESSED']
 
 bumped: int = 0
+global_x_pos = 0
+global_y_pos = 0
+global_angle = 0
 
 
 def bumper_cb(msg):
@@ -28,6 +31,14 @@ def check_bump():
         sys.exit(66)
 
 
+def reset_telemetry():
+    global global_x_pos, global_y_pos, global_angle
+    global_x_pos = turtle.get_odometry()[0]
+    global_y_pos = turtle.get_odometry()[1]
+    global_angle = turtle.get_odometry()[2]
+    turtle.reset_odometry()
+
+
 def save_telemetry(fname: str = datetime.today().strftime("%Y-%m-%d-%H-%M-%S") + ".mat"):
     # Get K, images, and point cloud
     data = dict()
@@ -43,33 +54,41 @@ def save_telemetry(fname: str = datetime.today().strftime("%Y-%m-%d-%H-%M-%S") +
     print('Data saved in {}'.format(filename))
 
 
-def go(length: int = 5):
+def go(length: int = 1):
     rate = Rate(10)
-    t = get_time()
+    reset_telemetry()
+    distance = turtle.get_odometry()[0]
+    length *= 0.96
 
-    while get_time() - t < length:
-        turtle.cmd_velocity(linear=0.1)
+    while distance < length:
+        turtle.cmd_velocity(linear=0.3)
         check_bump()
         rate.sleep()
+        distance = turtle.get_odometry()[0]
     turtle.cmd_velocity()
 
 
-def turn(angle: int):
-    turn_time = 5
-    radian_angle = angle * 3.141592653 / 180
-    radian_angle_per_sec = radian_angle / turn_time
+def turn(target_angle: int):
+    target_angle = target_angle * 3.141592653 / 90
     rate = Rate(10)
-    t = get_time()
+    reset_telemetry()
+    angle = turtle.get_odometry()[2]
 
-    while get_time() - t < turn_time:
-        turtle.cmd_velocity(angular=radian_angle_per_sec)
+    cond = lambda a: a <= target_angle if a > 0 else a > target_angle
+
+    while cond(angle):
+        turtle.cmd_velocity(angular=0.3)
         check_bump()
         rate.sleep()
+        angle = turtle.get_odometry()[2]
     turtle.cmd_velocity()
 
 
 def run():
     turtle.reset_odometry()
+    turn(360)
+    print(f"{turtle.get_odometry()}")
+    return
     for i in range(3):
         save_telemetry(f"tel{i}.mat")
         print(f"{i} [o]'\tR60 {turtle.get_odometry()}")
