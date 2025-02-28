@@ -31,10 +31,12 @@ def find_ball(rgb_img, lower_y = LOWER_YELLOW, upper_y = UPPER_YELLOW) -> tuple 
 
 
 def draw_circle(rgb_img, center, r) -> None:
-    # Kreslení detekovaného míče
+    rgb_img = np.array(rgb_img, dtype=np.uint8)
+    rgb_img = cv2.cvtColor(rgb_img, cv2.COLOR_BGR2BGRA)##FIXME###????
     cv2.circle(rgb_img, center, r, (0, 255, 0), 3)
     cv2.circle(rgb_img, center, 5, (0, 0, 255), -1)
     print(f"Center: {center}, radius: {r}")
+    
 
     #cv2.imshow("Win HSV", hsv)
     cv2.imshow("Win RGB", rgb_img)
@@ -42,8 +44,13 @@ def draw_circle(rgb_img, center, r) -> None:
     cv2.waitKey()
     cv2.destroyAllWindows() 
 
-for i in range(1,9):
+
+def load_img(filename):
+    data = scipy.io.loadmat(filename)
+    rgb_img = data["image_rgb"]
+    return rgb_img
+
+for i in range(1,6):
     # Read .mat file
-    data = scipy.io.loadmat(f"test_data/test_y{i}.mat")
-    rgb_img = data["K_rgb"]
+    rgb_img = load_img(f"test_data/test_ry{i}.mat")
     find_ball(rgb_img)
