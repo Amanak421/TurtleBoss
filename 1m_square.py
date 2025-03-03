@@ -1,31 +1,25 @@
-from __future__ import print_function
-
+from movement import Move
 import sys
-from datetime import datetime
 from robolab_turtlebot import Turtlebot, sleep, Rate, get_time
-from scipy.io import savemat
 from math import pi
 
-turtle = Turtlebot(rgb=True, depth=True, pc=True)
-sleep(2)
-turtle.play_sound(1)
-sleep(0.3)
 
-test = Move(None, None)
-print(test.getPosition())
-test.go(1)
-print(test.getPosition())
-test.rotate(pi/2)
-print(test.getPosition())
-test.go(1)
-print(test.getPosition())
-test.rotate(pi/2)
-print(test.getPosition())
-test.go(1)
-print(test.getPosition())
-test.rotate(pi/2)
-print(test.getPosition())
-test.go(1)
-print(test.getPosition())
-test.rotate(pi/2)
-print(test.getPosition())
+
+if __name__ == "__main__":
+    turtle = Turtlebot(rgb=True, depth=True, pc=True)
+    sleep(2)
+    turtle.play_sound(1)
+    sleep(0.3)
+    rate = Rate(10)
+
+    test = Move(turtle, rate)
+    print(test.getPosition())
+    test.go(2, simulate=False, _print=True)
+    print(test.getPosition())
+    test.rotate(pi/2, simulate=False, _print=True)
+    print(turtle.get_odometry())
+    print(test.getPosition())
+    test.rotate(pi/2, simulate=False, _print=True)
+    print(turtle.get_odometry())
+    test.go(2, simulate=False, _print=True)
+    print(test.getPosition())
