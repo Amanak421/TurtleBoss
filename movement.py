@@ -1,5 +1,5 @@
 import sys
-from math import sin, cos, atan2
+from math import sin, cos, atan2, sqrt, pi
 import time
 
 
@@ -11,7 +11,7 @@ class Move:
 
         self.BUMPER_NAMES = ['LEFT', 'CENTER', 'RIGHT']
         self.STATE_NAMES = ['RELEASED', 'PRESSED']
-    
+
         self.x = 0
         self.y = 0
         self.angle = 0
@@ -20,12 +20,16 @@ class Move:
         self.turtle = turtle
         self.rate = rate
 
+        turtle.register_bumper_event_cb(self.bumper_cb)
+
     def bumper_cb(self, msg):
         """Bumper callback."""
         bumper = self.BUMPER_NAMES[msg.bumper]
         state = self.STATE_NAMES[msg.state]
         print('{} bumper {}'.format(bumper, state))
         self.bumped = msg.state
+        print("Bumped! -> Emergency stop!")
+        sys.exit(66)
 
     def reset(self) -> None:
         self.x, self.y, self.angle = 0, 0, 0
@@ -99,9 +103,25 @@ class Move:
             self.turtle.cmd_velocity(angular=speed)
             self.check_bump()
             self.rate.sleep()
-        
-        
+
         self.turtle.cmd_velocity()
         self.updateOdometryAngular(self.turtle.get_odometry()[2])
 
+    def turn(self, target_angle, speed = 0.5, _print = True, simulate=False):
+        if abs(target_angle) > (7/8)*pi:
+            self.rotate(target_angle/2, speed=speed, _print=_print, simulate=simulate)
+            self.rotate(target_angle/2, speed=speed, _print=_print, simulate=simulate)
+        else:
+            self.rotate(target_angle, speed=speed, _print=_print, simulate=simulate)
 
+    def go_to(self, x, y, angle, linear_velocity = 0.3, angular_velocity = 0.6):
+        distance = sqrt(x^2 + y^2)
+        turn_angle = atan2(y/x)
+
+        #rotate for optimal path
+        self.turn(turn_angle, speed=angular_velocity)
+        #go
+        self.go(distance, speed=linear_velocity)
+        #calculate a angle difference
+        final_turn = atan2(sin(self.angle + angle), cos(self.angle + angle))
+        self.turn(final_turn, speed=angular_velocity)
