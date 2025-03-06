@@ -9,31 +9,6 @@ UPPER_YELLOW = np.array([30, 255, 255])
 LOWER_OBSTACLES = np.array([[90, 100, 50], [40, 50, 50], [0, 75, 50]])
 UPPER_OBSTACLES = np.array([[130, 255, 255], [90, 255, 255], [10, 255, 255]])
 
-"""
-Modrá (H: 100–140)
-Min: H = 100, S = 50, V = 50
-Max: H = 140, S = 140, V = 157
-____________________________
-O 5 % méně podobné: H = 93, S = 242, V = 112
-O 5 % více podobné: H = 102, S = 255, V = 123
-____________________________
-
-Zelená (H: 40–90)
-Min: H = 40, S = 50, V = 50
-Max: H = 90, S = 255, V = 255
-
-Červená (první rozsah, H: 0–10)
-Min: H = 0, S = 50, V = 50
-Max: H = 10, S = 255, V = 255
-
-#Červená (druhý rozsah, H: 170–180)
-#Min: H = 170, S = 50, V = 50
-#Max: H = 179, S = 145, V = 153
-
-
-
-"""
-
 
 def find_ball(rgb_img, lower_y=LOWER_YELLOW, upper_y=UPPER_YELLOW) -> tuple | None:
     # Convert to HSV
@@ -111,7 +86,7 @@ def draw_center(rgb_img, center_dict) -> None:
 def show_objects(rgb_img, center, radius, obstacles_dict, obstacles_center_dict) -> None:
     rgb_img = draw_circle(rgb_img, center, radius)
     rgb_img = draw_rectangles(rgb_img, obstacles_dict)
-    rgb_img = draw_center(rgb_img, obstacles_center_dict)
+    #rgb_img = draw_center(rgb_img, obstacles_center_dict)
 
     cv2.imshow("RGB all objects", rgb_img)
     cv2.waitKey()
@@ -120,6 +95,8 @@ def show_objects(rgb_img, center, radius, obstacles_dict, obstacles_center_dict)
 
 def determine_center(obstacles_dict) -> dict:
     center_dict = {}
+    return center_dict
+    #XXX
     for key in obstacles_dict:
         for rec in obstacles_dict[key]:
             [x, y, w, h] = rec
