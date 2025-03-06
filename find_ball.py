@@ -46,28 +46,23 @@ def find_ball(rgb_img, all_objects, lower_y=LOWER_YELLOW, upper_y=UPPER_YELLOW) 
             all_objects.append(RigidObject(int(x), int(y), int(radius), int(radius), RigidType.BALL))
 
 
-def find_obstacles(rgb_img, lower_o=LOWER_OBSTACLES, upper_o=UPPER_OBSTACLES) -> None:
+def find_obstacles(rgb_img, all_objects, lower_o=LOWER_OBSTACLES, upper_o=UPPER_OBSTACLES) -> None:
     obstacles_dict = {}
     for i in range(np.size(lower_o, 0)):
-
         # Convert to HSV
         hsv = cv2.cvtColor(rgb_img, cv2.COLOR_BGR2HSV)
         mask = cv2.inRange(hsv, lower_o[i], upper_o[i])
 
         contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-        min_area = 500
-
         if contours:
             for cnt in contours:
-                area = cv2.contourArea(cnt)
-                if area > min_area:
-                    x, y, w, h = cv2.boundingRect(cnt)
-                    if i not in obstacles_dict:
-                        obstacles_dict[i] = [[x, y, w, h]]
-                    else:
-                        obstacles_dict[i].append([x, y, w, h])
-
-    return obstacles_dict
+                if cv2.contourArea(cnt) > MIN_AREA:
+                    _x, _y, w, h = cv2.boundingRect(cnt)
+                    M = cv2.moments(cnt)
+                    cx = (M['m10']/M['m00'])
+                    cy = (M['m01']/M['m00'])
+                    r_type = RigidType.POLE if i == 0 else RigidType.OBST
+                    all_objects.append(RigidObject(int(cx), int(cy), int(w), int(h), r_type))
 
 
 def draw_circle(rgb_img, center, r) -> None:
@@ -110,7 +105,7 @@ def load_img(filename):
 def find_objects(rgb_img):
     all_objects = []
     find_ball(rgb_img, all_objects)
-    obstacles_dict = find_obstacles(rgb_img)
+    find_obstacles(rgb_img, all_objects)
     show_objects(rgb_img, center, radius, obstacles_dict)
     return all_objects
 
