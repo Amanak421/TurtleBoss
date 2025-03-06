@@ -1,10 +1,10 @@
 import sys
 from math import sin, cos, atan2, sqrt, pi
 import time
-
+from visual import Visual
 
 class Move:
-    def __init__(self, turtle, rate):
+    def __init__(self, turtle, rate, visual):
         self.WAIT_TIME = 0.1
         self.LINEAR_CORRECTION = 0.98  #0.96
         self.ANGULAR_CORRECTION = 1.04
@@ -16,9 +16,14 @@ class Move:
         self.y = 0
         self.angle = 0
 
-        self.bumped = False
         self.turtle = turtle
         self.rate = rate
+
+        self.visual = visual
+        if visual:
+            self.vis = Visual()
+        else:
+            self.vis = None
 
         turtle.register_bumper_event_cb(self.bumper_cb)
 
@@ -27,81 +32,81 @@ class Move:
         bumper = self.BUMPER_NAMES[msg.bumper]
         state = self.STATE_NAMES[msg.state]
         print('{} bumper {}'.format(bumper, state))
-        self.bumped = msg.state
         print("Bumped! -> Emergency stop!")
         sys.exit(66)
 
     def reset(self) -> None:
         self.x, self.y, self.angle = 0, 0, 0
         self.turtle.reset_odometry()
-    
+
+    def resetOdometry(self):
+        self.turtle.reset_odometry()
+        # wait for odometry reset
+        time.sleep(self.WAIT_TIME)
+
     def updateOdometryLinear(self, x) -> None:
         self.x = self.x + x*cos(self.angle)
         self.y = self.y + x*sin(self.angle)
 
     def updateOdometryAngular(self, angle) -> None:
-        self.angle = atan2(sin(self.angle + angle), cos(self.angle + angle))
+        self.angle = self.normalizeAngle(self.angle + angle)
 
     def estimatePosition(self, x, angle):
-        return self.x + x*cos(self.angle), self.x + x*sin(self.angle), atan2(sin(self.angle + angle), cos(self.angle + angle))
-
-    def check_bump(self):
-        if self.bumped:
-            print("Bumped! -> Emergency stop!")
-            sys.exit(66)
+        return self.x + x*cos(self.angle), self.x + x*sin(self.angle), self.normalizeAngle(self.angle + angle)
 
     def getPosition(self):
         return self.x, self.y, self.angle
+
+    def normalizeAngle(self, angle):
+        return atan2(sin(angle), cos(angle))
 
     def go(self, length, speed = 0.3, _print = True, simulate=False) -> None:
         # reset robot odometry
         if simulate:
             self.updateOdometryLinear(length)
-            print("TEST")
             return
 
-        self.turtle.reset_odometry()
-        time.sleep(self.WAIT_TIME)
+        self.resetOdometry()
 
-        print("TEST2")
         # move forward until desired length is hit
         while True:
             odometry = self.turtle.get_odometry()
             distance = odometry[0] * self.LINEAR_CORRECTION
-            print("TEST ODO: ", distance)
             if distance > length or self.turtle.is_shutting_down():
                 break
             if _print:
                 print(self.estimatePosition(odometry[0], odometry[2]))
+            if self.vis:
+                self.vis.updateRobot(self.estimatePosition(odometry[0], odometry[2])...)
             self.turtle.cmd_velocity(linear=speed)
-            self.check_bump()
             self.rate.sleep()
         
         
         self.turtle.cmd_velocity()
         self.updateOdometryLinear(self.turtle.get_odometry()[0])
 
+    def angleCheck(self, angle, target_angle):
+        return angle <= target_angle if target_angle > 0 else angle > target_angle
+
     def rotate(self, target_angle, speed = 0.5, _print = True, simulate=False):
-        # reset robot odometry
         if simulate:
             self.updateOdometryAngular(target_angle)
             return
 
-        self.turtle.reset_odometry()
-        time.sleep(self.WAIT_TIME)
+        # reset robot odometry
+        self.resetOdometry()
 
-        rotation_complete = lambda a: a <= target_angle if target_angle > 0 else a > target_angle
-
-        # move forward until desired length is hit
+        # rotate until desired angle is hit
         while True:
             odometry = self.turtle.get_odometry()
             angle = odometry[2] * self.ANGULAR_CORRECTION
-            if not rotation_complete(angle) or self.turtle.is_shutting_down():
+            if not self.angleCheck(angle, target_angle) or self.turtle.is_shutting_down():
                 break
             if _print:
                 print(self.estimatePosition(odometry[0], odometry[2]))
+            if self.vis:
+                self.vis.updateRobot(self.estimatePosition(odometry[0], odometry[2])...)
             self.turtle.cmd_velocity(angular=speed)
-            self.check_bump()
             self.rate.sleep()
 
         self.turtle.cmd_velocity()
@@ -116,12 +121,13 @@ class Move:
 
     def go_to(self, x, y, angle, linear_velocity = 0.3, angular_velocity = 0.6):
         distance = sqrt(x^2 + y^2)
-        turn_angle = atan2(y/x)
+        move_angle = atan2(y - self.y, x - self.x)
+        turn_start = self.normalizeAngle(move_angle - self.angle)
 
-        #rotate for optimal path
-        self.turn(turn_angle, speed=angular_velocity)
+        #rotate for diagonal
+        self.turn(turn_start, speed=angular_velocity)
         #go
         self.go(distance, speed=linear_velocity)
         #calculate a angle difference
-        final_turn = atan2(sin(self.angle + angle), cos(self.angle + angle))
-        self.turn(final_turn, speed=angular_velocity)
+        turn_end = self.normalizeAngle(angle - move_angle)
+        self.turn(turn_end, speed=angular_velocity)
