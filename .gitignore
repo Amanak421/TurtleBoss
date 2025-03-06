@@ -1,7 +1,7 @@
 .vscode
 # Local History for Visual Studio Code
 .history/
-
+__pycache__
 # Built Visual Studio Code Extensions
 *.vsix
 
