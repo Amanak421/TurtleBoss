@@ -10,6 +10,8 @@ UPPER_YELLOW = np.array([30, 255, 255])
 LOWER_OBSTACLES = np.array([[90, 100, 50], [40, 50, 50], [0, 75, 50]])
 UPPER_OBSTACLES = np.array([[130, 255, 255], [90, 255, 255], [10, 255, 255]])
 
+MIN_AREA = 500
+
 class RigidType(Enum):
     BALL = 1
     POLE = 2
@@ -17,9 +19,11 @@ class RigidType(Enum):
 
 
 class RigidObject:
-    def __init__(self, x, y, o_type: RigidType):
+    def __init__(self, x, y, w, h, o_type: RigidType):
         self.x = x
         self.y = y
+        self.w = w
+        self.h = h
         self.o_type = o_type
 
     def __repr__(self):
@@ -29,24 +33,20 @@ class RigidObject:
         return self.__repr__()
 
 
-def find_ball(rgb_img, lower_y=LOWER_YELLOW, upper_y=UPPER_YELLOW) -> tuple | None:
+def find_ball(rgb_img, all_objects, lower_y=LOWER_YELLOW, upper_y=UPPER_YELLOW) -> None:
     # Convert to HSV
     hsv = cv2.cvtColor(rgb_img, cv2.COLOR_BGR2HSV)
     mask = cv2.inRange(hsv, lower_y, upper_y)
 
     contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-
     if contours:
         largest_contour = max(contours, key=cv2.contourArea)
+        if largest_contour > MIN_AREA:
+            (x, y), radius = cv2.minEnclosingCircle(largest_contour)
+            all_objects.append(RigidObject(int(x), int(y), int(radius), int(radius), RigidType.BALL))
 
-        (x, y), radius = cv2.minEnclosingCircle(largest_contour)
-        center = (int(x), int(y))
-        radius = int(radius)
-        return center, radius
-    else:
-        return None
 
-def find_obstacles(rgb_img, lower_o=LOWER_OBSTACLES, upper_o=UPPER_OBSTACLES) -> dict:
+def find_obstacles(rgb_img, lower_o=LOWER_OBSTACLES, upper_o=UPPER_OBSTACLES) -> None:
     obstacles_dict = {}
     for i in range(np.size(lower_o, 0)):
 
@@ -90,15 +90,6 @@ def draw_rectangles(rgb_img, obstacles_dict) -> None:
     return rgb_img
 
 
-def draw_center(rgb_img, center_dict) -> None:
-    rgb_img = np.array(rgb_img, dtype=np.uint8)
-    rgb_img = cv2.cvtColor(rgb_img, cv2.COLOR_BGR2BGRA)
-    for key in center_dict:
-        for c in center_dict[key]:
-            [x, y] = c
-            cv2.circle(rgb_img, (x, y), 5, (0, 0, 255), -1)
-    return rgb_img
-
 
 def show_objects(rgb_img, center, radius, obstacles_dict) -> None:
     rgb_img = draw_circle(rgb_img, center, radius)
@@ -117,10 +108,11 @@ def load_img(filename):
 
 
 def find_objects(rgb_img):
-    center, radius = find_ball(rgb_img)
+    all_objects = []
+    find_ball(rgb_img, all_objects)
     obstacles_dict = find_obstacles(rgb_img)
     show_objects(rgb_img, center, radius, obstacles_dict)
-    return center
+    return all_objects
 
 
 if __name__ == "__main__":
