@@ -7,8 +7,6 @@ LOWER_YELLOW = np.array([20, 100, 100])
 UPPER_YELLOW = np.array([30, 255, 255])
 
 
-
-
 def find_ball(rgb_img, lower_y = LOWER_YELLOW, upper_y = UPPER_YELLOW) -> tuple | None:
     # Convert to HSV
     hsv = cv2.cvtColor(rgb_img, cv2.COLOR_BGR2HSV)
