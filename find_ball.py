@@ -1,6 +1,7 @@
 import cv2
 import numpy as np
 import scipy.io
+from enum import Enum
 
 LOWER_YELLOW = np.array([20, 100, 100])
 UPPER_YELLOW = np.array([30, 255, 255])
@@ -8,6 +9,24 @@ UPPER_YELLOW = np.array([30, 255, 255])
 # Blue, Green, Red
 LOWER_OBSTACLES = np.array([[90, 100, 50], [40, 50, 50], [0, 75, 50]])
 UPPER_OBSTACLES = np.array([[130, 255, 255], [90, 255, 255], [10, 255, 255]])
+
+class RigidType(Enum):
+    BALL = 1
+    POLE = 2
+    OBST = 3
+
+
+class RigidObject:
+    def __init__(self, x, y, o_type: RigidType):
+        self.x = x
+        self.y = y
+        self.o_type = o_type
+
+    def __repr__(self):
+        return f"{self.o_type.name}\t on {self.x}, {self.y}"
+
+    def __str__(self):
+        return self.__repr__()
 
 
 def find_ball(rgb_img, lower_y=LOWER_YELLOW, upper_y=UPPER_YELLOW) -> tuple | None:
@@ -102,6 +121,7 @@ def find_objects(rgb_img):
     obstacles_dict = find_obstacles(rgb_img)
     show_objects(rgb_img, center, radius, obstacles_dict)
     return center
+
 
 if __name__ == "__main__":
     for img_index in range(1, 9):
