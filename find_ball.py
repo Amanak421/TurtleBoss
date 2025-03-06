@@ -53,9 +53,6 @@ def find_ball(rgb_img, lower_y = LOWER_YELLOW, upper_y = UPPER_YELLOW) -> tuple 
         (x, y), radius = cv2.minEnclosingCircle(largest_contour)
         center = (int(x), int(y))
         radius = int(radius)
-
-        draw_circle(rgb_img, center, radius)
-
         return center, radius
     else:
         return None
@@ -79,31 +76,47 @@ def find_obstacles(rgb_img, lower_o = LOWER_OBSTACLES, upper_o = UPPER_OBSTACLES
                 if area > min_area:
                     x, y, w, h = cv2.boundingRect(cnt)  # Obdélník okolo objektu
                     if i not in obstacles_dict:
-                        obstacles_dict[i] = np.array([x, y, w, h])
+                        obstacles_dict[i] = [[x, y, w, h]]
                     else:
                         obstacles_dict[i].append([x, y, w, h])
-            #draw_rectangles(rgb_img, obstacles_dict)
-            return obstacles_dict
-        else:
-            return None
+
+    return obstacles_dict
 
 def draw_circle(rgb_img, center, r) -> None:
     rgb_img = np.array(rgb_img, dtype=np.uint8)
     rgb_img = cv2.cvtColor(rgb_img, cv2.COLOR_BGR2BGRA)##FIXME###????
-    cv2.circle(rgb_img, center, r, (0, 255, 0), 3)
+    cv2.circle(rgb_img, center, r, (0, 255, 255), 3)
     cv2.circle(rgb_img, center, 5, (0, 0, 255), -1)
-    print(f"Center: {center}, radius: {r}")
-    
-    cv2.imshow("Win RGB", rgb_img)
-    cv2.waitKey()
-    cv2.destroyAllWindows() 
+    #print(f"Center: {center}, radius: {r}")
+    return rgb_img
 
 def draw_rectangles(rgb_img, obstacles_dict) -> None:#TODO
     rgb_img = np.array(rgb_img, dtype=np.uint8)
     rgb_img = cv2.cvtColor(rgb_img, cv2.COLOR_BGR2BGRA)##FIXME###????
-    
-    
+    color_arr = [(255, 0, 0), (0, 255, 0), (0, 0 , 255)]
+    for key in obstacles_dict:
+        for rec in obstacles_dict[key]:
+            [x, y, w, h] = rec
+            cv2.rectangle(rgb_img, (x, y), (x + w, y + h), color_arr[key], 2)
+    return rgb_img
 
+    
+def show_objects(rgb_img, center, radius, obstacles_dict) -> None:
+    rgb_img = draw_circle(rgb_img, center, radius)
+    rgb_img = draw_rectangles(rgb_img, obstacles_dict)
+
+    cv2.imshow("RGB all objects", rgb_img)
+    cv2.waitKey()
+    cv2.destroyAllWindows()
+
+def determine_center(obstacles_dict) -> dict:
+    center_dict = {}
+    for key in obstacles_dict:
+        for rec in obstacles_dict[key]:
+            [x, y, w, h] = rec
+            if key not in center_dict:
+                center_dict[key] = [x + w//2, y + h//2]
+    return center_dict
 
 def load_img(filename):
     data = scipy.io.loadmat(filename)
@@ -112,16 +125,13 @@ def load_img(filename):
 
 def find_objects(rgb_img):
     center, radius = find_ball(rgb_img)
-    
+    obstacles_dict = find_obstacles(rgb_img)
+    show_objects(rgb_img, center, radius, obstacles_dict)
+    obstacles_center_dict = determine_center(obstacles_dict)
+    return center, obstacles_center_dict
 
 
-    cv2.imshow("Win RGB obstacles", rgb_img)
-    cv2.waitKey()
-    cv2.destroyAllWindows()
-
-
-for i in range(1,6):
+for i in range(1,9):
     # Read .mat file
     rgb_img = load_img(f"test_data/test_y{i}.mat")
-    find_ball(rgb_img)
-    find_obstacles(rgb_img)
+    find_objects(rgb_img)
