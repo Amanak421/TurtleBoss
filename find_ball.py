@@ -27,9 +27,7 @@ def find_ball(rgb_img, lower_y=LOWER_YELLOW, upper_y=UPPER_YELLOW) -> tuple | No
     else:
         return None
 
-
-# TODO
-def find_obstacles(rgb_img, lower_o=LOWER_OBSTACLES, upper_o=UPPER_OBSTACLES) -> tuple | None:
+def find_obstacles(rgb_img, lower_o=LOWER_OBSTACLES, upper_o=UPPER_OBSTACLES) -> dict:
     obstacles_dict = {}
     for i in range(np.size(lower_o, 0)):
 
@@ -44,7 +42,7 @@ def find_obstacles(rgb_img, lower_o=LOWER_OBSTACLES, upper_o=UPPER_OBSTACLES) ->
             for cnt in contours:
                 area = cv2.contourArea(cnt)
                 if area > min_area:
-                    x, y, w, h = cv2.boundingRect(cnt)  # Obdélník okolo objektu
+                    x, y, w, h = cv2.boundingRect(cnt)
                     if i not in obstacles_dict:
                         obstacles_dict[i] = [[x, y, w, h]]
                     else:
@@ -55,7 +53,7 @@ def find_obstacles(rgb_img, lower_o=LOWER_OBSTACLES, upper_o=UPPER_OBSTACLES) ->
 
 def draw_circle(rgb_img, center, r) -> None:
     rgb_img = np.array(rgb_img, dtype=np.uint8)
-    rgb_img = cv2.cvtColor(rgb_img, cv2.COLOR_BGR2BGRA)  ##FIXME###????
+    rgb_img = cv2.cvtColor(rgb_img, cv2.COLOR_BGR2BGRA)
     cv2.circle(rgb_img, center, r, (0, 255, 255), 3)
     cv2.circle(rgb_img, center, 5, (0, 0, 255), -1)
     # print(f"Center: {center}, radius: {r}")
@@ -83,28 +81,14 @@ def draw_center(rgb_img, center_dict) -> None:
     return rgb_img
 
 
-def show_objects(rgb_img, center, radius, obstacles_dict, obstacles_center_dict) -> None:
+def show_objects(rgb_img, center, radius, obstacles_dict) -> None:
     rgb_img = draw_circle(rgb_img, center, radius)
     rgb_img = draw_rectangles(rgb_img, obstacles_dict)
-    #rgb_img = draw_center(rgb_img, obstacles_center_dict)
+    # rgb_img = draw_center(rgb_img, obstacles_center_dict)
 
     cv2.imshow("RGB all objects", rgb_img)
     cv2.waitKey()
     cv2.destroyAllWindows()
-
-
-def determine_center(obstacles_dict) -> dict:
-    center_dict = {}
-    return center_dict
-    #XXX
-    for key in obstacles_dict:
-        for rec in obstacles_dict[key]:
-            [x, y, w, h] = rec
-            if key not in center_dict:
-                center_dict[key] = [[x + w // 2, y + h // 2]]
-            else:
-                center_dict[i].append([x + w // 2, y + h // 2])
-    return center_dict
 
 
 def load_img(filename):
@@ -116,12 +100,10 @@ def load_img(filename):
 def find_objects(rgb_img):
     center, radius = find_ball(rgb_img)
     obstacles_dict = find_obstacles(rgb_img)
-    obstacles_center_dict = determine_center(obstacles_dict)
-    show_objects(rgb_img, center, radius, obstacles_dict, obstacles_center_dict)
-    return center, obstacles_center_dict
+    show_objects(rgb_img, center, radius, obstacles_dict)
+    return center
 
-
-for i in range(1, 9):
-    # Read .mat file
-    rgb_img = load_img(f"test_data/test_y{i}.mat")
-    find_objects(rgb_img)
+if __name__ == "__main__":
+    for img_index in range(1, 9):
+        rgb_img_ = load_img(f"test_data/test_y{img_index}.mat")
+        find_objects(rgb_img_)
