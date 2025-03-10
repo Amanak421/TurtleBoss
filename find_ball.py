@@ -83,13 +83,13 @@ def draw_rectangle(rgb_img, obst):
     return rgb_img
 
 
-def show_objects(rgb_img, all_objects, wait=False) -> None:
+def show_objects(rgb_img, all_objects, window, wait=False) -> None:
     for obj in all_objects:
         if obj.o_type == RigidType.BALL:
             rgb_img = draw_circle(rgb_img, obj.x, obj.y, obj.w)
         else:
             rgb_img = draw_rectangle(rgb_img, obj)
-    cv2.imshow("RGB all objects", rgb_img)
+    cv2.imshow(window, rgb_img)
     if wait: cv2.waitKey()
     
 
@@ -107,9 +107,11 @@ def find_objects(rgb_img):
 
 
 if __name__ == "__main__":
+    window_ = "RGB all objects"
+    cv2.namedWindow(window_)
     for img_index in range(1, 9):
         rgb_img_ = load_img(f"test_data/test_y{img_index}.mat")
         all_objects_ = find_objects(rgb_img_)
-        show_objects(rgb_img_, all_objects_, wait=True)
+        show_objects(rgb_img_, all_objects_, window_, wait=True)
         print(all_objects_)
     cv2.destroyAllWindows()
