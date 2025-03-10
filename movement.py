@@ -22,6 +22,8 @@ class Move:
         self.visual = visual
         if visual:
             self.vis = Visual()
+            self.vis.updateRobot(*self.getPosition())
+            print("VIS START")
         else:
             self.vis = None
 
@@ -60,14 +62,16 @@ class Move:
     def normalizeAngle(self, angle):
         return atan2(sin(angle), cos(angle))
 
-    def go(self, length, speed = 0.3, _print = True, simulate=False) -> None:
+    def go(self, length, speed = 0.3, _print = False, simulate=False) -> None:
         # reset robot odometry
         if simulate:
             self.updateOdometryLinear(length)
             return
+        
+        if length == 0:
+            return
 
         self.resetOdometry()
-
         # move forward until desired length is hit
         while True:
             odometry = self.turtle.get_odometry()
@@ -76,26 +80,32 @@ class Move:
                 break
             if _print:
                 print(self.estimatePosition(odometry[0], odometry[2]))
-            if self.vis:
-                self.vis.updateRobot(self.estimatePosition(odometry[0], odometry[2])...)
             self.turtle.cmd_velocity(linear=speed)
             self.rate.sleep()
         
-        
         self.turtle.cmd_velocity()
-        self.updateOdometryLinear(self.turtle.get_odometry()[0])
+        self.updateOdometryLinear(self.turtle.get_odometry()[0] * self.LINEAR_CORRECTION)
+        if self.visual:
+            self.vis.updateRobot(*self.getPosition())
 
     def angleCheck(self, angle, target_angle):
         return angle <= target_angle if target_angle > 0 else angle > target_angle
 
-    def rotate(self, target_angle, speed = 0.5, _print = True, simulate=False):
+    def rotate(self, target_angle, speed = 0.5, _print = False, simulate=False):
         if simulate:
             self.updateOdometryAngular(target_angle)
             return
 
+        if target_angle == 0:
+            return
+        
+        dir_coef = 1
+        if target_angle < 0:
+            dir_coef = -1
+
         # reset robot odometry
         self.resetOdometry()
-
+        count = 0
         # rotate until desired angle is hit
         while True:
             odometry = self.turtle.get_odometry()
@@ -104,30 +114,35 @@ class Move:
                 break
             if _print:
                 print(self.estimatePosition(odometry[0], odometry[2]))
-            if self.vis:
-                self.vis.updateRobot(self.estimatePosition(odometry[0], odometry[2])...)
-            self.turtle.cmd_velocity(angular=speed)
+            self.turtle.cmd_velocity(angular=dir_coef * speed)
+            count+=1
             self.rate.sleep()
 
+
         self.turtle.cmd_velocity()
-        self.updateOdometryAngular(self.turtle.get_odometry()[2])
+        self.updateOdometryAngular(self.turtle.get_odometry()[2] * self.ANGULAR_CORRECTION)
+        if self.visual:
+            self.vis.updateRobot(*self.getPosition())
 
     def turn(self, target_angle, speed = 0.5, _print = True, simulate=False):
         if abs(target_angle) > (7/8)*pi:
             self.rotate(target_angle/2, speed=speed, _print=_print, simulate=simulate)
+            print("SECOND TURN")
             self.rotate(target_angle/2, speed=speed, _print=_print, simulate=simulate)
         else:
             self.rotate(target_angle, speed=speed, _print=_print, simulate=simulate)
 
     def go_to(self, x, y, angle, linear_velocity = 0.3, angular_velocity = 0.6):
-        distance = sqrt(x^2 + y^2)
+        distance = sqrt((x - self.x)**2 + (y - self.y)**2)
+        print("DIST", distance)
         move_angle = atan2(y - self.y, x - self.x)
         turn_start = self.normalizeAngle(move_angle - self.angle)
-
+        print("TEST", angle, move_angle, turn_start)
         #rotate for diagonal
         self.turn(turn_start, speed=angular_velocity)
         #go
         self.go(distance, speed=linear_velocity)
         #calculate a angle difference
         turn_end = self.normalizeAngle(angle - move_angle)
+        print("TEST2",turn_end)
         self.turn(turn_end, speed=angular_velocity)
