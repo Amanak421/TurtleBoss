@@ -88,6 +88,19 @@ class Move:
         if self.visual:
             self.vis.updateRobot(*self.getPosition())
 
+    def go_until(self, condition, speed = 0.3, _print = False):
+        self.resetOdometry()
+        # move forward until desired length is hit
+        while True:
+            odometry = self.turtle.get_odometry()
+            distance = odometry[0] * self.LINEAR_CORRECTION
+            if condition(distance) or self.turtle.is_shutting_down():
+                break
+            if _print:
+                print(self.estimatePosition(odometry[0], odometry[2]))
+            self.turtle.cmd_velocity(linear=speed)
+            self.rate.sleep()
+
     def angleCheck(self, angle, target_angle):
         return angle <= target_angle if target_angle > 0 else angle > target_angle
 
@@ -110,7 +123,7 @@ class Move:
         while True:
             odometry = self.turtle.get_odometry()
             angle = odometry[2] * self.ANGULAR_CORRECTION
-            if not self.angleCheck(angle, target_angle) or self.turtle.is_shutting_down():
+            if self.angleCheck(angle, target_angle) or self.turtle.is_shutting_down():
                 break
             if _print:
                 print(self.estimatePosition(odometry[0], odometry[2]))
@@ -121,6 +134,25 @@ class Move:
 
         #self.turtle.cmd_velocity()
         self.updateOdometryAngular(self.turtle.get_odometry()[2] * self.ANGULAR_CORRECTION)
+        if self.visual:
+            self.vis.updateRobot(*self.getPosition())
+
+    def rotate_until(self, condition, speed = 0.5, _print = False):
+        self.resetOdometry()
+
+        while True:
+            odometry = self.turtle.get_odometry()
+            angle = odometry[2] * self.ANGULAR_CORRECTION
+            if not condition(angle) or self.turtle.is_shutting_down():
+                break
+            if _print:
+                print(self.estimatePosition(odometry[0], odometry[2]))
+            self.turtle.cmd_velocity(angular = speed)
+            self.rate.sleep()
+
+
+        #self.turtle.cmd_velocity()
+        #self.updateOdometryAngular(self.turtle.get_odometry()[2] * self.ANGULAR_CORRECTION)
         if self.visual:
             self.vis.updateRobot(*self.getPosition())
 
