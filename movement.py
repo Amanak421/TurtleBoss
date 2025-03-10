@@ -94,7 +94,7 @@ class Move:
         while True:
             odometry = self.turtle.get_odometry()
             distance = odometry[0] * self.LINEAR_CORRECTION
-            if condition(distance) or self.turtle.is_shutting_down():
+            if condition() or self.turtle.is_shutting_down():
                 break
             if _print:
                 print(self.estimatePosition(odometry[0], odometry[2]))
@@ -143,7 +143,7 @@ class Move:
         while True:
             odometry = self.turtle.get_odometry()
             angle = odometry[2] * self.ANGULAR_CORRECTION
-            if not condition(angle) or self.turtle.is_shutting_down():
+            if not condition() or self.turtle.is_shutting_down():
                 break
             if _print:
                 print(self.estimatePosition(odometry[0], odometry[2]))
