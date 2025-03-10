@@ -28,8 +28,16 @@ if __name__ == "__main__":
             test.rotate(pi/10, speed=0.8)
             continue
 
+        pc = turtle.get_point_cloud()
+        if not pc:
+            print('No point cloud')
+            continue
 
         if center - offset <= ball.x <= center + offset:
+            print(pc[ball.y][ball.x])
+            """if pc[ball.y][ball.x][]:
+                test.go()
+            else:"""
             test.go(0.1)
         elif ball.x > center:
             test.rotate(-pi/20, speed=(min(abs(center - ball.x)/center, 0.3)))
