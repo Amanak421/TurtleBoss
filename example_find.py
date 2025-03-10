@@ -29,7 +29,7 @@ if __name__ == "__main__":
             continue
 
         pc = turtle.get_point_cloud()
-        if not pc:
+        if pc is None:
             print('No point cloud')
             continue
 

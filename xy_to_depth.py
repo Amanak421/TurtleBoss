@@ -19,12 +19,11 @@ if __name__ == "__main__":
         if ball:
             ball = ball[0]
             pc = turtle.get_point_cloud()
-            if not pc:
+            if pc is None:
                 print('No point cloud')
                 continue
             else:
                 print("yx", pc[ball.y][ball.x])
-                print("xy", pc[ball.x][ball.y])
 
         find_ball.show_objects(rgb_img_, all_objects_, window_, wait=True)
 
