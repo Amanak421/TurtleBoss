@@ -35,10 +35,11 @@ if __name__ == "__main__":
 
         if center - offset <= ball.x <= center + offset:
             print(pc[ball.y][ball.x])
-            """if pc[ball.y][ball.x][]:
-                test.go()
-            else:"""
-            test.go(0.1)
+            if pc[ball.y][ball.x][2] < 0.40:
+                test.go(0.5, 1)
+                break
+            else:
+                test.go(0.1)
         elif ball.x > center:
             test.rotate(-pi/20, speed=(min(abs(center - ball.x)/center, 0.3)))
         else:
