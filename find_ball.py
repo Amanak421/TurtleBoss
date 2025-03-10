@@ -90,7 +90,10 @@ def show_objects(rgb_img, all_objects, window, wait=False) -> None:
         else:
             rgb_img = draw_rectangle(rgb_img, obj)
     cv2.imshow(window, rgb_img)
-    if wait: cv2.waitKey()
+    if wait:
+        cv2.waitKey()
+    else:
+        cv2.waitKey(1)# & 0xFF == ord('q')
     
 
 def load_img(filename):
