@@ -30,10 +30,10 @@ def main():
 
     turtle = Turtlebot(pc=True)
 
-    print('Waiting for point cloud ...')
+    print('Waiting for point cloud...')
     turtle.wait_for_point_cloud()
     direction = None
-    print('First point cloud recieved ...')
+    print('First point cloud received...')
 
     cv2.namedWindow(WINDOW)
     cv2.setMouseCallback(WINDOW, click)
@@ -83,7 +83,7 @@ def main():
             turtle.cmd_velocity(linear=linear_vel)
             direction = None
 
-        # ebstacle based rotation
+        # obstacle based rotation
         elif active and state == ROTATE:
             if direction is None:
                 direction = np.sign(np.random.rand() - 0.5)

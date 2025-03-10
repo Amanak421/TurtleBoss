@@ -110,6 +110,6 @@ def find_objects(rgb_img):
 if __name__ == "__main__":
     for img_index in range(1, 9):
         rgb_img_ = load_img(f"test_data/test_y{img_index}.mat")
-        all_objects = find_objects(rgb_img_)
-        print(all_objects)
+        all_objects_ = find_objects(rgb_img_)
+        print(all_objects_)
     cv2.destroyAllWindows()
