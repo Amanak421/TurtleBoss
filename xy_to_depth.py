@@ -19,6 +19,7 @@ if __name__ == "__main__":
         turtle.wait_for_rgb_image()
         rgb_img_ = turtle.get_rgb_image()
         all_objects_ = find_ball.find_objects(rgb_img_)
-        print(all_objects_)
+        print(*all_objects_, sep="\n")
+        find_ball.show_objects(rgb_img_, all_objects_, wait=True)
     cv2.destroyAllWindows()
 

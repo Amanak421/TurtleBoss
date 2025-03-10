@@ -83,14 +83,14 @@ def draw_rectangle(rgb_img, obst):
     return rgb_img
 
 
-def show_objects(rgb_img, all_objects) -> None:
+def show_objects(rgb_img, all_objects, wait=False) -> None:
     for obj in all_objects:
         if obj.o_type == RigidType.BALL:
             rgb_img = draw_circle(rgb_img, obj.x, obj.y, obj.w)
         else:
             rgb_img = draw_rectangle(rgb_img, obj)
     cv2.imshow("RGB all objects", rgb_img)
-    cv2.waitKey()
+    if wait: cv2.waitKey()
     
 
 def load_img(filename):
@@ -103,7 +103,6 @@ def find_objects(rgb_img):
     all_objects = []
     find_ball(rgb_img, all_objects)
     find_obstacles(rgb_img, all_objects)
-    show_objects(rgb_img, all_objects)
     return all_objects
 
 
@@ -111,5 +110,6 @@ if __name__ == "__main__":
     for img_index in range(1, 9):
         rgb_img_ = load_img(f"test_data/test_y{img_index}.mat")
         all_objects_ = find_objects(rgb_img_)
+        show_objects(rgb_img_, all_objects_, wait=True)
         print(all_objects_)
     cv2.destroyAllWindows()
