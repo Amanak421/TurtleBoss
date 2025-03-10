@@ -83,7 +83,7 @@ class Move:
             self.turtle.cmd_velocity(linear=speed)
             self.rate.sleep()
         
-        self.turtle.cmd_velocity()
+        #self.turtle.cmd_velocity()
         self.updateOdometryLinear(self.turtle.get_odometry()[0] * self.LINEAR_CORRECTION)
         if self.visual:
             self.vis.updateRobot(*self.getPosition())
@@ -119,7 +119,7 @@ class Move:
             self.rate.sleep()
 
 
-        self.turtle.cmd_velocity()
+        #self.turtle.cmd_velocity()
         self.updateOdometryAngular(self.turtle.get_odometry()[2] * self.ANGULAR_CORRECTION)
         if self.visual:
             self.vis.updateRobot(*self.getPosition())

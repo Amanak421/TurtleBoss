@@ -10,19 +10,28 @@ if __name__ == "__main__":
     turtle.play_sound(1)
     sleep(0.3)
     rate = Rate(10)
-    test = Move(turtle, rate, True)
+    test = Move(turtle, rate, False)
     input()
-    offset = 20
+    offset = 40
     center = 320
 
     while not turtle.is_shutting_down():
         turtle.wait_for_rgb_image()
         rgb_img_ = turtle.get_rgb_image()
         all_objects_ = find_ball.find_objects(rgb_img_)
-        ball = list(filter(lambda x: x.o_type == find_ball.RigidType.BALL, all_objects_))[0]
-        if center - offset <= ball.y <= center + offset:
-            test.go(0.5)
-        elif ball.y > center:
-            test.rotate(0.3)
+        ball = list(filter(lambda x: x.o_type == find_ball.RigidType.BALL, all_objects_))
+        print("---------")
+        print(ball)
+        if ball:
+            ball = ball[0]
         else:
-            test.rotate(-0.3)
+            test.rotate(pi/10, speed=0.8)
+            continue
+
+
+        if center - offset <= ball.x <= center + offset:
+            test.go(0.1)
+        elif ball.x > center:
+            test.rotate(-pi/20, speed=(min(abs(center - ball.x)/center, 0.3)))
+        else:
+            test.rotate(pi/20, speed=(min(abs(center - ball.x)/center, 0.3)))

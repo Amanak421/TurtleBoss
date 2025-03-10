@@ -17,6 +17,7 @@ if __name__ == "__main__":
     window_ = "RGB all objects"
     cv2.namedWindow(window_)
     while not turtle.is_shutting_down():
+        print("________________")
         turtle.wait_for_rgb_image()
         rgb_img_ = turtle.get_rgb_image()
         all_objects_ = find_ball.find_objects(rgb_img_)

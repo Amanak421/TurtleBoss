@@ -93,7 +93,7 @@ def show_objects(rgb_img, all_objects, window, wait=False) -> None:
     if wait:
         cv2.waitKey()
     else:
-        cv2.waitKey(1)# & 0xFF == ord('q')
+        cv2.waitKey(5)# & 0xFF == ord('q')
     
 
 def load_img(filename):
