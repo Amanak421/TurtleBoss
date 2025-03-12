@@ -20,17 +20,26 @@ class RigidType(Enum):
 
 class RigidObject:
     def __init__(self, x, y, w, h, o_type: RigidType):
-        self.x = x
-        self.y = y
+        self.x = 0
+        self.y = 0
+        self.im_x = x
+        self.im_y = y
         self.w = w
         self.h = h
         self.o_type = o_type
 
     def __repr__(self):
-        return f"{self.o_type.name}\t on {self.x}, {self.y}"
+        return f"{self.o_type.name}\t on {self.im_x}, {self.im_y}"
 
     def __str__(self):
         return self.__repr__()
+    
+    def position(self):
+        return np.array([self.x, self.y])
+    
+    def set_position(self, new_x, new_y):
+        self.x = new_x
+        self.y = new_y
 
 
 def find_ball(rgb_img, all_objects, lower_y=LOWER_YELLOW, upper_y=UPPER_YELLOW) -> None:
