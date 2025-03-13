@@ -2,6 +2,31 @@ import find_ball
 import cv2
 from robolab_turtlebot import Turtlebot, sleep
 
+from find_ball import RigidType
+
+
+def assign_xy(pc, ro: find_ball.RigidObject):
+    """
+    Assign x, y data from point cloud to a single RigidObject.
+    :param pc: Point cloud
+    :param ro: RigidObject
+    :return:
+    """
+    if ro.o_type == RigidType.BALL:
+        ro.x = pc[ro.im_y][ro.im_x][0]
+        ro.y = pc[ro.im_y][ro.im_x][2]
+    else:
+        x_center = (ro.im_x + ro.w) / 2
+        y_center = (ro.im_y + ro.h) / 2
+        ro.x = pc[y_center][x_center][0]
+        ro.y = pc[y_center][x_center][2]
+
+    """
+    robot_x
+    """
+
+
+
 
 if __name__ == "__main__":
     turtle = Turtlebot(rgb=True, depth=True, pc=True)
@@ -18,12 +43,12 @@ if __name__ == "__main__":
         ball = list(filter(lambda x: x.o_type == find_ball.RigidType.BALL, all_objects_))
         if ball:
             ball = ball[0]
-            pc = turtle.get_point_cloud()
-            if pc is None:
+            pc_ = turtle.get_point_cloud()
+            if pc_ is None:
                 print('No point cloud')
                 continue
             else:
-                print("yx", pc[ball.y][ball.x])
+                print("yx", pc_[ball.y][ball.x])
 
         find_ball.show_objects(rgb_img_, all_objects_, window_, wait=True)
 
