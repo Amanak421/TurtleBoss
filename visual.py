@@ -17,6 +17,7 @@ class Visual:
         plt.grid()
 
         self.goal = None
+        self.ball = None
         self.obstacles = []
 
         #robot
@@ -31,7 +32,11 @@ class Visual:
         plt.draw()
 
     def setGoal(self, x, y):
-        self.goal = self.ax.plot(x, y, 'ro', markersize=10)
+        self.goal = self.ax.plot(x, y, 'bo', markersize=10)
+        plt.draw()
+
+    def setBall(self, x, y):
+        self.ball = self.ax.plot(x, y, 'yo', markersize=10)
         plt.draw()
 
     def addObstacle(self, x, y):
@@ -42,10 +47,15 @@ class Visual:
         self.goal.set_visibility(False)
         plt.draw()
 
+    def hideBall(self):
+        self.ball.set_visibility(False)
+        plt.draw()
+
     def removeAllObsatcles(self):
         for obs in self.obstacles:
             obs.set_visibility(False)
         plt.draw()
+
 
 if __name__ == "__main__":
     vis = Visual()
