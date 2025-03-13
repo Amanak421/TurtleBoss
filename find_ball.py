@@ -14,6 +14,8 @@ RADIUS_POLE = 0.025
 RADIUS_BALL = 0.11
 
 MIN_AREA = 750
+TOP_Y_BORDER = 80
+BOTTOM_Y_BORDER = 30
 
 class RigidType(Enum):
     BALL = 1
@@ -79,16 +81,12 @@ def find_obstacles(rgb_img, all_objects, lower_o=LOWER_OBSTACLES, upper_o=UPPER_
                 if cv2.contourArea(cnt) > MIN_AREA:
                     _x, _y, w, h = cv2.boundingRect(cnt)
 
-                    
-                    aspect_ratio = h / w
-                    if not (5.5 < aspect_ratio < 8.5):
-                        continue
-
                     m = cv2.moments(cnt)
                     cx = (m['m10']/m['m00'])
                     cy = (m['m01']/m['m00'])
                     r_type = RigidType.POLE if i == 0 else RigidType.OBST
-                    all_objects.append(RigidObject(int(cx), int(cy), int(w), int(h), r_type))
+                    if  TOP_Y_BORDER < cy < BOTTOM_Y_BORDER:
+                        all_objects.append(RigidObject(int(cx), int(cy), int(w), int(h), r_type))
 
 
 def draw_circle(rgb_img, x, y, r):
