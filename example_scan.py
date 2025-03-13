@@ -31,6 +31,7 @@ if __name__ == "__main__":
         if not objects and last_find:
             break
         elif not objects:
+            robot_move.rotate(pi/6)
             continue
 
         for obj in objects:
@@ -40,6 +41,7 @@ if __name__ == "__main__":
         robot_map.show(show_all=True, show_merged=False)
 
         robot_move.rotate(pi/6)
+        last_find = True
 
     robot_map.show(show_all=True, show_merged=True)
         
