@@ -32,7 +32,7 @@ class RigidObject:
         self.o_type = o_type
 
     def __repr__(self):
-        return f"{self.o_type.name}\t on {self.im_x}, {self.im_y}"
+        return f"{self.o_type.name}\t on {self.im_x}, {self.im_y} at {self.x}, {self.y}"
 
     def __str__(self):
         return self.__repr__()

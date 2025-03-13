@@ -12,6 +12,7 @@ def scan(turtle):
     # find position of each object
     pc = turtle.get_point_cloud()
     map(lambda o: o.assign_xy(pc), all_objects)
+    find_ball.show_objects(rgb_img, all_objects, "Objects", True)
     return all_objects
 
 if __name__ == "__main__":
@@ -23,22 +24,26 @@ if __name__ == "__main__":
     robot_move = Move(turtle_, rate, False)
     robot_move.reset()
     robot_map = Map()
-    input()
-
+    input("START ROBOT BY PRESSING KEY")
+    print("ROBOT STARTED")
     last_find = False
     for i in range(1, 13):
+        print(f"DOING SCAN {i} OUT OF 12")
         objects = scan(turtle_)
 
         if not objects and last_find:
             break
         elif not objects:
-            robot_move.rotate(pi/6)
+            print("NOT FOUND -> ROTATE")
+            robot_move.rotate(pi/6, _print = True)
             continue
 
+        print("ALL OBJECTS:", objects)
         for obj in objects:
             robot_pos = robot_move.getPosition()[:2]
             robot_angle = robot_move.getPosition()[2]
             robot_map.add_object(obj, robot_pos, robot_angle)
+        print("\tSHOWING OBJECT")
         robot_map.show(show_all=True, show_merged=False)
 
         robot_move.rotate(pi/6)
