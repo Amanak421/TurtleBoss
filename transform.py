@@ -45,12 +45,12 @@ class Map:
     
     def transform(self, position, angle, base_pos):
         print("Position before rot.", position)
-        print("Rotation angle: ", angle)
+        print("Rotation angle: ", angle, "position", base_pos)
         transform_matrix = np.array([[np.cos(angle), -np.sin(angle), base_pos[0]],
-                                    [np.sin(angle), np.cos(angle)], base_pos[1]],
-                                    [0, 0, 1])
+                                    [np.sin(angle), np.cos(angle), base_pos[1]],
+                                    [0, 0, 1]])
         position = np.array([*position, 1])
-        result = np.dot(transform_matrix, position)
+        result = np.dot(transform_matrix, position)[:2]
         print("After rotation")
         return result
 

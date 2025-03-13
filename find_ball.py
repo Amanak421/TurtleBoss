@@ -52,9 +52,9 @@ class RigidObject:
         :param pc: Point cloud
         :return:
         """
-        print("TEST PRINT: ", pc[self.im_y][self.im_x][0], pc[self.im_y][self.im_x][2])
         self.x = pc[self.im_y][self.im_x][0]
         self.y = pc[self.im_y][self.im_x][2] - (RADIUS_BALL if self.o_type == RigidType.BALL else RADIUS_POLE)
+        print("TEST PRINT X Y: ", self.x, self.y)
 
 
 def find_ball(rgb_img, all_objects, lower_y=LOWER_YELLOW, upper_y=UPPER_YELLOW) -> None:
