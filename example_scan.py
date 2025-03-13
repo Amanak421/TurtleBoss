@@ -14,6 +14,7 @@ def scan(turtle):
     for o in all_objects:
         o.assign_xy(pc)
     find_ball.show_objects(rgb_img, all_objects, "Objects", True)
+    find_ball.show_objects(rgb_img, [], "Objects", True)
     return all_objects
 
 if __name__ == "__main__":
