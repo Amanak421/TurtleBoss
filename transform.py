@@ -44,7 +44,7 @@ class Map:
         ylim = plt.ylim()
         x_range = max(abs(xlim[0]), abs(xlim[1]))
         y_range = max(abs(ylim[0]), abs(ylim[1]))
-        max_range = max(x_range, y_range)
+        max_range = max(x_range, y_range) * 1.1
         plt.xlim(-max_range, max_range)
         plt.ylim(-max_range, max_range)
         plt.axhline(0, color='black', linewidth=1, linestyle='--')
