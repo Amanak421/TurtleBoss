@@ -36,7 +36,7 @@ if __name__ == "__main__":
             break
         elif not objects:
             print("NOT FOUND -> ROTATE")
-            robot_move.rotate(pi/6, _print = True)
+            robot_move.rotate(pi/6)
             continue
 
         print("ALL OBJECTS:", objects)

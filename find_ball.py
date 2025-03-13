@@ -50,6 +50,7 @@ class RigidObject:
         :param pc: Point cloud
         :return:
         """
+        print("TEST PRINT: ", pc[self.im_y][self.im_x][0], pc[self.im_y][self.im_x][2])
         self.x = pc[self.im_y][self.im_x][0]
         self.y = pc[self.im_y][self.im_x][2] - (RADIUS_BALL if self.o_type == RigidType.BALL else RADIUS_POLE)
 
@@ -78,6 +79,12 @@ def find_obstacles(rgb_img, all_objects, lower_o=LOWER_OBSTACLES, upper_o=UPPER_
             for cnt in contours:
                 if cv2.contourArea(cnt) > MIN_AREA:
                     _x, _y, w, h = cv2.boundingRect(cnt)
+
+                    
+                    aspect_ratio = h / w
+                    if not (5.5 < aspect_ratio < 8.5):
+                        continue
+
                     m = cv2.moments(cnt)
                     cx = (m['m10']/m['m00'])
                     cy = (m['m01']/m['m00'])

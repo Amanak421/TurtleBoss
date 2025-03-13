@@ -123,7 +123,7 @@ class Move:
         while True:
             odometry = self.turtle.get_odometry()
             angle = odometry[2] * self.ANGULAR_CORRECTION
-            if self.angleCheck(angle, target_angle) or self.turtle.is_shutting_down():
+            if not self.angleCheck(angle, target_angle) or self.turtle.is_shutting_down():
                 break
             if _print:
                 print(self.estimatePosition(odometry[0], odometry[2]))
