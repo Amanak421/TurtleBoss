@@ -16,7 +16,7 @@ def mouse_callback(event, x, y, flags, param):
 
 
 def main():
-    for img_index in range(1, 3):
+    for img_index in range(1, 9):
         data = scipy.io.loadmat(f"test_data/test_y{img_index}.mat")
         img = data["image_rgb"]
         
