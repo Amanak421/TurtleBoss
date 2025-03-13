@@ -38,6 +38,13 @@ class Map:
             for point in self.objects:
                 pos = point.position()
                 plt.scatter(*pos, color=self.get_object_color(point), s=25, alpha=0.2)
+        xlim = plt.xlim()
+        ylim = plt.ylim()
+        max_range = max(abs(xlim[0]), abs(xlim[1]), abs(ylim[0]), abs(ylim[1]))
+        plt.xlim(-max_range, max_range)
+        plt.ylim(-max_range, max_range)
+        plt.axhline(0, color='black', linewidth=1, linestyle='--')
+        plt.axvline(0, color='black', linewidth=1, linestyle='--')
         plt.show()
 
     def average(self, object_a: RigidObject, object_b: RigidObject):
