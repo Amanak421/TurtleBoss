@@ -34,21 +34,22 @@ if __name__ == "__main__":
         objects = scan(turtle_)
 
         if not objects and last_find:
-            break
+            pass
         elif not objects:
             print("NOT FOUND -> ROTATE")
-            robot_move.rotate(pi/12)
+            robot_move.rotate(pi/2)
             continue
 
         print("ALL OBJECTS:", objects)
         for obj in objects:
             robot_pos = robot_move.getPosition()[:2]
             robot_angle = robot_move.getPosition()[2]
+            print("ROBOT POSITION:", robot_pos, robot_angle)
             robot_map.add_object(obj, robot_pos, robot_angle)
         print("\tSHOWING OBJECT")
         robot_map.show(show_all=True, show_merged=False)
 
-        robot_move.rotate(pi/12)
+        robot_move.rotate(pi/24)
         last_find = True
 
     robot_map.show(show_all=True, show_merged=True)

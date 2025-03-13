@@ -16,7 +16,9 @@ class Map:
         return np.sqrt(np.sum(np.power(object_a.position() - object_b.position(), 2)))
 
     def add_object(self, object_a: RigidObject, robot_pos: tuple, robot_angle: float):
+        print("BEFORE ROTATION:", object_a.position())
         object_a.set_position(*self.transform(object_a.position(), robot_angle, robot_pos))
+        print("AFTER ROTATION:", object_a.position())
         self.objects.append(object_a)
 
     def get_object_color(self, object_a):
