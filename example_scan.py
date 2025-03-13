@@ -7,11 +7,12 @@ from transform import Map
 
 def scan(turtle):
     turtle.wait_for_rgb_image()
-    rgb_img_ = turtle.get_rgb_image()
-    all_objects_ = find_ball.find_objects(rgb_img_)
+    rgb_img = turtle.get_rgb_image()
+    all_objects = find_ball.find_objects(rgb_img)
     # find position of each object
-
-    return all_objects_
+    pc = turtle.get_point_cloud()
+    map(lambda o: o.assign_xy(pc), all_objects)
+    return all_objects
 
 if __name__ == "__main__":
     turtle_ = Turtlebot(rgb=True, depth=True, pc=True)

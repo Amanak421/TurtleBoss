@@ -10,6 +10,9 @@ UPPER_YELLOW = np.array([30, 255, 255])
 LOWER_OBSTACLES = np.array([[90, 100, 50], [40, 50, 50], [0, 75, 50]])
 UPPER_OBSTACLES = np.array([[130, 255, 255], [90, 255, 255], [10, 255, 255]])
 
+RADIUS_POLE = 0.025
+RADIUS_BALL = 0.11
+
 MIN_AREA = 500
 
 class RigidType(Enum):
@@ -49,12 +52,12 @@ class RigidObject:
         """
         if self.o_type == RigidType.BALL:
             self.x = pc[self.im_y][self.im_x][0]
-            self.y = pc[self.im_y][self.im_x][2]
+            self.y = pc[self.im_y][self.im_x][2] - RADIUS_BALL
         else:
             x_center = (self.im_x + self.w) / 2
             y_center = (self.im_y + self.h) / 2
             self.x = pc[y_center][x_center][0]
-            self.y = pc[y_center][x_center][2]
+            self.y = pc[y_center][x_center][2] - RADIUS_POLE
 
 
 def find_ball(rgb_img, all_objects, lower_y=LOWER_YELLOW, upper_y=UPPER_YELLOW) -> None:
