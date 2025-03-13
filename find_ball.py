@@ -78,6 +78,12 @@ def find_obstacles(rgb_img, all_objects, lower_o=LOWER_OBSTACLES, upper_o=UPPER_
             for cnt in contours:
                 if cv2.contourArea(cnt) > MIN_AREA:
                     _x, _y, w, h = cv2.boundingRect(cnt)
+
+                    
+                    aspect_ratio = h / w
+                    if not (8.5 < aspect_ratio < 5.5):
+                        continue
+
                     m = cv2.moments(cnt)
                     cx = (m['m10']/m['m00'])
                     cy = (m['m01']/m['m00'])
