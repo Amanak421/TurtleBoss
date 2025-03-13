@@ -11,7 +11,8 @@ def scan(turtle):
     all_objects = find_ball.find_objects(rgb_img)
     # find position of each object
     pc = turtle.get_point_cloud()
-    map(lambda o: o.assign_xy(pc), all_objects)
+    for o in all_objects:
+        o.assign_xy(pc)
     find_ball.show_objects(rgb_img, all_objects, "Objects", True)
     return all_objects
 
