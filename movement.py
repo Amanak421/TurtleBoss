@@ -20,6 +20,12 @@ class Move:
         self.rate = rate
 
         self.visual = visual
+        if visual:
+            self.vis = Visual()
+            self.vis.updateRobot(*self.getPosition())
+            print("VIS START")
+        else:
+            self.vis = None
 
         turtle.register_bumper_event_cb(self.bumper_cb)
 
@@ -96,7 +102,7 @@ class Move:
             self.rate.sleep()
 
     def angleCheck(self, angle, target_angle):
-        return angle <= target_angle if target_angle >= 0 else angle > target_angle
+        return angle <= target_angle if target_angle > 0 else angle > target_angle
 
     def rotate(self, target_angle, speed = 0.5, _print = False, simulate=False):
         if simulate:
@@ -112,15 +118,17 @@ class Move:
 
         # reset robot odometry
         self.resetOdometry()
+        count = 0
         # rotate until desired angle is hit
         while True:
             odometry = self.turtle.get_odometry()
             angle = odometry[2] * self.ANGULAR_CORRECTION
-            if not self.angleCheck(angle, target_angle) or self.turtle.is_shutting_down():
+            if self.angleCheck(angle, target_angle) or self.turtle.is_shutting_down():
                 break
             if _print:
                 print(self.estimatePosition(odometry[0], odometry[2]))
             self.turtle.cmd_velocity(angular=dir_coef * speed)
+            count+=1
             self.rate.sleep()
 
 
@@ -134,12 +142,14 @@ class Move:
 
         while True:
             odometry = self.turtle.get_odometry()
+            angle = odometry[2] * self.ANGULAR_CORRECTION
             if not condition() or self.turtle.is_shutting_down():
                 break
             if _print:
                 print(self.estimatePosition(odometry[0], odometry[2]))
             self.turtle.cmd_velocity(angular = speed)
             self.rate.sleep()
+
 
         #self.turtle.cmd_velocity()
         #self.updateOdometryAngular(self.turtle.get_odometry()[2] * self.ANGULAR_CORRECTION)

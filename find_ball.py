@@ -13,7 +13,7 @@ UPPER_OBSTACLES = np.array([[130, 255, 255], [90, 255, 255], [10, 255, 255]])
 RADIUS_POLE = 0.025
 RADIUS_BALL = 0.11
 
-MIN_AREA = 500
+MIN_AREA = 750
 
 class RigidType(Enum):
     BALL = 1
@@ -23,10 +23,10 @@ class RigidType(Enum):
 
 class RigidObject:
     def __init__(self, x, y, w, h, o_type: RigidType):
-        self.x = 0
-        self.y = 0
-        self.im_x = x
-        self.im_y = y
+        self.x = 0  # x_pc
+        self.y = 0  # y_pc
+        self.im_x = x  # x_rgb
+        self.im_y = y  # y_rgb
         self.w = w
         self.h = h
         self.o_type = o_type
@@ -50,14 +50,8 @@ class RigidObject:
         :param pc: Point cloud
         :return:
         """
-        if self.o_type == RigidType.BALL:
-            self.x = pc[self.im_y][self.im_x][0]
-            self.y = pc[self.im_y][self.im_x][2] - RADIUS_BALL
-        else:
-            x_center = (self.im_x + self.w) / 2
-            y_center = (self.im_y + self.h) / 2
-            self.x = pc[y_center][x_center][0]
-            self.y = pc[y_center][x_center][2] - RADIUS_POLE
+        self.x = pc[self.im_y][self.im_x][0]
+        self.y = pc[self.im_y][self.im_x][2] - (RADIUS_BALL if self.o_type == RigidType.BALL else RADIUS_POLE)
 
 
 def find_ball(rgb_img, all_objects, lower_y=LOWER_YELLOW, upper_y=UPPER_YELLOW) -> None:
@@ -84,9 +78,9 @@ def find_obstacles(rgb_img, all_objects, lower_o=LOWER_OBSTACLES, upper_o=UPPER_
             for cnt in contours:
                 if cv2.contourArea(cnt) > MIN_AREA:
                     _x, _y, w, h = cv2.boundingRect(cnt)
-                    M = cv2.moments(cnt)
-                    cx = (M['m10']/M['m00'])
-                    cy = (M['m01']/M['m00'])
+                    m = cv2.moments(cnt)
+                    cx = (m['m10']/m['m00'])
+                    cy = (m['m01']/m['m00'])
                     r_type = RigidType.POLE if i == 0 else RigidType.OBST
                     all_objects.append(RigidObject(int(cx), int(cy), int(w), int(h), r_type))
 
@@ -102,18 +96,18 @@ def draw_circle(rgb_img, x, y, r):
 def draw_rectangle(rgb_img, obst):
     rgb_img = np.array(rgb_img, dtype=np.uint8)
     rgb_img = cv2.cvtColor(rgb_img, cv2.COLOR_BGR2BGRA)
-    x1, y1 = int(obst.x - obst.w // 2), int(obst.y - obst.h // 2)
-    x2, y2 = int(obst.x + obst.w // 2), int(obst.y + obst.h // 2)
+    x1, y1 = (obst.im_x - obst.w // 2), (obst.im_y - obst.h // 2)
+    x2, y2 = (obst.im_x + obst.w // 2), (obst.im_y + obst.h // 2)
     r_color = (255, 0, 0) if obst.o_type == RigidType.POLE else (0, 0, 255)
     cv2.rectangle(rgb_img, (x1, y1), (x2, y2), r_color, 2)
-    cv2.circle(rgb_img, (obst.x, obst.y), 3, (0, 0, 255), -1)
+    cv2.circle(rgb_img, (obst.im_x, obst.im_y), 3, (0, 0, 255), -1)
     return rgb_img
 
 
 def show_objects(rgb_img, all_objects, window, wait=False) -> None:
     for obj in all_objects:
         if obj.o_type == RigidType.BALL:
-            rgb_img = draw_circle(rgb_img, obj.x, obj.y, obj.w)
+            rgb_img = draw_circle(rgb_img, obj.im_x, obj.im_y, obj.w)
         else:
             rgb_img = draw_rectangle(rgb_img, obj)
     cv2.imshow(window, rgb_img)
