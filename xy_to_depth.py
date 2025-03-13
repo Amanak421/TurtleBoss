@@ -2,31 +2,6 @@ import find_ball
 import cv2
 from robolab_turtlebot import Turtlebot, sleep
 
-from find_ball import RigidType
-
-
-def assign_xy(pc, ro: find_ball.RigidObject):
-    """
-    Assign x, y data from point cloud to a single RigidObject.
-    :param pc: Point cloud
-    :param ro: RigidObject
-    :return:
-    """
-    if ro.o_type == RigidType.BALL:
-        ro.x = pc[ro.im_y][ro.im_x][0]
-        ro.y = pc[ro.im_y][ro.im_x][2]
-    else:
-        x_center = (ro.im_x + ro.w) / 2
-        y_center = (ro.im_y + ro.h) / 2
-        ro.x = pc[y_center][x_center][0]
-        ro.y = pc[y_center][x_center][2]
-
-    """
-    robot_x
-    """
-
-
-
 
 if __name__ == "__main__":
     turtle = Turtlebot(rgb=True, depth=True, pc=True)

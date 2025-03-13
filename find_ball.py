@@ -41,6 +41,22 @@ class RigidObject:
         self.x = new_x
         self.y = new_y
 
+    def assign_xy(self, pc):
+        """
+        Assign x, y data from point cloud to a single RigidObject.
+        :param pc: Point cloud
+        :param ro: RigidObject
+        :return:
+        """
+        if self.o_type == RigidType.BALL:
+            self.x = pc[self.im_y][self.im_x][0]
+            self.y = pc[self.im_y][self.im_x][2]
+        else:
+            x_center = (self.im_x + self.w) / 2
+            y_center = (self.im_y + self.h) / 2
+            self.x = pc[y_center][x_center][0]
+            self.y = pc[y_center][x_center][2]
+
 
 def find_ball(rgb_img, all_objects, lower_y=LOWER_YELLOW, upper_y=UPPER_YELLOW) -> None:
     # Convert to HSV
