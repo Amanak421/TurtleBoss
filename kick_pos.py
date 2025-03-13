@@ -8,7 +8,7 @@ def determine_kick_pos(pole1, pole2, ball, ball_r = 0, dist = 1):
 
     M = np.array((P1 + P2) / 2)
 
-    v = B - M  # FIXME right way and value to add ball radius
+    v = B - M
     length = np.linalg.norm(v)
     u = v / length
 
