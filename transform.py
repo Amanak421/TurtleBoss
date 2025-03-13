@@ -44,11 +44,15 @@ class Map:
         return np.mean([object_a.position(), object_b.position()], axis=0)
     
     def transform(self, position, angle, base_pos):
-        transform_matrix = np.array([[np.cos(angle), -np.sin(angle)],
-                                    [np.sin(angle), np.cos(angle)]])
-        position = np.array(position)
-        base = np.array(base_pos)
-        return base + np.dot(transform_matrix, position)
+        print("Position before rot.", position)
+        print("Rotation angle: ", angle)
+        transform_matrix = np.array([[np.cos(angle), -np.sin(angle), base_pos[0]],
+                                    [np.sin(angle), np.cos(angle)], base_pos[1]],
+                                    [0, 0, 1])
+        position = np.array([*position, 1])
+        result = np.dot(transform_matrix, position)
+        print("After rotation")
+        return result
 
     def merge_objects(self):
         objects = []

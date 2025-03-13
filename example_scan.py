@@ -36,7 +36,7 @@ if __name__ == "__main__":
             break
         elif not objects:
             print("NOT FOUND -> ROTATE")
-            robot_move.rotate(pi/6)
+            robot_move.rotate(pi/12)
             continue
 
         print("ALL OBJECTS:", objects)
@@ -47,7 +47,7 @@ if __name__ == "__main__":
         print("\tSHOWING OBJECT")
         robot_map.show(show_all=True, show_merged=False)
 
-        robot_move.rotate(pi/6)
+        robot_move.rotate(pi/12)
         last_find = True
 
     robot_map.show(show_all=True, show_merged=True)
