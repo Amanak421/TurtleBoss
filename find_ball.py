@@ -43,9 +43,8 @@ class RigidObject:
 
     def assign_xy(self, pc):
         """
-        Assign x, y data from point cloud to a single RigidObject.
+        Assign x, y data from point cloud.
         :param pc: Point cloud
-        :param ro: RigidObject
         :return:
         """
         if self.o_type == RigidType.BALL:
