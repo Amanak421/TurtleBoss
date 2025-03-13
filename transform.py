@@ -29,10 +29,11 @@ class Map:
             color = self.OBST_COLOR
         return color
 
-    def show(self, show_all=False):
-        for point in self.merge_objects():
-            pos = point.position()
-            plt.scatter(*pos, color=self.get_object_color(point), s=50)
+    def show(self, show_all=False, show_merged=True):
+        if show_merged:
+            for point in self.merge_objects():
+                pos = point.position()
+                plt.scatter(*pos, color=self.get_object_color(point), s=50)
         if show_all:
             for point in self.objects:
                 pos = point.position()
