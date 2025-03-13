@@ -50,6 +50,7 @@ class RigidObject:
         :param pc: Point cloud
         :return:
         """
+        print("TEST PRINT: ", pc[self.im_y][self.im_x][0], pc[self.im_y][self.im_x][2])
         self.x = pc[self.im_y][self.im_x][0]
         self.y = pc[self.im_y][self.im_x][2] - (RADIUS_BALL if self.o_type == RigidType.BALL else RADIUS_POLE)
 
