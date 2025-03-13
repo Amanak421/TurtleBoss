@@ -29,7 +29,7 @@ class Map:
             color = self.OBST_COLOR
         return color
 
-    def show(self, show_all=False, show_merged=True):
+    def show(self, show_all=False, show_merged=True, robot_pos=None):
         if show_merged:
             for point in self.merge_objects():
                 pos = point.position()
@@ -38,6 +38,8 @@ class Map:
             for point in self.objects:
                 pos = point.position()
                 plt.scatter(*pos, color=self.get_object_color(point), s=25, alpha=0.2)
+        if robot_pos:
+            plt.scatter(*pos, color="magenta", s=60)
         xlim = plt.xlim()
         ylim = plt.ylim()
         max_range = max(abs(xlim[0]), abs(xlim[1]), abs(ylim[0]), abs(ylim[1]))
