@@ -9,11 +9,12 @@ def determine_kick_pos(pole1, pole2, ball, ball_r = 0, dist = 1):
     M = np.array((P1 + P2) / 2)
 
     v = B - M
-    length = np.linalg.norm(v)
-    u = v / length
-    pos =np.array( B + dist * u)
+    r = M - B
+    v_length = np.linalg.norm(v)
+    u = v / v_length
+    pos = np.array( B + dist * u)
 
-    angle_rad = np.arctan2(*u)
+    angle_rad =np.arctan2(*r)
 
 
     return np.append(pos, angle_rad)
