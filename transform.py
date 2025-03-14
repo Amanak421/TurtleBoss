@@ -34,7 +34,9 @@ class Map:
     def show(self, show_all=False, show_merged=True, robot_pos=None, kick_pos=None):
         if show_merged:
             obj = self.merge_objects()
+            print(obj)
             for o_type in  obj:
+                print("FOR O TYPE", o_type)
                 count = 0
                 for point in obj[o_type]:
                     pos = point.position()
@@ -48,9 +50,16 @@ class Map:
                 pos = point.position()
                 plt.scatter(*pos, color=self.get_object_color(point), s=25, alpha=0.2)
         if robot_pos is not None:
-            plt.scatter(*robot_pos, color="magenta", s=60)
+            x_end = robot_pos[0] + 0.2 * np.cos(robot_pos[2])
+            y_end = robot_pos[1] + 0.2 * np.sin(robot_pos[2])
+            plt.plot([robot_pos[0], x_end], [robot_pos[1], y_end])
+            plt.scatter(robot_pos[0], robot_pos[1], color="black", s=60)
         if kick_pos is not None:
-            plt.scatter(*kick_pos, color="cyan", s=60)
+            x_end = kick_pos[0] + 0.2 * np.cos(kick_pos[2])
+            y_end = kick_pos[1] + 0.2 * np.sin(kick_pos[2])
+            plt.plot([kick_pos[0], x_end], [robot_pos[1], y_end])
+            plt.scatter(kick_pos[0], kick_pos[1], color="black", s=60)
+            plt.scatter(kick_pos[0], kick_pos[1], color="cyan", s=60)
         xlim = plt.xlim()
         ylim = plt.ylim()
         x_range = max(abs(xlim[0]), abs(xlim[1]))
@@ -105,7 +114,7 @@ class Map:
                     merged.append(pole)
                     merged_counter.append(1)    
 
-            sorted_objects = [obj for _, obj in sorted(zip(merged_counter, objects), reverse=True)]
+            sorted_objects = [obj for _, obj in sorted(zip(merged_counter, merged), reverse=True)]
             objects[o_type] = sorted_objects
 
         return objects
