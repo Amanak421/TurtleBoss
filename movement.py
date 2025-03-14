@@ -6,15 +6,15 @@ from visual import Visual
 class Move:
     def __init__(self, turtle, rate, visual):
         self.WAIT_TIME = 0.1
-        self.LINEAR_CORRECTION = 0.98  #0.96
-        self.ANGULAR_CORRECTION = 1.18
+        self.LINEAR_CORRECTION = 1 #0.98  #0.96
+        self.ANGULAR_CORRECTION = 1.04 #1.18
 
         self.BUMPER_NAMES = ['LEFT', 'CENTER', 'RIGHT']
         self.STATE_NAMES = ['RELEASED', 'PRESSED']
 
         self.x = 0
         self.y = 0
-        self.angle = 0
+        self.angle = pi/2
 
         self.turtle = turtle
         self.rate = rate
@@ -38,7 +38,7 @@ class Move:
         sys.exit(66)
 
     def reset(self) -> None:
-        self.x, self.y, self.angle = 0, 0, 0
+        self.x, self.y, self.angle = 0, 0, pi/2
         self.turtle.reset_odometry()
         self.turtle.wait_for_odometry()
 
@@ -119,23 +119,28 @@ class Move:
 
         # reset robot odometry
         self.resetOdometry()
+        last_odometry = 0
         count = 0
         # rotate until desired angle is hit
         while True:
             odometry = self.turtle.get_odometry()
             angle = odometry[2] * self.ANGULAR_CORRECTION
+            last_odometry = angle
             if not self.angleCheck(angle, target_angle) or self.turtle.is_shutting_down():
                 break
             if _print:
                 print("EST", self.estimatePosition(odometry[0], odometry[2]), "REAL", odometry)
+            speed = max(abs(angle - target_angle) * 0.95, 0.3)
             self.turtle.cmd_velocity(angular=dir_coef * speed)
             count+=1
             self.rate.sleep()
-
+        self.turtle.cmd_velocity()
 
         #self.turtle.cmd_velocity()
         self.turtle.wait_for_odometry()
-        self.updateOdometryAngular(self.turtle.get_odometry()[2] * self.ANGULAR_CORRECTION)
+        odometry = self.turtle.get_odometry()[2] * self.ANGULAR_CORRECTION
+        print("UPDATEING ODOMETRY BY ANGLE: ", odometry)
+        self.updateOdometryAngular(odometry)
         if self.visual:
             self.vis.updateRobot(*self.getPosition())
 
@@ -173,10 +178,16 @@ class Move:
         turn_start = self.normalizeAngle(move_angle - self.angle)
         print("TEST", angle, move_angle, turn_start)
         #rotate for diagonal
-        self.turn(turn_start, speed=angular_velocity)
+        input("PRESS ANY KEY...")
+        self.turn(turn_start, speed=angular_velocity, _print=True)
         #go
-        self.go(distance, speed=linear_velocity)
+        input("PRESS ANY KEY...")
+        self.go(distance, speed=linear_velocity, _print=True)
         #calculate a angle difference
         turn_end = self.normalizeAngle(angle - move_angle)
         print("TEST2",turn_end)
-        self.turn(turn_end, speed=angular_velocity)
+        input("PRESS ANY KEY...")
+        self.turn(turn_end, speed=angular_velocity, _print=True)
+
+
+# kladný uhel -> doleva, záporný -> doprava

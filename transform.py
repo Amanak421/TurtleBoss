@@ -33,9 +33,16 @@ class Map:
 
     def show(self, show_all=False, show_merged=True, robot_pos=None, kick_pos=None):
         if show_merged:
-            for point in self.merge_objects():
-                pos = point.position()
-                plt.scatter(*pos, color=self.get_object_color(point), s=50)
+            obj = self.merge_objects()
+            for o_type in  obj:
+                count = 0
+                for point in obj[o_type]:
+                    pos = point.position()
+                    if (o_type == RigidType.POLE and count > 1) or (o_type == RigidType.BALL and count > 0):
+                        plt.scatter(*pos, color=self.get_object_color(point), s=50, edgecolors='red', linewidths=2)
+                    else:
+                        plt.scatter(*pos, color=self.get_object_color(point), s=50)
+                    count+=1
         if show_all:
             for point in self.objects:
                 pos = point.position()
@@ -70,7 +77,7 @@ class Map:
         return result
 
     def merge_objects(self):
-        objects = []
+        objects = {}
         for o_type in RigidType:
             unmerged = list(filter(lambda x: x.o_type == o_type, self.objects))
             merged = []
@@ -96,15 +103,18 @@ class Map:
                     continue
                 else:
                     merged.append(pole)
-                    merged_counter.append(1)
-            objects.extend(merged)
+                    merged_counter.append(1)    
+
+            sorted_objects = [obj for _, obj in sorted(zip(merged_counter, objects), reverse=True)]
+            objects[o_type] = sorted_objects
+
         return objects
 
     def get_poles(self):
-        return list(filter(lambda x: x.o_type == RigidType.POLE, self.merge_objects()))
+        return self.merge_objects()[RigidType.POLE]
 
     def get_ball(self):
-        return list(filter(lambda x: x.o_type == RigidType.BALL, self.merge_objects()))
+        return self.merge_objects()[RigidType.BALL]
 
     def get_obst(self):
-        return list(filter(lambda x: x.o_type == RigidType.OBST, self.merge_objects()))
+        return self.merge_objects()[RigidType.OBST]
