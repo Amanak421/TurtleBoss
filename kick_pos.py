@@ -12,7 +12,9 @@ def determine_kick_pos(pole1, pole2, ball, ball_r = 0, dist = 1):
     length = np.linalg.norm(v)
     u = v / length
 
-    return B + dist * u
+    angle_rad = np.arctan2(*u)
+
+    return B + dist * u, angle_rad
 
 if __name__ == "__main__":
     pole1 = [-2, 2]
