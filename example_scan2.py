@@ -35,7 +35,8 @@ if __name__ == "__main__":
         objects = scan(turtle_)
 
         if not objects and last_find:
-            pass
+            print("ALL OBJECTS  FOUND -> BREAK")
+            break
         elif not objects:
             print("NOT FOUND -> ROTATE")
             robot_move.rotate(pi/12)
