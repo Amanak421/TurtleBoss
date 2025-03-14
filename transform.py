@@ -57,7 +57,7 @@ class Map:
         if kick_pos is not None:
             x_end = kick_pos[0] + 0.2 * np.cos(kick_pos[2])
             y_end = kick_pos[1] + 0.2 * np.sin(kick_pos[2])
-            plt.plot([kick_pos[0], x_end], [robot_pos[1], y_end])
+            plt.plot([kick_pos[0], x_end], [kick_pos[1], y_end])
             plt.scatter(kick_pos[0], kick_pos[1], color="black", s=60)
             plt.scatter(kick_pos[0], kick_pos[1], color="cyan", s=60)
         xlim = plt.xlim()
@@ -114,7 +114,7 @@ class Map:
                     merged.append(pole)
                     merged_counter.append(1)    
 
-            sorted_objects = [obj for _, obj in sorted(zip(merged_counter, merged), reverse=True)]
+            sorted_objects = [obj for _, obj in sorted(zip(merged_counter, merged), key=lambda x: x[0], reverse=True)]
             objects[o_type] = sorted_objects
 
         return objects

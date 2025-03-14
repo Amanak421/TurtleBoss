@@ -65,4 +65,49 @@ if __name__ == "__main__":
 
     robot_move.go_to(*kick_pos, linear_velocity=0.4, angular_velocity=0.45)
 
+    offset = 40
+    center = 335
+
+    print("INIT KICK MODE")
+    input("PRESS ANY KEY TO CONTINUE")
+
+    while not turtle_.is_shutting_down():
+        turtle_.wait_for_rgb_image()
+        rgb_img_ = turtle_.get_rgb_image()
+        all_objects_ = find_ball.find_objects(rgb_img_)
+        ball = list(filter(lambda x: x.o_type == find_ball.RigidType.BALL, all_objects_))
+
+        print("---------")
+        print(ball)
+
+        if ball:
+            ball = ball[0]
+        else:
+            turtle_.cmd_velocity(angular=0.5)
+            continue
+
+        pc = turtle_.get_point_cloud()
+        if pc is None:
+            print('No point cloud')
+            continue
+
+        if center - offset <= ball.x <= center + offset:
+            print(pc[ball.y][ball.x])
+            if pc[ball.y][ball.x][2] < 0.40:
+                input("READY TO KICK -> CONFIRM")
+                robot_move.go(0.5, 1)
+                turtle_.play_sound(2)
+                print("PROGRAM ENDED")
+                break
+            else:
+                turtle_.cmd_velocity(linear=0.2)
+
+            
+        elif ball.x > center:
+            print("RIGHT -> SPEED: ", (max((abs(center - ball.x)/640)*0.9, 0.3)))
+            turtle_.cmd_velocity(angular=-(max((abs(center - ball.x)/640)*1.5, 0.3)))
+        else:
+            print("LEFT-> SPEED: ", (max((abs(center - ball.x)/640)*0.9, 0.3)))
+            turtle_.cmd_velocity(angular=(max((abs(center - ball.x)/640)*1.5, 0.3)))
+
         
