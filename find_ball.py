@@ -10,10 +10,6 @@ UPPER_YELLOW = np.array([30, 255, 255])
 LOWER_OBSTACLES = np.array([[90, 150, 65], [40, 50, 50], [0, 150, 110]])
 UPPER_OBSTACLES = np.array([[110, 255, 210], [85, 200, 200], [10, 255, 255]])
 
-# Old values
-#LOWER_OBSTACLES = np.array([[90, 100, 50], [40, 50, 50], [0, 75, 50]])
-#UPPER_OBSTACLES = np.array([[130, 255, 255], [90, 255, 255], [10, 255, 255]])
-
 RADIUS_POLE = 0.025
 RADIUS_BALL = 0.11
 
