@@ -30,7 +30,7 @@ if __name__ == "__main__":
     input("START ROBOT BY PRESSING KEY")
     print("ROBOT STARTED")
     last_find = False
-    for i in range(1, 6):
+    for i in range(1, 5):
         print(f"DOING SCAN {i} OUT OF 12")
         objects = scan(turtle_)
 
@@ -48,7 +48,7 @@ if __name__ == "__main__":
             print("ROBOT POSITION:", robot_pos, robot_angle)
             robot_map.add_object(obj, robot_pos, robot_angle)
         print("\tSHOWING OBJECT")
-        robot_map.show(show_all=True, show_merged=False)
+        robot_map.show(show_all=True, show_merged=False, robot_pos=robot_move.getPosition())
 
         robot_move.rotate(pi/12)
         last_find = True
@@ -60,5 +60,8 @@ if __name__ == "__main__":
 
     kick_pos = determine_kick_pos(poles[0].position(), poles[1].position(), ball[0].position())
     print("MOVING TO POSITION: ", kick_pos)
-    robot_map.show(show_all=False, show_merged=True, robot_pos=robot_move.getPosition()[:2], kick_pos=kick_pos)
+    robot_map.show(show_all=False, show_merged=True, robot_pos=robot_move.getPosition(), kick_pos=kick_pos)
+
+    robot_move.go_to(*kick_pos, linear_velocity=0.4, angular_velocity=0.45)
+
         
