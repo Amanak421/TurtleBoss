@@ -3,7 +3,7 @@ from find_ball import RigidObject, RigidType
 import matplotlib.pyplot as plt
 
 class Map:
-    def __init__(self, threshold=0.1):
+    def __init__(self, threshold=0.2):
         self.POLE_COLOR = "blue"
         self.OBST_COLOR = "red"
         self.BALL_COLOR = "yellow"
@@ -31,7 +31,7 @@ class Map:
             color = self.OBST_COLOR
         return color
 
-    def show(self, show_all=False, show_merged=True, robot_pos=None):
+    def show(self, show_all=False, show_merged=True, robot_pos=None, kick_pos=None):
         if show_merged:
             for point in self.merge_objects():
                 pos = point.position()
@@ -40,8 +40,10 @@ class Map:
             for point in self.objects:
                 pos = point.position()
                 plt.scatter(*pos, color=self.get_object_color(point), s=25, alpha=0.2)
-        if robot_pos:
-            plt.scatter(*pos, color="magenta", s=60)
+        if robot_pos is not None:
+            plt.scatter(*robot_pos, color="magenta", s=60)
+        if kick_pos is not None:
+            plt.scatter(*kick_pos, color="cyan", s=60)
         xlim = plt.xlim()
         ylim = plt.ylim()
         x_range = max(abs(xlim[0]), abs(xlim[1]))
