@@ -26,9 +26,16 @@ class RigidType(Enum):
     POLE = 2
     OBST = 3
 
+class ColorType(Enum):
+    YELLOW = 1
+    BLUE = 2
+    GREEN = 3
+    RED = 4
+
+COLOR_TYPE = np.array([ColorType.BLUE, ColorType.GREEN, ColorType.RED])
 
 class RigidObject:
-    def __init__(self, x, y, w, h, o_type: RigidType):
+    def __init__(self, x, y, w, h, o_type: RigidType, c_type:ColorType):
         self.x = 0  # x_pc
         self.y = 0  # y_pc
         self.im_x = x  # x_rgb
@@ -36,9 +43,10 @@ class RigidObject:
         self.w = w
         self.h = h
         self.o_type = o_type
+        self.c_type = c_type
 
     def __repr__(self):
-        return f"{self.o_type.name}\t on {self.im_x}, {self.im_y} at {self.x}, {self.y}"
+        return f"{self.c_type.name} {self.o_type.name} on {self.im_x}, {self.im_y} at {self.x}, {self.y}\t"
 
     def __str__(self):
         return self.__repr__()
@@ -75,7 +83,7 @@ def find_ball(rgb_img, all_objects, lower_y=LOWER_YELLOW, upper_y=UPPER_YELLOW) 
         largest_c = max(contours, key=cv2.contourArea)
         if cv2.contourArea(largest_c) > MIN_AREA:
             (x, y), radius = cv2.minEnclosingCircle(largest_c)
-            all_objects.append(RigidObject(int(x), int(y), int(radius), int(radius), RigidType.BALL))
+            all_objects.append(RigidObject(int(x), int(y), int(radius), int(radius), RigidType.BALL, ColorType.YELLOW))
 
 
 def find_obstacles(rgb_img, all_objects, lower_o=LOWER_OBSTACLES, upper_o=UPPER_OBSTACLES) -> None:
@@ -91,7 +99,7 @@ def find_obstacles(rgb_img, all_objects, lower_o=LOWER_OBSTACLES, upper_o=UPPER_
                     _x, _y, w, h = cv2.boundingRect(cnt)
 
                     ration = h / w
-                    print(f"Width: {w}, height: {h}, ratio: {ration}")
+                    #print(f"Width: {w}, height: {h}, ratio: {ration}")
                     if ration < 2.5:
                         continue
 
@@ -100,7 +108,7 @@ def find_obstacles(rgb_img, all_objects, lower_o=LOWER_OBSTACLES, upper_o=UPPER_
                     cy = (m['m01']/m['m00'])
                     r_type = RigidType.POLE if i == 0 else RigidType.OBST
                     if  TOP_Y_BORDER < cy < BOTTOM_Y_BORDER:
-                        all_objects.append(RigidObject(int(cx), int(cy), int(w), int(h), r_type))
+                        all_objects.append(RigidObject(int(cx), int(cy), int(w), int(h), r_type, COLOR_TYPE[i]))
 
 
 def draw_circle(rgb_img, x, y, r):
