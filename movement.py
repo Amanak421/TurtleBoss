@@ -7,7 +7,7 @@ class Move:
     def __init__(self, turtle, rate, visual):
         self.WAIT_TIME = 0.1
         self.LINEAR_CORRECTION = 0.98  #0.96
-        self.ANGULAR_CORRECTION = 1.04
+        self.ANGULAR_CORRECTION = 1.18
 
         self.BUMPER_NAMES = ['LEFT', 'CENTER', 'RIGHT']
         self.STATE_NAMES = ['RELEASED', 'PRESSED']
@@ -40,6 +40,7 @@ class Move:
     def reset(self) -> None:
         self.x, self.y, self.angle = 0, 0, 0
         self.turtle.reset_odometry()
+        self.turtle.wait_for_odometry()
 
     def resetOdometry(self):
         self.turtle.reset_odometry()
@@ -126,13 +127,14 @@ class Move:
             if not self.angleCheck(angle, target_angle) or self.turtle.is_shutting_down():
                 break
             if _print:
-                print(self.estimatePosition(odometry[0], odometry[2]))
+                print("EST", self.estimatePosition(odometry[0], odometry[2]), "REAL", odometry)
             self.turtle.cmd_velocity(angular=dir_coef * speed)
             count+=1
             self.rate.sleep()
 
 
         #self.turtle.cmd_velocity()
+        self.turtle.wait_for_odometry()
         self.updateOdometryAngular(self.turtle.get_odometry()[2] * self.ANGULAR_CORRECTION)
         if self.visual:
             self.vis.updateRobot(*self.getPosition())
@@ -156,7 +158,7 @@ class Move:
         if self.visual:
             self.vis.updateRobot(*self.getPosition())
 
-    def turn(self, target_angle, speed = 0.5, _print = True, simulate=False):
+    def turn(self, target_angle, speed = 0.5, _print = False, simulate=False):
         if abs(target_angle) > (7/8)*pi:
             self.rotate(target_angle/2, speed=speed, _print=_print, simulate=simulate)
             print("SECOND TURN")
@@ -164,7 +166,7 @@ class Move:
         else:
             self.rotate(target_angle, speed=speed, _print=_print, simulate=simulate)
 
-    def go_to(self, x, y, angle, linear_velocity = 0.3, angular_velocity = 0.6):
+    def go_to(self, x, y, angle, linear_velocity = 0.3, angular_velocity = 0.5):
         distance = sqrt((x - self.x)**2 + (y - self.y)**2)
         print("DIST", distance)
         move_angle = atan2(y - self.y, x - self.x)

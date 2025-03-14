@@ -4,6 +4,7 @@ import sys
 from robolab_turtlebot import Turtlebot, sleep, Rate, get_time
 from math import pi
 from transform import Map
+from kick_pos import determine_kick_pos
 
 def scan(turtle):
     turtle.wait_for_rgb_image()
@@ -28,28 +29,43 @@ if __name__ == "__main__":
     robot_map = Map()
     input("START ROBOT BY PRESSING KEY")
     print("ROBOT STARTED")
+
     last_find = False
-    for i in range(1, 13):
-        print(f"DOING SCAN {i} OUT OF 12")
+    first_found = True
+    ball_detected = False
+
+    while True:
+        print(f"DOING SCAN")
         objects = scan(turtle_)
 
-        if not objects and last_find:
-            break
-        elif not objects:
-            print("NOT FOUND -> ROTATE")
-            robot_move.rotate(pi/12)
-            continue
+        # ball on image
 
-        print("ALL OBJECTS:", objects)
-        for obj in objects:
-            robot_pos = robot_move.getPosition()[:2]
-            robot_angle = robot_move.getPosition()[2]
-            robot_map.add_object(obj, robot_pos, robot_angle)
-        print("\tSHOWING OBJECT")
-        robot_map.show(show_all=True, show_merged=False)
+        ball = list(filter(lambda x: x.o_type == find_ball.RigidType.BALL, objects))
+        if len(ball) == 1 and ball_detected == False:
+            robot_move.reset()
+            if 50 <= ball[0].im_x <= 430:
+                robot_map.add_object(ball[0], robot_move.getPosition()[:2], robot_move.getPosition()[2])
+                robot_move.reset()
+                ball_detected = True
+
+        poles = list(filter(lambda x: x.o_type == find_ball.RigidType.POLE, objects))
+        if ball_detected and len(poles) == 2:
+            for p in poles:
+                robot_map.add_object(p, robot_move.getPosition()[:2], robot_move.getPosition()[2])
+            break
 
         robot_move.rotate(pi/12)
-        last_find = True
 
-    robot_map.show(show_all=True, show_merged=True)
+
+
+    poles = robot_map.get_poles()
+    ball = robot_map.get_ball()
+
+    kick_pos = determine_kick_pos(poles[0].position(), poles[1].position(), ball[0].position())
+    print("MOVING TO POSITION: ", kick_pos)
+    robot_map.show(show_all=False, show_merged=True, robot_pos=robot_move.getPosition()[:2], kick_pos=kick_pos)
+
+    robot_move.go_to(*kick_pos, 0, linear_velocity=0.4, angular_velocity=0.45)
+
+
         
