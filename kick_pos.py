@@ -11,10 +11,12 @@ def determine_kick_pos(pole1, pole2, ball, ball_r = 0, dist = 1):
     v = B - M
     length = np.linalg.norm(v)
     u = v / length
+    pos =np.array( B + dist * u)
 
     angle_rad = np.arctan2(*u)
 
-    return B + dist * u, angle_rad
+
+    return np.append(pos, angle_rad)
 
 if __name__ == "__main__":
     pole1 = [-2, 2]
@@ -28,5 +30,5 @@ if __name__ == "__main__":
     vis.setGoal(*pole2)
     vis.setBall(*ball)
     print(kick_pos)
-    vis.setBall(*kick_pos)
+    vis.updateRobot(*kick_pos)
     input()
