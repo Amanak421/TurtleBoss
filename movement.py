@@ -178,15 +178,15 @@ class Move:
         turn_start = self.normalizeAngle(move_angle - self.angle)
         print("TEST", angle, move_angle, turn_start)
         #rotate for diagonal
-        input("PRESS ANY KEY...")
+        #input("PRESS ANY KEY...")
         self.turn(turn_start, speed=angular_velocity, _print=True)
         #go
-        input("PRESS ANY KEY...")
+        #input("PRESS ANY KEY...")
         self.go(distance, speed=linear_velocity, _print=True)
         #calculate a angle difference
         turn_end = self.normalizeAngle(angle - move_angle)
         print("TEST2",turn_end)
-        input("PRESS ANY KEY...")
+        #input("PRESS ANY KEY...")
         self.turn(turn_end, speed=angular_velocity, _print=True)
 
 
