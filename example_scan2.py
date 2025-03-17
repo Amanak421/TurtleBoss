@@ -30,7 +30,7 @@ if __name__ == "__main__":
     input("START ROBOT BY PRESSING KEY")
     print("ROBOT STARTED")
     last_find = False
-    for i in range(1, 8):
+    for i in range(1, 5):
         print(f"DOING SCAN {i} OUT OF 12")
         objects = scan(turtle_)
 
@@ -106,8 +106,8 @@ if __name__ == "__main__":
 
             
         elif ball.im_x > center:
-            print("RIGHT -> SPEED: ", (max((abs(center - ball.im_x)/640)*0.9, 0.35)))
-            turtle_.cmd_velocity(angular=-(max((abs(center - ball.im_x)/640)*1.5, 0.35)))
+            print("RIGHT -> SPEED: ", (max((abs(center - ball.im_x)/640)*0.9, 0.4)))
+            turtle_.cmd_velocity(angular=-(max((abs(center - ball.im_x)/640)*1.5, 0.4)))
         else:
             print("LEFT-> SPEED: ", (max((abs(center - ball.im_x)/640)*0.9, 0.4)))
             turtle_.cmd_velocity(angular=(max((abs(center - ball.im_x)/640)*1.5, 0.4)))

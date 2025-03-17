@@ -14,7 +14,7 @@ def determine_kick_pos(pole1, pole2, ball, ball_r = 0, dist = 1):
     u = v / v_length
     pos = np.array( B + dist * u)
 
-    angle_rad =np.arctan2(*r)
+    angle_rad =np.arctan2(r[1], r[0])
 
 
     return np.append(pos, angle_rad)
