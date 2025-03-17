@@ -3,7 +3,7 @@ import numpy as np
 import scipy.io
 from enum import Enum
 
-LOWER_YELLOW = np.array([20, 100, 100])
+LOWER_YELLOW = np.array([20, 130, 95])
 UPPER_YELLOW = np.array([30, 255, 255])
 
 # Blue, Green, Red
