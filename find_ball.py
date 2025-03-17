@@ -13,9 +13,11 @@ UPPER_OBSTACLES = np.array([[110, 255, 210], [85, 200, 200], [10, 255, 255]])
 RADIUS_POLE = 0.025
 RADIUS_BALL = 0.11
 
-MIN_AREA = 750
-TOP_Y_BORDER = 80
-BOTTOM_Y_BORDER = 450
+MIN_AREA_OBST = 400
+MIN_AREA_BALL = 1500
+
+TOP_Y_BORDER = 1/8
+BOTTOM_Y_BORDER = 7/8
 
 class RigidType(Enum):
     BALL = 1
@@ -77,9 +79,9 @@ def find_ball(rgb_img, all_objects, lower_y=LOWER_YELLOW, upper_y=UPPER_YELLOW) 
     contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
     if contours:
         largest_c = max(contours, key=cv2.contourArea)
-        if cv2.contourArea(largest_c) > MIN_AREA:
+        if cv2.contourArea(largest_c) > MIN_AREA_BALL:
             (x, y), radius = cv2.minEnclosingCircle(largest_c)
-            if  TOP_Y_BORDER < y:
+            if  rgb_img.shape[0] * TOP_Y_BORDER < y:
                 all_objects.append(RigidObject(int(x), int(y), int(radius), int(radius), RigidType.BALL, ColorType.YELLOW))
 
 
@@ -92,7 +94,7 @@ def find_obstacles(rgb_img, all_objects, lower_o=LOWER_OBSTACLES, upper_o=UPPER_
         contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
         if contours:
             for cnt in contours:
-                if cv2.contourArea(cnt) > MIN_AREA:
+                if cv2.contourArea(cnt) > MIN_AREA_OBST:
                     _x, _y, w, h = cv2.boundingRect(cnt)
 
                     ration = h / w
@@ -104,7 +106,7 @@ def find_obstacles(rgb_img, all_objects, lower_o=LOWER_OBSTACLES, upper_o=UPPER_
                     cx = (m['m10']/m['m00'])
                     cy = (m['m01']/m['m00'])
                     r_type = RigidType.POLE if i == 0 else RigidType.OBST
-                    if  TOP_Y_BORDER < cy < BOTTOM_Y_BORDER:
+                    if  rgb_img.shape[0] * TOP_Y_BORDER < cy < rgb_img.shape[0] * BOTTOM_Y_BORDER:
                         all_objects.append(RigidObject(int(cx), int(cy), int(w), int(h), r_type, COLOR_TYPE[i]))
 
 
@@ -158,6 +160,11 @@ if __name__ == "__main__":
     cv2.namedWindow(window_)
     for img_index in range(1, 9):
         rgb_img_ = load_img(f"test_data/test_y{img_index}.mat")
+
+        #rgb_img_ = cv2.imread("test_data/block_ball.png")
+        #print(f"W: {rgb_img_.shape[1]}, H: {rgb_img_.shape[0]}")#XXX
+        #cv2.line(rgb_img_,  (0,int(rgb_img_.shape[0] * TOP_Y_BORDER)), (int(rgb_img_.shape[1]), int(rgb_img_.shape[0] * TOP_Y_BORDER)), (30, 60, 90), thickness=5)#XXX
+        #cv2.line(rgb_img_,  (0,int(rgb_img_.shape[0] * BOTTOM_Y_BORDER)), (int(rgb_img_.shape[1]), int(rgb_img_.shape[0] * BOTTOM_Y_BORDER)), (130, 160, 190), thickness=5)#XXX
         all_objects_ = find_objects(rgb_img_)
         show_objects(rgb_img_, all_objects_, window_, wait=True)
         print(all_objects_)
