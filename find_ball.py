@@ -6,7 +6,6 @@ from rigidobject import RigidObject, RigidType, ColorType
 LOWER_YELLOW = np.array([20, 130, 95])
 UPPER_YELLOW = np.array([30, 255, 255])
 
-# Blue, Green, Red
 LOWER_OBSTACLES = np.array([[90, 150, 65], [40, 50, 50], [0, 150, 110]])
 UPPER_OBSTACLES = np.array([[110, 255, 210], [85, 200, 200], [10, 255, 255]])
 
@@ -16,7 +15,7 @@ MIN_AREA_BALL = 1500
 TOP_Y_BORDER = 1/8
 BOTTOM_Y_BORDER = 7/8
 
-COLOR_TYPE = np.array([ColorType.BLUE, ColorType.GREEN, ColorType.RED])
+COLOR_TYPE = (ColorType.BLUE, ColorType.GREEN, ColorType.RED)  # TODO replace somehow (use RigidObject.color or c_type or RigidType)
 
 
 def find_ball(rgb_img, all_objects, lower_y=LOWER_YELLOW, upper_y=UPPER_YELLOW) -> None:

@@ -31,7 +31,7 @@ if __name__ == "__main__":
     print("ROBOT STARTED")
     last_found = False
     angle = 0
-    while angle < 2*pi:
+    while angle < 2 * pi:
         print(f"DOING SCAN for angle {angle}")
         objects = scan(turtle_)
             
@@ -46,22 +46,21 @@ if __name__ == "__main__":
             robot_pos = robot_move.getPosition()[:2]
             robot_angle = robot_move.getPosition()[2]
             print("ROBOT POSITION:", robot_pos, robot_angle)
-            robot_map.add_object(obj, robot_pos, robot_angle)
+            robot_map.add_object(obj, robot_pos, robot_angle, True)
         print("\tSHOWING OBJECT")
         # robot_map.show(show_all=True, show_merged=False, robot_pos=robot_move.getPosition())
 
         robot_move.rotate(pi/12)
         angle += pi/12
 
-    robot_map.show(show_all=True, show_merged=True)
+    robot_map.show(show_all=True, show_merged=True, debug_info=True)
 
-    poles = robot_map.poles
     ball = robot_map.ball
 
-    kick_pos = determine_kick_pos(poles[0].position(), poles[1].position(), ball[0].position(), dist=0.9)
-    midpoint = robot_move.midpoint(kick_pos[0], kick_pos[1], *ball[0].position())
+    kick_pos = robot_map.determine_kick_pos(dist=0.9)
+    midpoint = robot_move.midpoint(kick_pos[0], kick_pos[1], *ball[0].position)
     print("MOVING TO POSITION: ", kick_pos)
-    robot_map.show(show_all=False, show_merged=True, robot_pos=robot_move.getPosition(), kick_pos=kick_pos, midpoint=midpoint)
+    robot_map.show(show_all=False, show_merged=True, robot_pos=robot_move.getPosition(), kick_pos=kick_pos, midpoint=midpoint, debug_info=True)
     robot_move.go_to(*midpoint, 0, linear_velocity=0.4, angular_velocity=0.45)
 
     input("IN MIDPOINT PRESS ANY KEY")

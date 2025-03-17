@@ -1,3 +1,4 @@
+# TODO depreciate Visual, rename camelCase names, delete unnecessary functions/methods
 import sys
 from math import sin, cos, atan2, sqrt, pi
 import numpy as np
@@ -140,9 +141,9 @@ class Move:
         # self.turtle.cmd_velocity()
         self.turtle.wait_for_odometry()
         odometry = self.turtle.get_odometry()[2] * self.ANGULAR_CORRECTION
-        print("UPDATEING ODOMETRY BY ANGLE: ", odometry)
+        print("UPDATING ODOMETRY BY ANGLE: ", odometry)
         self.updateOdometryAngular(odometry)
-        if self.visual:
+        if self.visual:  # TODO visual will be depreciated
             self.vis.updateRobot(*self.getPosition())
 
     def rotate_until(self, condition, speed = 0.5, _print = False):

@@ -44,26 +44,26 @@ if __name__ == "__main__":
         if len(ball) == 1 and ball_detected == False:
             robot_move.reset()
             if 50 <= ball[0].im_x <= 430:
-                robot_map.add_object(ball[0], robot_move.getPosition()[:2], robot_move.getPosition()[2])
+                robot_map.add_object(ball[0], robot_move.getPosition()[:2], robot_move.getPosition()[2], True)
                 robot_move.reset()
                 ball_detected = True
 
         poles = list(filter(lambda x: x.o_type == find_ball.RigidType.POLE, objects))
         if ball_detected and len(poles) == 2:
             for p in poles:
-                robot_map.add_object(p, robot_move.getPosition()[:2], robot_move.getPosition()[2])
+                robot_map.add_object(p, robot_move.getPosition()[:2], robot_move.getPosition()[2], True)
             break
 
         robot_move.rotate(pi/12)
 
 
 
-    poles = robot_map.get_poles
-    ball = robot_map.get_ball
+    poles = robot_map.poles
+    ball = robot_map.ball
 
     kick_pos = determine_kick_pos(poles[0].position, poles[1].position, ball[0].position)
     print("MOVING TO POSITION: ", kick_pos)
-    robot_map.show(show_all=False, show_merged=True, robot_pos=robot_move.getPosition()[:2], kick_pos=kick_pos)
+    robot_map.show(show_all=False, show_merged=True, robot_pos=robot_move.getPosition()[:2], kick_pos=kick_pos, debug_info=True)
 
     robot_move.go_to(*kick_pos, 0, linear_velocity=0.4, angular_velocity=0.45)
 

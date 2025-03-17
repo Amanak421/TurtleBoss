@@ -1,5 +1,4 @@
-from __future__ import print_function
-
+# TODO depreciate soon
 import sys
 from datetime import datetime
 from robolab_turtlebot import Turtlebot, sleep, Rate, get_time

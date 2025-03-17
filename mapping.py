@@ -1,6 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from rigidobject import RigidObject, RigidType, ColorType
+from rigidobject import RigidObject, RigidType
+from utils import ProcessError
 
 
 def distance(object_a: RigidObject, object_b: RigidObject):
@@ -11,24 +12,20 @@ def average(object_a: RigidObject, object_b: RigidObject):
     return np.mean([object_a.position, object_b.position], axis=0)
 
 
-def transform(position, angle, base_pos):
-    print("Position before rot.", position)
-    print("Rotation angle: ", angle, "position", base_pos)
+def transform(position, angle, base_pos, debug_info: bool = False):
+    if debug_info: print("Position before rot.", position)
+    if debug_info: print("Rotation angle: ", angle, "position", base_pos)
     transform_matrix = np.array([[np.cos(angle), -np.sin(angle), base_pos[0]],
                                 [np.sin(angle), np.cos(angle), base_pos[1]],
                                 [0, 0, 1]])
     position = np.array([*position, 1])
     result = np.dot(transform_matrix, position)[:2]
-    print("After rotation")
+    if debug_info: print("After rotation")
     return result
 
 
 class Map:
     def __init__(self, threshold=0.2):
-        self.POLE_COLOR = "blue"
-        self.OBST_COLOR = "red"
-        self.BALL_COLOR = "yellow"
-
         self.objects = []
 
         self.threshold = threshold
@@ -45,42 +42,34 @@ class Map:
     def obstacles(self):
         return self.merge_objects()[RigidType.OBST]
 
-    def add_object(self, object_a: RigidObject, robot_pos: tuple, robot_angle: float):
-        print("BEFORE ROTATION:", object_a.position)
+    def add_object(self, object_a: RigidObject, robot_pos: tuple, robot_angle: float, debug_info: bool = False):
+        if debug_info: print("BEFORE ROTATION:", object_a.position)
         object_a.set_position(*transform(object_a.position, robot_angle, robot_pos))
-        print("AFTER ROTATION:", object_a.position)
+        if debug_info: print("AFTER ROTATION:", object_a.position)
         self.objects.append(object_a)
 
-    def get_object_color(self, object_a):
-        color = "black"
-        if object_a.o_type == RigidType.BALL:
-            color = self.BALL_COLOR
-        elif object_a.o_type == RigidType.POLE:
-            color = self.POLE_COLOR
-        elif object_a.o_type == RigidType.OBST:
-            color = self.OBST_COLOR
-        return color
-
-    def show(self, show_all=False, show_merged=True, robot_pos=None, kick_pos=None, midpoint=None):
+    def show(self, show_all=False, show_merged=True, robot_pos=None, kick_pos=None, midpoint=None, debug_info: bool = False):
         fig, ax = plt.subplots(figsize=(6, 6), dpi=100)  # Set 6x6 inches
         ax.set_aspect(1)  # X, Y axis ratio 1:1
         if show_merged:
             obj = self.merge_objects()
-            print(obj)
+            if debug_info: print(obj)
             for o_type in  obj:
-                print("FOR O TYPE", o_type)
+                if debug_info: print("FOR O TYPE", o_type)
                 count = 0
                 for point in obj[o_type]:
                     pos = point.position
                     if (o_type == RigidType.POLE and count > 1) or (o_type == RigidType.BALL and count > 0):
-                        ax.scatter(*pos, color=self.get_object_color(point), s=50, edgecolors='red', linewidths=2)
+                        ax.scatter(*pos, color=point.color, s=50, edgecolors='red', linewidths=2)
                     else:
-                        ax.scatter(*pos, color=self.get_object_color(point), s=50)
+                        ax.scatter(*pos, color=point.color, s=50)
+                        if o_type == RigidType.BALL:
+                            ax.scatter(*pos, facecolors='none', edgecolors='orange', s=50, alpha=0.5)
                     count += 1
         if show_all:
             for point in self.objects:
                 pos = point.position
-                ax.scatter(*pos, color=self.get_object_color(point), s=25, alpha=0.2)
+                ax.scatter(*pos, color=point.color, s=25, alpha=0.2)
         if robot_pos is not None:
             x_end = robot_pos[0] + 0.2 * np.cos(robot_pos[2])
             y_end = robot_pos[1] + 0.2 * np.sin(robot_pos[2])
@@ -140,9 +129,37 @@ class Map:
 
         return objects
 
+    def determine_kick_pos(self, dist=1):
+        poles: list[RigidObject] = self.poles
+        if len(poles) < 2: raise ProcessError("Cannot determine kick position, not enough poles!")
+        p1: np.array = poles[0].position
+        p2: np.array = poles[1].position
+        ball = self.ball
+        if not ball: raise ProcessError("Cannot determine kick position, no ball!")
+        b: np.array = ball[0].position
+        m = np.array((p1 + p2) / 2)
+        v = b - m  # TODO add comment or rename properly
+        r = m - b  # TODO add comment or rename properly
+        v_length = np.linalg.norm(v)
+        u = v / v_length
+        pos = np.array(b + dist * u)
+        angle_rad = np.arctan2(r[1], r[0])
+        return np.append(pos, angle_rad)
+
+    def routing(self, robot_pos: np.array, finish_pos: np.array):
+        pass
+
+
+
 if __name__ == "__main__":
     mapA = Map()
-    b = RigidObject(0.5, -0.5, 0, 0, RigidType.BALL, ColorType.YELLOW)
-    b.set_position(0.5, -0.5)
-    mapA.add_object(b, (0, 0), 0)
+
+    def ao(x, y, t):
+        obj = RigidObject(0, 0, 0, 0, RigidType(t))
+        obj.set_position(x, y)
+        mapA.add_object(obj, (0, 0), 0)
+
+    ao(0.5, -0.5, 1)
+    ao(0.7, 0, 2)
+    ao(1, -0.4, 2)
     mapA.show()

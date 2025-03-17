@@ -1,3 +1,4 @@
+# TODO depreciate soon (used only in movement and depreciated kick_pos)
 import matplotlib.pyplot as plt
 import numpy as np
 

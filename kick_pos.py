@@ -1,7 +1,8 @@
+# TODO delete => depreciated
 from visual import Visual
 import numpy as np
 
-def determine_kick_pos(pole1, pole2, ball, ball_r = 0, dist = 1):
+def determine_kick_pos(pole1, pole2, ball, dist = 1):
     P1 = np.array(pole1)
     P2 = np.array(pole2)
     B = np.array(ball)
@@ -12,11 +13,9 @@ def determine_kick_pos(pole1, pole2, ball, ball_r = 0, dist = 1):
     r = M - B
     v_length = np.linalg.norm(v)
     u = v / v_length
-    pos = np.array( B + dist * u)
+    pos = np.array(B + dist * u)
 
-    angle_rad =np.arctan2(r[1], r[0])
-
-
+    angle_rad = np.arctan2(r[1], r[0])
     return np.append(pos, angle_rad)
 
 if __name__ == "__main__":
