@@ -142,5 +142,7 @@ class Map:
 
 if __name__ == "__main__":
     mapA = Map()
-    mapA.add_object(RigidObject(0.5, -0.5, 0, 0, RigidType.BALL, ColorType.YELLOW), (0, 0), 0)
+    b = RigidObject(0.5, -0.5, 0, 0, RigidType.BALL, ColorType.YELLOW)
+    b.set_position(0.5, -0.5)
+    mapA.add_object(b, (0, 0), 0)
     mapA.show()
