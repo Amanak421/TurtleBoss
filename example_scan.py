@@ -61,7 +61,7 @@ if __name__ == "__main__":
     poles = robot_map.get_poles()
     ball = robot_map.get_ball()
 
-    kick_pos = determine_kick_pos(poles[0].position(), poles[1].position(), ball[0].position())
+    kick_pos = determine_kick_pos(poles[0].position, poles[1].position, ball[0].position)
     print("MOVING TO POSITION: ", kick_pos)
     robot_map.show(show_all=False, show_merged=True, robot_pos=robot_move.getPosition()[:2], kick_pos=kick_pos)
 

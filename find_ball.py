@@ -48,7 +48,8 @@ class RigidObject:
 
     def __str__(self):
         return self.__repr__()
-    
+
+    @property
     def position(self):
         return np.array([self.x, self.y])
     

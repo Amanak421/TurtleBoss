@@ -13,12 +13,12 @@ class Map:
         self.threshold = threshold
 
     def distance(self, object_a: RigidObject, object_b: RigidObject):
-        return np.sqrt(np.sum(np.power(object_a.position() - object_b.position(), 2)))
+        return np.sqrt(np.sum(np.power(object_a.position - object_b.position, 2)))
 
     def add_object(self, object_a: RigidObject, robot_pos: tuple, robot_angle: float):
-        print("BEFORE ROTATION:", object_a.position())
-        object_a.set_position(*self.transform(object_a.position(), robot_angle, robot_pos))
-        print("AFTER ROTATION:", object_a.position())
+        print("BEFORE ROTATION:", object_a.position)
+        object_a.set_position(*self.transform(object_a.position, robot_angle, robot_pos))
+        print("AFTER ROTATION:", object_a.position)
         self.objects.append(object_a)
 
     def get_object_color(self, object_a):
@@ -39,7 +39,7 @@ class Map:
                 print("FOR O TYPE", o_type)
                 count = 0
                 for point in obj[o_type]:
-                    pos = point.position()
+                    pos = point.position
                     if (o_type == RigidType.POLE and count > 1) or (o_type == RigidType.BALL and count > 0):
                         plt.scatter(*pos, color=self.get_object_color(point), s=50, edgecolors='red', linewidths=2)
                     else:
@@ -47,7 +47,7 @@ class Map:
                     count+=1
         if show_all:
             for point in self.objects:
-                pos = point.position()
+                pos = point.position
                 plt.scatter(*pos, color=self.get_object_color(point), s=25, alpha=0.2)
         if robot_pos is not None:
             x_end = robot_pos[0] + 0.2 * np.cos(robot_pos[2])
@@ -74,7 +74,7 @@ class Map:
         plt.show()
 
     def average(self, object_a: RigidObject, object_b: RigidObject):
-        return np.mean([object_a.position(), object_b.position()], axis=0)
+        return np.mean([object_a.position, object_b.position], axis=0)
     
     def transform(self, position, angle, base_pos):
         print("Position before rot.", position)
