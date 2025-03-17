@@ -1,10 +1,10 @@
-from movement import Move
-import find_ball
 import sys
-from robolab_turtlebot import Turtlebot, sleep, Rate, get_time
 from math import pi
-from transform import Map
+from robolab_turtlebot import Turtlebot, sleep, Rate, get_time
+import find_ball
 from kick_pos import determine_kick_pos
+from mapping import Map
+from movement import Move
 
 def scan(turtle):
     turtle.wait_for_rgb_image()
@@ -58,8 +58,8 @@ if __name__ == "__main__":
 
 
 
-    poles = robot_map.get_poles()
-    ball = robot_map.get_ball()
+    poles = robot_map.get_poles
+    ball = robot_map.get_ball
 
     kick_pos = determine_kick_pos(poles[0].position, poles[1].position, ball[0].position)
     print("MOVING TO POSITION: ", kick_pos)

@@ -4,11 +4,12 @@ import numpy as np
 import time
 from visual import Visual
 
+
 class Move:
     def __init__(self, turtle, rate, visual):
         self.WAIT_TIME = 0.1
-        self.LINEAR_CORRECTION = 1 #0.98  #0.96
-        self.ANGULAR_CORRECTION = 1.04 #1.18
+        self.LINEAR_CORRECTION = 1  # 0.98  # 0.96
+        self.ANGULAR_CORRECTION = 1.04  # 1.18
 
         self.BUMPER_NAMES = ['LEFT', 'CENTER', 'RIGHT']
         self.STATE_NAMES = ['RELEASED', 'PRESSED']
@@ -45,8 +46,7 @@ class Move:
 
     def resetOdometry(self):
         self.turtle.reset_odometry()
-        # wait for odometry reset
-        time.sleep(self.WAIT_TIME)
+        time.sleep(self.WAIT_TIME)  # wait for odometry reset
 
     def updateOdometryLinear(self, x) -> None:
         self.x = self.x + x*cos(self.angle)
@@ -85,7 +85,7 @@ class Move:
             self.turtle.cmd_velocity(linear=speed)
             self.rate.sleep()
         
-        #self.turtle.cmd_velocity()
+        # self.turtle.cmd_velocity()
         self.updateOdometryLinear(self.turtle.get_odometry()[0] * self.LINEAR_CORRECTION)
         if self.visual:
             self.vis.updateRobot(*self.getPosition())
@@ -137,7 +137,7 @@ class Move:
             self.rate.sleep()
         self.turtle.cmd_velocity()
 
-        #self.turtle.cmd_velocity()
+        # self.turtle.cmd_velocity()
         self.turtle.wait_for_odometry()
         odometry = self.turtle.get_odometry()[2] * self.ANGULAR_CORRECTION
         print("UPDATEING ODOMETRY BY ANGLE: ", odometry)
@@ -159,8 +159,8 @@ class Move:
             self.rate.sleep()
 
 
-        #self.turtle.cmd_velocity()
-        #self.updateOdometryAngular(self.turtle.get_odometry()[2] * self.ANGULAR_CORRECTION)
+        # self.turtle.cmd_velocity()
+        # self.updateOdometryAngular(self.turtle.get_odometry()[2] * self.ANGULAR_CORRECTION)
         if self.visual:
             self.vis.updateRobot(*self.getPosition())
 
@@ -178,16 +178,16 @@ class Move:
         move_angle = atan2(y - self.y, x - self.x)
         turn_start = self.normalizeAngle(move_angle - self.angle)
         print("TEST", angle, move_angle, turn_start)
-        #rotate for diagonal
-        #input("PRESS ANY KEY...")
+        # rotate for diagonal
+        # input("PRESS ANY KEY...")
         self.turn(turn_start, speed=angular_velocity, _print=True)
-        #go
-        #input("PRESS ANY KEY...")
+        # go
+        # input("PRESS ANY KEY...")
         self.go(distance, speed=linear_velocity, _print=True)
-        #calculate a angle difference
+        # calculate a angle difference
         turn_end = self.normalizeAngle(angle - move_angle)
         print("TEST2",turn_end)
-        #input("PRESS ANY KEY...")
+        # input("PRESS ANY KEY...")
         self.turn(turn_end, speed=angular_velocity, _print=True)
 
     def midpoint(self, x, y, x_ball, y_ball):

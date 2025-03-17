@@ -1,10 +1,10 @@
-from movement import Move
-import find_ball
 import sys
-from robolab_turtlebot import Turtlebot, sleep, Rate, get_time
 from math import pi
-from transform import Map
+from robolab_turtlebot import Turtlebot, sleep, Rate, get_time
+import find_ball
 from kick_pos import determine_kick_pos
+from mapping import Map
+from movement import Move
 
 def scan(turtle):
     turtle.wait_for_rgb_image()
@@ -15,7 +15,7 @@ def scan(turtle):
     for o in all_objects:
         o.assign_xy(pc)
     find_ball.show_objects(rgb_img, all_objects, "Objects", True)
-    #find_ball.show_objects(rgb_img, [], "Objects", True)
+    # find_ball.show_objects(rgb_img, [], "Objects", True)
     return all_objects
 
 if __name__ == "__main__":
@@ -48,15 +48,15 @@ if __name__ == "__main__":
             print("ROBOT POSITION:", robot_pos, robot_angle)
             robot_map.add_object(obj, robot_pos, robot_angle)
         print("\tSHOWING OBJECT")
-        #robot_map.show(show_all=True, show_merged=False, robot_pos=robot_move.getPosition())
+        # robot_map.show(show_all=True, show_merged=False, robot_pos=robot_move.getPosition())
 
         robot_move.rotate(pi/12)
         angle += pi/12
 
     robot_map.show(show_all=True, show_merged=True)
 
-    poles = robot_map.get_poles()
-    ball = robot_map.get_ball()
+    poles = robot_map.poles
+    ball = robot_map.ball
 
     kick_pos = determine_kick_pos(poles[0].position(), poles[1].position(), ball[0].position(), dist=0.9)
     midpoint = robot_move.midpoint(kick_pos[0], kick_pos[1], *ball[0].position())
@@ -88,14 +88,14 @@ if __name__ == "__main__":
             turtle_.cmd_velocity(angular=0.5)
             continue
 
-        pc = turtle_.get_point_cloud()
-        if pc is None:
+        pc_ = turtle_.get_point_cloud()
+        if pc_ is None:
             print('No point cloud')
             continue
 
         if center - offset <= ball.im_x <= center + offset:
-            print(pc[ball.y][ball.im_x])
-            if pc[ball.im_y][ball.im_x][2] < 0.60:
+            print(pc_[ball.y][ball.im_x])
+            if pc_[ball.im_y][ball.im_x][2] < 0.60:
                 input("READY TO KICK -> CONFIRM")
                 robot_move.go(0.4, 1)
                 turtle_.cmd_velocity()
@@ -113,5 +113,3 @@ if __name__ == "__main__":
         else:
             print("LEFT-> SPEED: ", (max((abs(center - ball.im_x)/640)*0.9, 0.4)))
             turtle_.cmd_velocity(angular=(max((abs(center - ball.im_x)/640)*1.5, 0.4)))
-
-        
