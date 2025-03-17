@@ -1,5 +1,6 @@
 import sys
 from math import sin, cos, atan2, sqrt, pi
+import numpy as np
 import time
 from visual import Visual
 
@@ -188,6 +189,18 @@ class Move:
         print("TEST2",turn_end)
         #input("PRESS ANY KEY...")
         self.turn(turn_end, speed=angular_velocity, _print=True)
+
+    def midpoint(self, x, y, x_ball, y_ball):
+        mid1 = np.array(((x + self.x + self.y - y)/2, (y + self.y - self.x + x)/2))
+        mid2 = np.array(((x + self.x - self.y + y)/2, (y + self.y + self.x - x)/2))
+        ball = np.array((x_ball, y_ball))
+        dist1 = np.linalg.norm(mid1 - ball)
+        dist2 = np.linalg.norm(mid2 - ball)
+
+        if dist1 > dist2:
+            return mid1
+        else:
+            return mid2
 
 
 # kladný uhel -> doleva, záporný -> doprava

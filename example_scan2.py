@@ -14,7 +14,7 @@ def scan(turtle):
     pc = turtle.get_point_cloud()
     for o in all_objects:
         o.assign_xy(pc)
-    #find_ball.show_objects(rgb_img, all_objects, "Objects", True)
+    find_ball.show_objects(rgb_img, all_objects, "Objects", True)
     #find_ball.show_objects(rgb_img, [], "Objects", True)
     return all_objects
 
@@ -29,17 +29,16 @@ if __name__ == "__main__":
     robot_map = Map()
     input("START ROBOT BY PRESSING KEY")
     print("ROBOT STARTED")
-    last_find = False
-    for i in range(1, 5):
-        print(f"DOING SCAN {i} OUT OF 12")
+    last_found = False
+    angle = 0
+    while angle < 2*pi:
+        print(f"DOING SCAN for angle {angle}")
         objects = scan(turtle_)
-
-        if not objects and last_find:
-            print("ALL OBJECTS  FOUND -> BREAK")
             
-        elif not objects:
+        if not objects:
             print("NOT FOUND -> ROTATE")
-            robot_move.rotate(pi/6)
+            robot_move.rotate(pi/6, speed=0.7)
+            angle += pi/6
             continue
 
         print("ALL OBJECTS:", objects)
@@ -51,18 +50,21 @@ if __name__ == "__main__":
         print("\tSHOWING OBJECT")
         #robot_map.show(show_all=True, show_merged=False, robot_pos=robot_move.getPosition())
 
-        robot_move.rotate(pi/6)
-        last_find = True
+        robot_move.rotate(pi/12)
+        angle += pi/12
 
     robot_map.show(show_all=True, show_merged=True)
 
     poles = robot_map.get_poles()
     ball = robot_map.get_ball()
 
-    kick_pos = determine_kick_pos(poles[0].position(), poles[1].position(), ball[0].position(), dist=0.5)
+    kick_pos = determine_kick_pos(poles[0].position(), poles[1].position(), ball[0].position(), dist=0.9)
+    midpoint = robot_move.midpoint(kick_pos[0], kick_pos[1], *ball[0].position())
     print("MOVING TO POSITION: ", kick_pos)
-    robot_map.show(show_all=False, show_merged=True, robot_pos=robot_move.getPosition(), kick_pos=kick_pos)
+    robot_map.show(show_all=False, show_merged=True, robot_pos=robot_move.getPosition(), kick_pos=kick_pos, midpoint=midpoint)
+    robot_move.go_to(*midpoint, 0, linear_velocity=0.4, angular_velocity=0.45)
 
+    input("IN MIDPOINT PRESS ANY KEY")
     robot_move.go_to(*kick_pos, linear_velocity=0.4, angular_velocity=0.45)
 
     offset = 40

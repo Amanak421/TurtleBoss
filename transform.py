@@ -31,7 +31,7 @@ class Map:
             color = self.OBST_COLOR
         return color
 
-    def show(self, show_all=False, show_merged=True, robot_pos=None, kick_pos=None):
+    def show(self, show_all=False, show_merged=True, robot_pos=None, kick_pos=None, midpoint=None):
         if show_merged:
             obj = self.merge_objects()
             print(obj)
@@ -60,6 +60,8 @@ class Map:
             plt.plot([kick_pos[0], x_end], [kick_pos[1], y_end])
             plt.scatter(kick_pos[0], kick_pos[1], color="black", s=60)
             plt.scatter(kick_pos[0], kick_pos[1], color="cyan", s=60)
+        if midpoint is not None:
+            plt.scatter(midpoint[0], midpoint[1], color="black", s=60)
         xlim = plt.xlim()
         ylim = plt.ylim()
         x_range = max(abs(xlim[0]), abs(xlim[1]))
