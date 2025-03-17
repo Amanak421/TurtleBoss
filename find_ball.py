@@ -79,7 +79,8 @@ def find_ball(rgb_img, all_objects, lower_y=LOWER_YELLOW, upper_y=UPPER_YELLOW) 
         largest_c = max(contours, key=cv2.contourArea)
         if cv2.contourArea(largest_c) > MIN_AREA:
             (x, y), radius = cv2.minEnclosingCircle(largest_c)
-            all_objects.append(RigidObject(int(x), int(y), int(radius), int(radius), RigidType.BALL, ColorType.YELLOW))
+            if  TOP_Y_BORDER < y:
+                all_objects.append(RigidObject(int(x), int(y), int(radius), int(radius), RigidType.BALL, ColorType.YELLOW))
 
 
 def find_obstacles(rgb_img, all_objects, lower_o=LOWER_OBSTACLES, upper_o=UPPER_OBSTACLES) -> None:
