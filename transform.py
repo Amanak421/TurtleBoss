@@ -44,7 +44,7 @@ class Map:
                         plt.scatter(*pos, color=self.get_object_color(point), s=50, edgecolors='red', linewidths=2)
                     else:
                         plt.scatter(*pos, color=self.get_object_color(point), s=50)
-                    count+=1
+                    count += 1
         if show_all:
             for point in self.objects:
                 pos = point.position
