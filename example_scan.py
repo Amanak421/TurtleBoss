@@ -2,7 +2,6 @@ import sys
 from math import pi
 from robolab_turtlebot import Turtlebot, sleep, Rate, get_time
 import find_ball
-from kick_pos import determine_kick_pos
 from mapping import Map
 from movement import Move
 
@@ -58,10 +57,7 @@ if __name__ == "__main__":
 
 
 
-    poles = robot_map.poles
-    ball = robot_map.ball
-
-    kick_pos = determine_kick_pos(poles[0].position, poles[1].position, ball[0].position)
+    kick_pos = robot_map.determine_kick_pos()
     print("MOVING TO POSITION: ", kick_pos)
     robot_map.show(show_all=False, show_merged=True, robot_pos=robot_move.getPosition()[:2], kick_pos=kick_pos, debug_info=True)
 
