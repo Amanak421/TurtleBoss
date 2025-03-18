@@ -21,6 +21,10 @@ class Point:
     @property
     def position(self):
         return np.array((self.x, self.y, self.angle))
+    
+    @property
+    def xy(self):
+        return np.array((self.x, self.y))
 
     @property
     def sin(self):
