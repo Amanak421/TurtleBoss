@@ -153,14 +153,12 @@ class Map:
         p2: np.array = poles[1].position
         ball = self.ball
         if not ball: raise ProcessError("Cannot determine kick position, no ball!")
-        b: np.array = ball[0].position
-        m = np.array((p1 + p2) / 2)
-        v = b - m  # TODO add comment or rename properly
-        r = m - b  # TODO add comment or rename properly
-        v_length = np.linalg.norm(v)
-        u = v / v_length
-        pos = np.array(b + dist * u)
-        angle_rad = np.arctan2(r[1], r[0])
+        ball_pos: np.array = ball[0].position
+        pole_center = np.array((p1 + p2) / 2)
+        vector_line = ball_pos - pole_center
+        v_length = np.linalg.norm(vector_line)
+        pos = np.array(ball_pos + dist * vector_line / v_length)
+        angle_rad = np.arctan2(-vector_line[1], -vector_line[0])
         return np.append(pos, angle_rad)
 
     def routing(self, robot_pos: np.array, finish_pos: np.array):
