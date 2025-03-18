@@ -27,6 +27,7 @@ def transform(position, angle, base_pos, debug_info: bool = False):
 class Map:
     def __init__(self, threshold=0.2):
         self.objects = []
+        self.MAX_OBJECTS = {RigidType.POLE: 2, RigidType.BALL: 1}
 
         self.threshold = threshold
 
@@ -48,24 +49,29 @@ class Map:
         if debug_info: print("AFTER ROTATION:", object_a.position)
         self.objects.append(object_a)
 
-    def show(self, show_all=False, show_merged=True, robot_pos=None, kick_pos=None, midpoint=None, debug_info: bool = False):
-        fig, ax = plt.subplots(figsize=(6, 6), dpi=100)  # Set 6x6 inches
+    def is_max_reached(self, o_type: RigidType, count: dict) -> bool:
+        is_max_poles = (o_type == RigidType.POLE and count[o_type] >= self.MAX_OBJECTS[o_type])
+        is_max_ball = (o_type == RigidType.BALL and count[o_type] >= self.MAX_OBJECTS[o_type])
+        return is_max_poles or is_max_ball
+
+    def show(self, show_all: bool=False, show_merged: bool=True, robot_pos: tuple=None, 
+             kick_pos=None, midpoint=None, path=None, debug_info: bool = False)-> None:
+        _, ax = plt.subplots(figsize=(6, 6), dpi=100)  # Set 6x6 inches
         ax.set_aspect(1)  # X, Y axis ratio 1:1
         if show_merged:
             obj = self.merge_objects()
-            if debug_info: print(obj)
-            for o_type in  obj:
-                if debug_info: print("FOR O TYPE", o_type)
-                count = 0
-                for point in obj[o_type]:
-                    pos = point.position
-                    if (o_type == RigidType.POLE and count > 1) or (o_type == RigidType.BALL and count > 0):
-                        ax.scatter(*pos, color=point.color, s=50, edgecolors='red', linewidths=2)
+            type_counter = {x:0 for x in obj}
+            for object_type, points in obj.items():
+                for point in points:
+                    position = point.position
+                    if self.is_max_reached(object_type, type_counter):
+                            ax.scatter(*position, color=point.color, s=50, edgecolors='red', linewidths=2)
                     else:
-                        ax.scatter(*pos, color=point.color, s=50)
-                        if o_type == RigidType.BALL:
-                            ax.scatter(*pos, facecolors='none', edgecolors='orange', s=50, alpha=0.5)
-                    count += 1
+                        ax.scatter(*position, color=point.color, s=50)
+                        if object_type == RigidType.BALL:
+                            ax.scatter(*position, facecolors='none', edgecolors='orange', s=50, alpha=0.5)
+                    type_counter[object_type] += 1
+
         if show_all:
             for point in self.objects:
                 pos = point.position
@@ -73,16 +79,27 @@ class Map:
         if robot_pos is not None:
             x_end = robot_pos[0] + 0.2 * np.cos(robot_pos[2])
             y_end = robot_pos[1] + 0.2 * np.sin(robot_pos[2])
-            plt.plot([robot_pos[0], x_end], [robot_pos[1], y_end])
+            ax.plot([robot_pos[0], x_end], [robot_pos[1], y_end])
             ax.scatter(robot_pos[0], robot_pos[1], color="black", s=60)
         if kick_pos is not None:
             x_end = kick_pos[0] + 0.2 * np.cos(kick_pos[2])
             y_end = kick_pos[1] + 0.2 * np.sin(kick_pos[2])
-            plt.plot([kick_pos[0], x_end], [kick_pos[1], y_end])
+            ax.plot([kick_pos[0], x_end], [kick_pos[1], y_end])
             ax.scatter(kick_pos[0], kick_pos[1], color="black", s=60)
             ax.scatter(kick_pos[0], kick_pos[1], color="cyan", s=60)
         if midpoint is not None:
             ax.scatter(midpoint[0], midpoint[1], color="black", s=60)
+        if path is not None:
+            points_x = [x[0] for x in path]
+            points_y = [x[1] for x in path]
+            ax.plot(points_x,points_y, marker="o")
+            # compute differences
+            x_diff = np.diff(points_x)
+            y_diff = np.diff(points_y)
+            pos_x = points_x[:-1] + x_diff/2
+            pos_y = points_y[:-1] + y_diff/2
+            norm = np.sqrt(x_diff**2+y_diff**2)
+            ax.quiver(pos_x, pos_y, x_diff/norm, y_diff/norm, angles="xy", zorder=5, pivot="mid")
 
         x_lim = plt.xlim()
         y_lim = plt.ylim()
@@ -162,4 +179,6 @@ if __name__ == "__main__":
     ao(0.5, -0.5, 1)
     ao(0.7, 0, 2)
     ao(1, -0.4, 2)
-    mapA.show()
+    ao(1, -1, 2)
+    path = [(0, 0, 0), (2, 2, 0), (3, 0, 0), (-5, 2, 0)]
+    mapA.show(path=path)
