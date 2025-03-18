@@ -4,6 +4,7 @@ from robolab_turtlebot import Turtlebot, sleep, Rate, get_time
 import find_ball
 from mapping import Map
 from movement import Move
+from point import Point
 
 def scan(turtle):
     turtle.wait_for_rgb_image()
@@ -23,12 +24,11 @@ if __name__ == "__main__":
     turtle_.play_sound(1)
     sleep(0.3)
     rate = Rate(10)
-    robot_move = Move(turtle_, rate, False)
+    robot_move = Move(turtle_, rate)
     robot_move.reset()
     robot_map = Map()
     input("START ROBOT BY PRESSING KEY")
     print("ROBOT STARTED")
-    last_found = False
     angle = 0
     while angle < 2 * pi:
         print(f"DOING SCAN for angle {angle}")
@@ -42,8 +42,8 @@ if __name__ == "__main__":
 
         print("ALL OBJECTS:", objects)
         for obj in objects:
-            robot_pos = robot_move.getPosition()[:2]
-            robot_angle = robot_move.getPosition()[2]
+            robot_pos = robot_move.xy
+            robot_angle = robot_move.angle
             print("ROBOT POSITION:", robot_pos, robot_angle)
             robot_map.add_object(obj, robot_pos, robot_angle, True)
         print("\tSHOWING OBJECT")
@@ -59,7 +59,7 @@ if __name__ == "__main__":
     kick_pos = robot_map.determine_kick_pos(dist=0.9)
     midpoint = robot_move.midpoint(kick_pos[0], kick_pos[1], *ball[0].position)
     print("MOVING TO POSITION: ", kick_pos)
-    robot_map.show(show_all=False, show_merged=True, robot_pos=robot_move.getPosition(), kick_pos=kick_pos, midpoint=midpoint, debug_info=True)
+    robot_map.show(show_all=False, show_merged=True, robot_pos=robot_move.position, kick_pos=kick_pos, midpoint=midpoint, debug_info=True)
     robot_move.go_to(*midpoint, 0, linear_velocity=0.4, angular_velocity=0.45)
 
     input("IN MIDPOINT PRESS ANY KEY")
