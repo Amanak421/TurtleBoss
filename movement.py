@@ -1,28 +1,50 @@
 # TODO depreciate Visual, rename camelCase names, delete unnecessary functions/methods
 import sys
+import time
 from math import sin, cos, atan2, sqrt, pi
 import numpy as np
-import time
-from visual import Visual
-
+from point import Point, normalize_angle
 
 class Move:
     def __init__(self, turtle, rate):
         self.WAIT_TIME = 0.1
         self.LINEAR_CORRECTION = 1  # 0.98  # 0.96
-        self.ANGULAR_CORRECTION = 1.04  # 1.18
+        self.ANGULAR_CORRECTION = 1.00 #1.04  # 1.18
 
         self.BUMPER_NAMES = ['LEFT', 'CENTER', 'RIGHT']
         self.STATE_NAMES = ['RELEASED', 'PRESSED']
 
-        self.x = 0
-        self.y = 0
-        self.angle = pi/2
+        self.BASE_POSITION = Point(0, 0, pi/2)
+
+        self.LINEAR_EPSILON = 0.05
+        self.ANGULAR_EPSILON = 0.03
+
+        self.MIN_LINEAR_VELOCITY = 0.3
+        self.MAX_LINEAR_VELOCITY = 1
+        self.MIN_ANGULAR_VELOCITY = 0.35
+        self.MAX_ANGULAR_VELOCITY = 1
+
+        self.LINEAR_KP = 1
+        self.LINEAR_KD = 0.3
+        self.ANGULAR_KP = 0.8
+        self.ANGULAR_KD = 0.3
+
+        self.robot_pos = self.BASE_POSITION
 
         self.turtle = turtle
         self.rate = rate
 
         turtle.register_bumper_event_cb(self.bumper_cb)
+
+    def __repr__(self):
+        return f"X: {self.x}, Y: {self.y}, ANGLE: {self.angle}\t"
+
+    def __str__(self):
+        return self.__repr__()
+
+    @property
+    def position(self) -> Point:
+        return self.robot_pos.position
 
     def bumper_cb(self, msg):
         """Bumper callback."""
@@ -30,152 +52,144 @@ class Move:
         state = self.STATE_NAMES[msg.state]
         print('{} bumper {}'.format(bumper, state))
         print("Bumped! -> Emergency stop!")
+        self.turtle.cmd_velocity()
         sys.exit(66)
 
     def reset(self) -> None:
-        self.x, self.y, self.angle = 0, 0, pi/2
+        self.robot_pos = self.BASE_POSITION
         self.turtle.reset_odometry()
         self.turtle.wait_for_odometry()
 
-    def resetOdometry(self):
+    def resetOdometry(self) -> None:
         self.turtle.reset_odometry()
-        time.sleep(self.WAIT_TIME)  # wait for odometry reset
-
-    def updateOdometryLinear(self, x) -> None:
-        self.x = self.x + x*cos(self.angle)
-        self.y = self.y + x*sin(self.angle)
-
-    def updateOdometryAngular(self, angle) -> None:
-        self.angle = self.normalizeAngle(self.angle + angle)
-
-    def estimatePosition(self, x, angle):
-        return self.x + x*cos(self.angle), self.x + x*sin(self.angle), self.normalizeAngle(self.angle + angle)
-
-    def getPosition(self):
-        return self.x, self.y, self.angle
-
-    def normalizeAngle(self, angle):
-        return atan2(sin(angle), cos(angle))
-
-    def go(self, length, speed = 0.3, _print = False, simulate=False) -> None:
-        # reset robot odometry
-        if simulate:
-            self.updateOdometryLinear(length)
-            return
-        
-        if length == 0:
-            return
-
-        self.resetOdometry()
-        # move forward until desired length is hit
-        while True:
-            odometry = self.turtle.get_odometry()
-            distance = odometry[0] * self.LINEAR_CORRECTION
-            if distance > length or self.turtle.is_shutting_down():
-                break
-            if _print:
-                print(self.estimatePosition(odometry[0], odometry[2]))
-            self.turtle.cmd_velocity(linear=speed)
-            self.rate.sleep()
-        
-        # self.turtle.cmd_velocity()
-        self.updateOdometryLinear(self.turtle.get_odometry()[0] * self.LINEAR_CORRECTION)
-
-    def go_until(self, condition, speed = 0.3, _print = False):
-        self.resetOdometry()
-        # move forward until desired length is hit
-        while True:
-            odometry = self.turtle.get_odometry()
-            distance = odometry[0] * self.LINEAR_CORRECTION
-            if condition() or self.turtle.is_shutting_down():
-                break
-            if _print:
-                print(self.estimatePosition(odometry[0], odometry[2]))
-            self.turtle.cmd_velocity(linear=speed)
-            self.rate.sleep()
-
-    def angleCheck(self, angle, target_angle):
-        return angle <= target_angle if target_angle > 0 else angle > target_angle
-
-    def rotate(self, target_angle, speed = 0.5, _print = False, simulate=False):
-        if simulate:
-            self.updateOdometryAngular(target_angle)
-            return
-
-        if target_angle == 0:
-            return
-        
-        dir_coef = 1
-        if target_angle < 0:
-            dir_coef = -1
-
-        # reset robot odometry
-        self.resetOdometry()
-        last_odometry = 0
-        count = 0
-        # rotate until desired angle is hit
-        while True:
-            odometry = self.turtle.get_odometry()
-            angle = odometry[2] * self.ANGULAR_CORRECTION
-            last_odometry = angle
-            if not self.angleCheck(angle, target_angle) or self.turtle.is_shutting_down():
-                break
-            if _print:
-                print("EST", self.estimatePosition(odometry[0], odometry[2]), "REAL", odometry)
-            speed = max(abs(angle - target_angle) * 0.95, 0.3)
-            self.turtle.cmd_velocity(angular=dir_coef * speed)
-            count+=1
-            self.rate.sleep()
-        self.turtle.cmd_velocity()
-
-        # self.turtle.cmd_velocity()
         self.turtle.wait_for_odometry()
-        odometry = self.turtle.get_odometry()[2] * self.ANGULAR_CORRECTION
-        print("UPDATING ODOMETRY BY ANGLE: ", odometry)
-        self.updateOdometryAngular(odometry)
 
-    def rotate_until(self, condition, speed = 0.5, _print = False):
+    def update_odometry_linear(self, x) -> None:
+        self.robot_pos = self.robot_pos + Point(x*self.robot_pos.cos, x*self.robot_pos.sin)
+
+    def update_odometry_angular(self, angle) -> None:
+        self.robot_pos.add_angle(angle)
+
+    def get_odometry_angle(self):
+        return self.turtle.get_odometry()[2] * self.ANGULAR_CORRECTION
+    
+    def get_odometry_x(self):
+        return self.turtle.get_odometry()[0] * self.LINEAR_CORRECTION
+
+    def estimate_position(self) -> Point:
+        x, _, angle = self.turtle.get_odometry()
+        return self.robot_pos + Point(x*self.robot_pos.cos, x*self.robot_pos.sin, normalize_angle(self.robot_pos.angle + angle))
+
+    def go(self, length, speed = 0.3, stop=True, simulate=False, debug_info: bool = False) -> None:
+        if simulate:
+            self.update_odometry_linear(length)
+            return
+
+        if np.isclose(length, 0):
+            return
+
+        # reset robot odometry
         self.resetOdometry()
 
+        # move forward until desired length is hit
+        last_error = 0
+        while True:
+            distance = self.get_odometry_x()
+
+            error = length - distance
+            if error < self.LINEAR_CORRECTION or self.turtle.is_shutting_down():
+                break
+
+            if debug_info: print(self.estimate_position())
+
+            regulator = self.LINEAR_KP*error + self.LINEAR_KD*(error - last_error)
+            speed = min(max(regulator, self.MIN_LINEAR_VELOCITY), self.MAX_LINEAR_VELOCITY)
+
+            self.turtle.cmd_velocity(linear=speed)
+            self.rate.sleep()
+
+        if stop: self.turtle.cmd_velocity()
+
+        self.turtle.wait_for_odometry()
+        real_distance = self.get_odometry_angle()
+
+        if debug_info: print("UPDATING ODOMETRY BY DISTANCE: ", real_distance)
+        self.update_odometry_linear(real_distance)
+
+    def go_until(self, speed = 0.3):
+        self.turtle.cmd_velocity(linear=speed)
+        self.rate.sleep()
+
+    def rotate(self, target_angle, speed = 0.5, stop = True, debug_info: bool = False, simulate=False) -> None:
+        if simulate:
+            self.update_odometry_angular(target_angle)
+            return
+
+        if np.isclose(target_angle, 0):
+            return
+
+        # reset robot odometry
+        self.resetOdometry()
+
+        last_error = 0
         while True:
             odometry = self.turtle.get_odometry()
-            angle = odometry[2] * self.ANGULAR_CORRECTION
-            if not condition() or self.turtle.is_shutting_down():
+            angle = self.get_odometry_angle()
+
+            error = target_angle - angle
+            if error < self.ANGULAR_EPSILON or self.turtle.is_shutting_down():
                 break
-            if _print:
-                print(self.estimatePosition(odometry[0], odometry[2]))
-            self.turtle.cmd_velocity(angular = speed)
+            
+            if debug_info: print(self.estimate_position(odometry[0], odometry[2])) #TODO
+
+            regulator = self.ANGULAR_KP*error + self.ANGULAR_KD*(error - last_error)
+            speed = min(max(regulator, self.MIN_ANGULAR_VELOCITY), self.MAX_ANGULAR_VELOCITY)
+
+            self.turtle.cmd_velocity(angular=speed)
             self.rate.sleep()
 
 
-        # self.turtle.cmd_velocity()
-        # self.updateOdometryAngular(self.turtle.get_odometry()[2] * self.ANGULAR_CORRECTION)
+        if stop: self.turtle.cmd_velocity()
 
-    def turn(self, target_angle, speed = 0.5, _print = False, simulate=False):
+        self.turtle.wait_for_odometry()
+        real_angle = self.get_odometry_angle()
+
+        if debug_info: print("UPDATING ODOMETRY BY ANGLE: ", real_angle)
+        self.update_odometry_angular(real_angle)
+
+    def rotate_until(self, speed = 0.5):
+        self.turtle.cmd_velocity(angular = speed)
+        self.rate.sleep()
+
+    def turn(self, target_angle, speed = 0.5, debug_info: bool = False, simulate=False):
         if abs(target_angle) > (7/8)*pi:
-            self.rotate(target_angle/2, speed=speed, _print=_print, simulate=simulate)
+            self.rotate(target_angle/2, speed=speed, debug_info=debug_info, simulate=simulate)
             print("SECOND TURN")
-            self.rotate(target_angle/2, speed=speed, _print=_print, simulate=simulate)
+            self.rotate(target_angle/2, speed=speed, debug_info=debug_info, simulate=simulate)
         else:
-            self.rotate(target_angle, speed=speed, _print=_print, simulate=simulate)
+            self.rotate(target_angle, speed=speed, debug_info=debug_info, simulate=simulate)
 
-    def go_to(self, x, y, angle, linear_velocity = 0.3, angular_velocity = 0.5):
-        distance = sqrt((x - self.x)**2 + (y - self.y)**2)
-        print("DIST", distance)
-        move_angle = atan2(y - self.y, x - self.x)
-        turn_start = self.normalizeAngle(move_angle - self.angle)
-        print("TEST", angle, move_angle, turn_start)
+    def go_to(self, point: Point, linear_velocity = 0.3, angular_velocity = 0.5, debug_info: bool = False):
+        distance = self.position.distance(point)
+        if debug_info: print("DIST", distance)
+
+        move_angle = self.position.relative_angle(point)
+
+        turn_start = normalize_angle(move_angle - self.position.angle)
+        if debug_info: 
+            print("TEST", point.angle, move_angle, turn_start)
+            input("PRESS ANY KEY...")
         # rotate for diagonal
-        # input("PRESS ANY KEY...")
-        self.turn(turn_start, speed=angular_velocity, _print=True)
+        self.turn(turn_start, speed=angular_velocity, debug_info=debug_info)
         # go
-        # input("PRESS ANY KEY...")
-        self.go(distance, speed=linear_velocity, _print=True)
+        if debug_info: input("PRESS ANY KEY...")
+        self.go(distance, speed=linear_velocity, debug_info=debug_info)
         # calculate a angle difference
-        turn_end = self.normalizeAngle(angle - move_angle)
-        print("TEST2",turn_end)
-        # input("PRESS ANY KEY...")
-        self.turn(turn_end, speed=angular_velocity, _print=True)
+        turn_end = normalize_angle(point.angle - move_angle)
+        if debug_info:
+            print("TEST2", turn_end)
+            input("PRESS ANY KEY...")
+        self.turn(turn_end, speed=angular_velocity, debug_info=debug_info)
 
     def midpoint(self, x, y, x_ball, y_ball):
         mid1 = np.array(((x + self.x + self.y - y)/2, (y + self.y - self.x + x)/2))
