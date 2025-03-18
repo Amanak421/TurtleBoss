@@ -7,7 +7,7 @@ from visual import Visual
 
 
 class Move:
-    def __init__(self, turtle, rate, visual):
+    def __init__(self, turtle, rate):
         self.WAIT_TIME = 0.1
         self.LINEAR_CORRECTION = 1  # 0.98  # 0.96
         self.ANGULAR_CORRECTION = 1.04  # 1.18
@@ -21,14 +21,6 @@ class Move:
 
         self.turtle = turtle
         self.rate = rate
-
-        self.visual = visual
-        if visual:
-            self.vis = Visual()
-            self.vis.updateRobot(*self.getPosition())
-            print("VIS START")
-        else:
-            self.vis = None
 
         turtle.register_bumper_event_cb(self.bumper_cb)
 
@@ -88,8 +80,6 @@ class Move:
         
         # self.turtle.cmd_velocity()
         self.updateOdometryLinear(self.turtle.get_odometry()[0] * self.LINEAR_CORRECTION)
-        if self.visual:
-            self.vis.updateRobot(*self.getPosition())
 
     def go_until(self, condition, speed = 0.3, _print = False):
         self.resetOdometry()
@@ -143,8 +133,6 @@ class Move:
         odometry = self.turtle.get_odometry()[2] * self.ANGULAR_CORRECTION
         print("UPDATING ODOMETRY BY ANGLE: ", odometry)
         self.updateOdometryAngular(odometry)
-        if self.visual:  # TODO visual will be depreciated
-            self.vis.updateRobot(*self.getPosition())
 
     def rotate_until(self, condition, speed = 0.5, _print = False):
         self.resetOdometry()
@@ -162,8 +150,6 @@ class Move:
 
         # self.turtle.cmd_velocity()
         # self.updateOdometryAngular(self.turtle.get_odometry()[2] * self.ANGULAR_CORRECTION)
-        if self.visual:
-            self.vis.updateRobot(*self.getPosition())
 
     def turn(self, target_angle, speed = 0.5, _print = False, simulate=False):
         if abs(target_angle) > (7/8)*pi:
