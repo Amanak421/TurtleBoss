@@ -43,8 +43,16 @@ class Move:
         return self.__repr__()
 
     @property
-    def position(self) -> Point:
+    def position(self):
         return self.robot_pos.position
+    
+    @property
+    def xy(self):
+        return self.position.xy
+
+    @property
+    def angle(self):
+        return self.position.angle
 
     def bumper_cb(self, msg):
         """Bumper callback."""
