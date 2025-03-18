@@ -2,7 +2,6 @@ import sys
 from math import pi
 from robolab_turtlebot import Turtlebot, sleep, Rate, get_time
 import find_ball
-from kick_pos import determine_kick_pos
 from mapping import Map
 from movement import Move
 
