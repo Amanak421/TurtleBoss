@@ -54,10 +54,16 @@ class RigidObject:
     @property
     def position(self):
         """
-        :return: Numpy-fied real-world coordinates x, y
+        :return: Numpy-fied real-world coordinates x, y as Point
+        """
+        return self.p
+    
+    @property
+    def xy(self):
+        """
+        :return: Numpy-fied real-world coordinates x, y as np.array
         """
         return self.p.xy
-    
 
     @property
     def im_position(self):
@@ -66,14 +72,14 @@ class RigidObject:
         """
         return self.im_p.xy
 
-    def set_position(self, new_x, new_y):
+    def set_position(self, new_pos: Point):
         """
         Set real-world coordinates
         :param new_x: x
         :param new_y: y
         :return:
         """
-        self.p = Point(new_x, new_y)
+        self.p = new_pos
 
     def assign_xy(self, pc):
         """
