@@ -19,7 +19,7 @@ class Point:
         return Point(self.x + point.x, self.y + point.y, self.angle)
 
     @property
-    def position(self):
+    def xya(self):
         return np.array((self.x, self.y, self.angle))
     
     @property

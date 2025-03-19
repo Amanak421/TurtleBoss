@@ -1,9 +1,6 @@
-# TODO depreciate Visual, rename camelCase names, delete unnecessary functions/methods
 import sys
-import time
-from math import sin, cos, atan2, sqrt, pi
 import numpy as np
-from point import Point, normalize_angle
+from geometry import Point, normalize_angle
 
 class Move:
     def __init__(self, turtle, rate):
@@ -14,7 +11,7 @@ class Move:
         self.BUMPER_NAMES = ['LEFT', 'CENTER', 'RIGHT']
         self.STATE_NAMES = ['RELEASED', 'PRESSED']
 
-        self.BASE_POSITION = Point(0, 0, pi/2)
+        self.BASE_POSITION = Point(0, 0, np.pi/2)
 
         self.LINEAR_EPSILON = 0.05
         self.ANGULAR_EPSILON = 0.03
@@ -43,16 +40,16 @@ class Move:
         return self.__repr__()
 
     @property
-    def position(self):
-        return self.robot_pos.position
+    def xya(self):
+        return self.robot_pos.xya
     
     @property
     def xy(self):
-        return self.position.xy
+        return self.robot_pos.xy
 
     @property
     def angle(self):
-        return self.position.angle
+        return self.robot_pos.angle
 
     def bumper_cb(self, msg):
         """Bumper callback."""
@@ -170,7 +167,7 @@ class Move:
         self.rate.sleep()
 
     def turn(self, target_angle, speed = 0.5, debug_info: bool = False, simulate=False):
-        if abs(target_angle) > (7/8)*pi:
+        if abs(target_angle) > (7/8)*np.pi:
             self.rotate(target_angle/2, speed=speed, debug_info=debug_info, simulate=simulate)
             print("SECOND TURN")
             self.rotate(target_angle/2, speed=speed, debug_info=debug_info, simulate=simulate)
@@ -178,12 +175,12 @@ class Move:
             self.rotate(target_angle, speed=speed, debug_info=debug_info, simulate=simulate)
 
     def go_to(self, point: Point, linear_velocity = 0.3, angular_velocity = 0.5, debug_info: bool = False):
-        distance = self.position.distance(point)
+        distance = self.robot_pos.distance(point)
         if debug_info: print("DIST", distance)
 
-        move_angle = self.position.relative_angle(point)
+        move_angle = self.robot_pos.relative_angle(point)
 
-        turn_start = normalize_angle(move_angle - self.position.angle)
+        turn_start = normalize_angle(move_angle - self.robot_pos.angle)
         if debug_info: 
             print("TEST", point.angle, move_angle, turn_start)
             input("PRESS ANY KEY...")

@@ -11,7 +11,6 @@ def distance(object_a: RigidObject, object_b: RigidObject):
 def average(object_a: RigidObject, object_b: RigidObject):
     return np.mean([object_a.position, object_b.position], axis=0)
 
-
 def transform(position, angle, base_pos, debug_info: bool = False):
     if debug_info: print("Position before rot.", position)
     if debug_info: print("Rotation angle: ", angle, "position", base_pos)
@@ -139,7 +138,7 @@ class Map:
                     continue
                 else:
                     merged.append(pole)
-                    merged_counter.append(1)    
+                    merged_counter.append(1)
 
             sorted_objects = [obj for _, obj in sorted(zip(merged_counter, merged), key=lambda x: x[0], reverse=True)]
             objects[o_type] = sorted_objects
