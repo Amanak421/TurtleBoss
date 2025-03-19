@@ -2,25 +2,20 @@ import numpy as np
 import matplotlib.pyplot as plt
 from rigidobject import RigidObject, RigidType
 from utils import ProcessError
-
-
-def distance(object_a: RigidObject, object_b: RigidObject):
-    return np.sqrt(np.sum(np.power(object_a.position - object_b.position, 2)))
-
+from geometry import Point
 
 def average(object_a: RigidObject, object_b: RigidObject):
-    return np.mean([object_a.position, object_b.position], axis=0)
+    return Point(*np.mean([object_a.xy, object_b.xy], axis=0))
 
-def transform(position, angle, base_pos, debug_info: bool = False):
+def transform(position: Point, base_pos: Point, debug_info: bool = False):
     if debug_info: print("Position before rot.", position)
-    if debug_info: print("Rotation angle: ", angle, "position", base_pos)
-    transform_matrix = np.array([[np.cos(angle), -np.sin(angle), base_pos[0]],
-                                [np.sin(angle), np.cos(angle), base_pos[1]],
+    if debug_info: print("Robot position: ", base_pos)
+    transform_matrix = np.array([[base_pos.cos, -base_pos.sin, base_pos.x],
+                                [base_pos.sin, base_pos.cos, base_pos.y],
                                 [0, 0, 1]])
-    position = np.array([*position, 1])
-    result = np.dot(transform_matrix, position)[:2]
+    result = np.dot(transform_matrix, position.homog_xy)[:2]
     if debug_info: print("After rotation")
-    return result
+    return Point(*result)
 
 
 class Map:
@@ -42,9 +37,9 @@ class Map:
     def obstacles(self):
         return self.merge_objects()[RigidType.OBST]
 
-    def add_object(self, object_a: RigidObject, robot_pos: tuple, robot_angle: float, debug_info: bool = False):
-        if debug_info: print("BEFORE ROTATION:", object_a.position)
-        object_a.set_position(*transform(object_a.position, robot_angle, robot_pos))
+    def add_object(self, object_a: RigidObject, robot_pos: Point, debug_info: bool = False):
+        if debug_info: print("BEFORE ROTATION:", object_a.postion)
+        object_a.set_position(transform(object_a.position, robot_pos))
         if debug_info: print("AFTER ROTATION:", object_a.position)
         self.objects.append(object_a)
 
@@ -53,8 +48,8 @@ class Map:
         is_max_ball = (o_type == RigidType.BALL and count[o_type] >= self.MAX_OBJECTS[o_type])
         return is_max_poles or is_max_ball
 
-    def show(self, show_all: bool=False, show_merged: bool=True, robot_pos: tuple=None, 
-             kick_pos=None, midpoint=None, path=None, debug_info: bool = False)-> None:
+    def show(self, show_all: bool=False, show_merged: bool=True, robot_pos: Point=None,
+             kick_pos: Point=None, path: list=None, debug_info: bool = False)-> None:
         _, ax = plt.subplots(figsize=(6, 6), dpi=100)  # Set 6x6 inches
         ax.set_aspect(1)  # X, Y axis ratio 1:1
         if show_merged:
@@ -62,7 +57,7 @@ class Map:
             type_counter = {x:0 for x in obj}
             for object_type, points in obj.items():
                 for point in points:
-                    position = point.position
+                    position = point.xy
                     if self.is_max_reached(object_type, type_counter):
                             ax.scatter(*position, color=point.color, s=50, edgecolors='red', linewidths=2)
                     else:
@@ -73,24 +68,21 @@ class Map:
 
         if show_all:
             for point in self.objects:
-                pos = point.position
+                pos = point.xy
                 ax.scatter(*pos, color=point.color, s=25, alpha=0.2)
         if robot_pos is not None:
-            x_end = robot_pos[0] + 0.2 * np.cos(robot_pos[2])
-            y_end = robot_pos[1] + 0.2 * np.sin(robot_pos[2])
-            ax.plot([robot_pos[0], x_end], [robot_pos[1], y_end])
-            ax.scatter(robot_pos[0], robot_pos[1], color="black", s=60)
+            x_end = robot_pos.x + 0.2 * robot_pos.cos
+            y_end = robot_pos.y + 0.2 * robot_pos.sin
+            ax.plot([robot_pos.x, x_end], [robot_pos.y, y_end])
+            ax.scatter(*robot_pos.xy, color="black", s=60)
         if kick_pos is not None:
-            x_end = kick_pos[0] + 0.2 * np.cos(kick_pos[2])
-            y_end = kick_pos[1] + 0.2 * np.sin(kick_pos[2])
-            ax.plot([kick_pos[0], x_end], [kick_pos[1], y_end])
-            ax.scatter(kick_pos[0], kick_pos[1], color="black", s=60)
-            ax.scatter(kick_pos[0], kick_pos[1], color="cyan", s=60)
-        if midpoint is not None:
-            ax.scatter(midpoint[0], midpoint[1], color="black", s=60)
+            x_end = kick_pos.x + 0.2 * kick_pos.cos
+            y_end = kick_pos.y + 0.2 * kick_pos.sin
+            ax.plot([kick_pos.x, x_end], [kick_pos.y, y_end])
+            ax.scatter(*kick_pos.xy, color="cyan", s=60)
         if path is not None:
-            points_x = [x[0] for x in path]
-            points_y = [x[1] for x in path]
+            points_x = [x.x for x in path]
+            points_y = [x.y for x in path]
             ax.plot(points_x,points_y, marker="o")
             # compute differences
             x_diff = np.diff(points_x)
@@ -125,12 +117,12 @@ class Map:
                     merged_counter.append(1)
                     continue
 
-                dists = [distance(pole, x) for x in merged]
+                dists = [pole.position.distance(x) for x in merged]
                 is_merged = False
                 for k, x in enumerate(dists):
                     # merge into existing object
                     if x < self.threshold:
-                        merged[k].set_position(*average(merged[k], pole))
+                        merged[k].set_position(average(merged[k], pole))
                         merged_counter[k] += 1
                         is_merged = True
 
@@ -148,17 +140,17 @@ class Map:
     def determine_kick_pos(self, dist=1):
         poles: list[RigidObject] = self.poles
         if len(poles) < 2: raise ProcessError("Cannot determine kick position, not enough poles!")
-        p1: np.array = poles[0].position
-        p2: np.array = poles[1].position
+        p1: np.array = poles[0].xy
+        p2: np.array = poles[1].xy
         ball = self.ball
         if not ball: raise ProcessError("Cannot determine kick position, no ball!")
-        ball_pos: np.array = ball[0].position
+        ball_pos: np.array = ball[0].xy
         pole_center = np.array((p1 + p2) / 2)
         vector_line = ball_pos - pole_center
         v_length = np.linalg.norm(vector_line)
         pos = np.array(ball_pos + dist * vector_line / v_length)
         angle_rad = np.arctan2(-vector_line[1], -vector_line[0])
-        return np.append(pos, angle_rad)
+        return Point(*pos, angle_rad)
 
     def routing(self, robot_pos: np.array, finish_pos: np.array):
         pass
@@ -170,8 +162,8 @@ if __name__ == "__main__":
 
     def ao(x, y, t):
         obj = RigidObject(0, 0, 0, 0, RigidType(t))
-        obj.set_position(x, y)
-        mapA.add_object(obj, (0, 0), 0)
+        obj.set_position(Point(x, y))
+        mapA.add_object(obj, Point(0, 0))
 
     ao(0.5, -0.5, 1)
     ao(0.7, 0, 2)
