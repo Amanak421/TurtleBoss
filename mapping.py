@@ -176,6 +176,5 @@ if __name__ == "__main__":
     ao(0.5, -0.5, 1)
     ao(0.7, 0, 2)
     ao(1, -0.4, 2)
-    ao(1, -1, 2)
-    path = [(0, 0, 0), (2, 2, 0), (3, 0, 0), (-5, 2, 0)]
-    mapA.show(path=path)
+    kick_pos = mapA.determine_kick_pos()
+    mapA.show(kick_pos=kick_pos)

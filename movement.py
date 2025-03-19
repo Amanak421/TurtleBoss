@@ -105,7 +105,7 @@ class Move:
             if error < self.LINEAR_CORRECTION or self.turtle.is_shutting_down():
                 break
 
-            if debug_info: print(self.estimate_position())
+            if debug_info: print(f"{self.estimate_position()}")
 
             regulator = self.LINEAR_KP*error + self.LINEAR_KD*(error - last_error)
             speed = min(max(regulator, self.MIN_LINEAR_VELOCITY), self.MAX_LINEAR_VELOCITY)
@@ -138,14 +138,13 @@ class Move:
 
         last_error = 0
         while True:
-            odometry = self.turtle.get_odometry()
             angle = self.get_odometry_angle()
 
             error = target_angle - angle
             if error < self.ANGULAR_EPSILON or self.turtle.is_shutting_down():
                 break
             
-            if debug_info: print(self.estimate_position(odometry[0], odometry[2])) #TODO
+            if debug_info: print(self.estimate_position())
 
             regulator = self.ANGULAR_KP*error + self.ANGULAR_KD*(error - last_error)
             speed = min(max(regulator, self.MIN_ANGULAR_VELOCITY), self.MAX_ANGULAR_VELOCITY)

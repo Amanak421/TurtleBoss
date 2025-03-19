@@ -4,7 +4,7 @@ from robolab_turtlebot import Turtlebot, sleep, Rate, get_time
 import find_ball
 from mapping import Map
 from movement import Move
-from point import Point
+from geometry import Point
 
 def scan(turtle):
     turtle.wait_for_rgb_image()
@@ -23,7 +23,7 @@ if __name__ == "__main__":
     sleep(2)
     turtle_.play_sound(1)
     sleep(0.3)
-    rate = Rate(10)
+    rate = Rate(50)
     robot_move = Move(turtle_, rate)
     robot_move.reset()
     robot_map = Map()
