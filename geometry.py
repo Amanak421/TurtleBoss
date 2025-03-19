@@ -34,11 +34,15 @@ class Point:
     def cos(self):
         return np.cos(self.angle)   
     
+    @property
+    def homog_xy(self):
+        return np.array((self.x, self.y, 1))
+    
     def add_angle(self, angle) -> None:
         self.angle = normalize_angle(self.angle + angle)
 
     def distance(self, point):
-        return np.sqrt(np.sum(np.power(self.position - point.position, 2)))
+        return np.sqrt(np.sum(np.power(self.xy - point.xy, 2)))
     
     def relative_angle(self, point):
         """Compute angle of connecting line."""
