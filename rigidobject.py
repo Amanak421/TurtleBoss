@@ -1,5 +1,6 @@
 from enum import Enum
 import numpy as np
+from geometry import Point
 
 
 RADIUS_POLE = 0.025
@@ -22,10 +23,8 @@ class RigidType(Enum):
 
 class RigidObject:
     def __init__(self, x, y, w, h, o_type: RigidType, c_type: ColorType = None):
-        self.x = 0  # x_pc
-        self.y = 0  # y_pc
-        self.im_x = x  # x_rgb
-        self.im_y = y  # y_rgb
+        self.p = Point(0, 0) # (x,y)_pc
+        self.im_p = Point(x, y) # (x,y)_rgb
         self.w = w
         self.h = h
         self.o_type = o_type
@@ -39,7 +38,7 @@ class RigidObject:
             self.c_type = c_type
 
     def __repr__(self):
-        return f"{self.c_type.name} {self.o_type.name} on {self.im_x}, {self.im_y} at {self.x}, {self.y}\t"
+        return f"{self.c_type.name} {self.o_type.name} on {self.im_p.xy[0]}, {self.im_p.xy[1]} at {self.p.xy[0]}, {self.p.xy[1]}\t"
 
     def __str__(self):
         return self.__repr__()
@@ -57,7 +56,15 @@ class RigidObject:
         """
         :return: Numpy-fied real-world coordinates x, y
         """
-        return np.array([self.x, self.y])
+        return self.p.xy
+    
+
+    @property
+    def im_position(self):
+        """
+        :return: Numpy-fied image coordinates x, y
+        """
+        return self.im_p.xy
 
     def set_position(self, new_x, new_y):
         """
@@ -66,8 +73,7 @@ class RigidObject:
         :param new_y: y
         :return:
         """
-        self.x = new_x
-        self.y = new_y
+        self.p = Point(new_x, new_y)
 
     def assign_xy(self, pc):
         """
@@ -76,9 +82,9 @@ class RigidObject:
         :return:
         """
         r = (RADIUS_BALL if self.o_type == RigidType.BALL else RADIUS_POLE)
-        vector = pc[self.im_y][self.im_x][0], pc[self.im_y][self.im_x][2]
+        vector = pc[self.im_p.xy[1]][self.im_p.xy[0]][0], pc[self.im_p.xy[1]][self.im_p.xy[0]][2]
         norm = np.linalg.norm(vector)
-        self.x = pc[self.im_y][self.im_x][2]  # + r * vector[0] / norm
-        self.y = -pc[self.im_y][self.im_x][0]  # + r * vector[1] / norm
+        self.x = pc[self.im_p.xy[1]][self.im_p.xy[0]][2]  # + r * vector[0] / norm
+        self.y = -pc[self.im_p.xy[1]][self.im_p.xy[0]][0]  # + r * vector[1] / norm
 
-        print("TEST PRINT X Y: ", self.x, self.y)
+        print("TEST PRINT X Y: ", self.p.xy[0], self.p.xy[1])
