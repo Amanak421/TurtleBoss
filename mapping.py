@@ -23,6 +23,12 @@ class Map:
     def __init__(self, threshold=0.2):
         self.objects = []
         self.MAX_OBJECTS = {RigidType.POLE: 2, RigidType.BALL: 1}
+<<<<<<< HEAD
+=======
+        self.MIN_MATCHES = 2
+
+
+>>>>>>> 4642808 (update)
         self.threshold = threshold
 
     @property
@@ -48,6 +54,9 @@ class Map:
         for ball in obj_dict[RigidType.BALL]:
             dead_zones.append(Circle(ball.position, 0.4))
         return dead_zones
+    
+    def reset(self):
+        self.objects = []
 
     def add_object(self, object_a: RigidObject, robot_pos: Point, debug_info: bool = False):
         if debug_info: print("BEFORE ROTATION:", object_a.position)
@@ -61,7 +70,7 @@ class Map:
         return is_max_poles or is_max_ball
 
     def show(self, show_all: bool=False, show_merged: bool=True, robot_pos: Point=None,
-             kick_pos: Point=None, path: list[Point]=None, dead_zones: list[Circle]=None, debug_info: bool = False)-> None:
+             kick_pos: Point=None, path: list=None, dead_zones: list=None, debug_info: bool = False)-> None:
         _, ax = plt.subplots(figsize=(6, 6), dpi=100)  # Set 6x6 inches
         ax.set_aspect(1)  # X, Y axis ratio 1:1
         if show_merged:

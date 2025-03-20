@@ -97,6 +97,25 @@ if __name__ == "__main__":
     input("GO TO POSITION -> PRESS KEY")
     robot_move.go_to(kick_pos, linear_velocity=0.4, angular_velocity=0.45)
 
+    # get photo and get better position
+    robot_map.reset()
+    print(f"DOING SCAN for angle {angle}")
+    objects = scan(turtle_)
+    
+    if objects:
+        print("NOT FOUND -> ROTATE")
+        print("ALL OBJECTS:", objects)
+        for obj in objects:
+            robot_pos = robot_move.position
+            robot_angle = robot_move.angle
+            print("ROBOT POSITION:", robot_pos, robot_angle)
+            robot_map.add_object(obj, robot_pos, True)
+        print("\tSHOWING OBJECT")
+        robot_map.show(show_all=False, show_merged=True, robot_pos=robot_move.position, kick_pos=kick_pos, debug_info=True)
+        input("GO TO POSITION -> PRESS KEY")
+        kick_pos = robot_map.determine_kick_pos(dist=0.5)
+        robot_move.go_to(kick_pos, linear_velocity=0.4, angular_velocity=0.45)
+
     offset = 40
     center = 335
 
@@ -142,3 +161,5 @@ if __name__ == "__main__":
         else:
             print("LEFT-> SPEED: ", (max((abs(center - ball.im_p.x)/640)*0.9, 0.4)))
             turtle_.cmd_velocity(angular=(max((abs(center - ball.im_p.x)/640)*1.5, 0.4)))
+
+        rate.sleep()
