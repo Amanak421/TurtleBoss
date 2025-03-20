@@ -91,7 +91,7 @@ def intersection(circle: Circle, segment: Segment):
     # https://mathworld.wolfram.com/Circle-LineIntersection.html
     dx = segment.direction_vector.x
     dy = segment.direction_vector.y
-    dr = np.sqrt(np.sum(np.square(dx), np.square(dy)))
+    dr = np.sqrt(np.square(dx) + np.square(dy))
     d = np.linalg.det(((segment.a.x - circle.c.x, segment.b.x - circle.c.x), (segment.a.y - circle.c.y, segment.b.y - circle.c.y)))
     delta = np.square(circle.r) * np.square(dr) - np.square(d)
     if delta < 0:

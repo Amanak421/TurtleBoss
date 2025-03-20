@@ -1,6 +1,7 @@
 import numpy as np
+import matplotlib.patches as patches
 import matplotlib.pyplot as plt
-from geometry import Point, Circle
+from geometry import Point, Circle, Segment, intersection
 from rigidobject import RigidObject, RigidType
 from utils import ProcessError
 
@@ -37,6 +38,18 @@ class Map:
     def obstacles(self):
         return self.merge_objects()[RigidType.OBST]
 
+    @property
+    def dead_zones(self):
+        obj_dict = self.merge_objects()
+        dead_zones = []
+        for pole in obj_dict[RigidType.POLE]:
+            dead_zones.append(Circle(pole.position, 0.3))
+        for obst in obj_dict[RigidType.OBST]:
+            dead_zones.append(Circle(obst.position, 0.3))
+        for ball in obj_dict[RigidType.BALL]:
+            dead_zones.append(Circle(ball.position, 0.4))
+        return dead_zones
+
     def add_object(self, object_a: RigidObject, robot_pos: Point, debug_info: bool = False):
         if debug_info: print("BEFORE ROTATION:", object_a.position)
         object_a.set_position(transform(object_a.position, robot_pos, debug_info))
@@ -49,7 +62,7 @@ class Map:
         return is_max_poles or is_max_ball
 
     def show(self, show_all: bool=False, show_merged: bool=True, robot_pos: Point=None,
-             kick_pos: Point=None, path: list=None, debug_info: bool = False)-> None:
+             kick_pos: Point=None, path: list[Point]=None, dead_zones: list[Circle]=None, debug_info: bool = False)-> None:
         _, ax = plt.subplots(figsize=(6, 6), dpi=100)  # Set 6x6 inches
         ax.set_aspect(1)  # X, Y axis ratio 1:1
         if show_merged:
@@ -91,6 +104,10 @@ class Map:
             pos_y = points_y[:-1] + y_diff/2
             norm = np.sqrt(x_diff**2+y_diff**2)
             ax.quiver(pos_x, pos_y, x_diff/norm, y_diff/norm, angles="xy", zorder=5, pivot="mid")
+        if dead_zones is not None:
+            for zone in dead_zones:
+                ax.add_patch(patches.Circle(zone.c.xy, zone.r, facecolor='r', edgecolor='r', linewidth=2, alpha=0.1))
+
 
         x_lim = plt.xlim()
         y_lim = plt.ylim()
@@ -137,7 +154,7 @@ class Map:
 
         return objects
 
-    def determine_kick_pos(self, dist=1):
+    def determine_kick_pos(self, dist: float=1):
         poles: list[RigidObject] = self.poles
         if len(poles) < 2: raise ProcessError("Cannot determine kick position, not enough poles!")
         p1: np.array = poles[0].xy
@@ -154,15 +171,12 @@ class Map:
 
     def routing(self, s_pos: Point, f_pos: Point):
         route = [s_pos, f_pos]
-        obj_dict = self.merge_objects()
-        dead_zones = []
-        for pole in obj_dict[RigidType.POLE]:
-            dead_zones.append(Circle(pole.position, 0.3))
-        for obst in obj_dict[RigidType.OBST]:
-            dead_zones.append(Circle(obst.position, 0.3))
-        for ball in obj_dict[RigidType.BALL]:
-            dead_zones.append(Circle(ball.position, 0.5))
-        return
+        dz = self.dead_zones
+        s = Segment(route[0], route[1])
+        for zone in dz:
+            intersects = intersection(zone, s)
+
+        return route
 
 
 
@@ -176,9 +190,9 @@ if __name__ == "__main__":
         obj.set_position(Point(x, y))
         mapA.add_object(obj, Point(0, 0))
 
-    ao(0.5, -0.5, 1)
-    ao(0.7, 0, 2)
-    ao(1, -0.4, 2)
-    kick_pos_ = mapA.determine_kick_pos()
-    mapA.routing(Point(0, 0), kick_pos_)
-    mapA.show(kick_pos=kick_pos_)
+    ao(0.2, -0.5, 1)
+    ao(0.4, 0, 2)
+    ao(0.7, -0.4, 2)
+    kick_pos_ = mapA.determine_kick_pos(dist=0.7)
+    path_ = mapA.routing(Point(0, 0), kick_pos_)
+    mapA.show(kick_pos=kick_pos_, path=path_, dead_zones=mapA.dead_zones)
