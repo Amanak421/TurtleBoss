@@ -19,9 +19,9 @@ if __name__ == "__main__":
         if inp == "r":
             test.reset()
         if inp == "p":
-            print(f"Position: {test.getPosition()}")
+            print(f"Position: {test.xya}")
         if inp.split(" ")[0] == "g":
             x, y, angle = [float(x) for x in inp.split(" ")[1:]]
             print(f"GO TO: {x} {y} {angle}")
             test.go_to(x, y, angle)
-            print(f"Position: {test.getPosition()}")
+            print(f"Position: {test.xya}")
