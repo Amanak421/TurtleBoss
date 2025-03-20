@@ -23,8 +23,8 @@ class RigidType(Enum):
 
 class RigidObject:
     def __init__(self, x, y, w, h, o_type: RigidType, c_type: ColorType = None):
-        self.p = Point(0, 0) # (x,y)_pc
-        self.im_p = Point(x, y) # (x,y)_rgb
+        self.p = Point(0, 0)  # (x,y)_pc
+        self.im_p = Point(x, y)  # (x,y)_rgb
         self.w = w
         self.h = h
         self.o_type = o_type
@@ -75,8 +75,7 @@ class RigidObject:
     def set_position(self, new_pos: Point):
         """
         Set real-world coordinates
-        :param new_x: x
-        :param new_y: y
+        :param new_pos: Point(x, y)
         :return:
         """
         self.p = new_pos
@@ -90,7 +89,7 @@ class RigidObject:
         r = (RADIUS_BALL if self.o_type == RigidType.BALL else RADIUS_POLE)
         vector = pc[self.im_p.xy[1]][self.im_p.xy[0]][0], pc[self.im_p.xy[1]][self.im_p.xy[0]][2]
         norm = np.linalg.norm(vector)
-        self.x = pc[self.im_p.xy[1]][self.im_p.xy[0]][2]  # + r * vector[0] / norm
-        self.y = -pc[self.im_p.xy[1]][self.im_p.xy[0]][0]  # + r * vector[1] / norm
+        self.p.x = pc[self.im_p.xy[1]][self.im_p.xy[0]][2]  # + r * vector[0] / norm
+        self.p.y = -pc[self.im_p.xy[1]][self.im_p.xy[0]][0]  # + r * vector[1] / norm
 
         print("TEST PRINT X Y: ", self.p.xy[0], self.p.xy[1])

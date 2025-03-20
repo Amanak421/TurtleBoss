@@ -1,8 +1,8 @@
 import numpy as np
 import matplotlib.pyplot as plt
+from geometry import Point, Circle
 from rigidobject import RigidObject, RigidType
 from utils import ProcessError
-from geometry import Point
 
 def average(object_a: RigidObject, object_b: RigidObject):
     return Point(*np.mean([object_a.xy, object_b.xy], axis=0))
@@ -39,7 +39,7 @@ class Map:
 
     def add_object(self, object_a: RigidObject, robot_pos: Point, debug_info: bool = False):
         if debug_info: print("BEFORE ROTATION:", object_a.position)
-        object_a.set_position(transform(object_a.position, robot_pos))
+        object_a.set_position(transform(object_a.position, robot_pos, debug_info))
         if debug_info: print("AFTER ROTATION:", object_a.position)
         self.objects.append(object_a)
 
@@ -152,8 +152,19 @@ class Map:
         angle_rad = np.arctan2(-vector_line[1], -vector_line[0])
         return Point(*pos, angle_rad)
 
-    def routing(self, robot_pos: np.array, finish_pos: np.array):
-        pass
+    def routing(self, s_pos: Point, f_pos: Point):
+        route = [s_pos, f_pos]
+        obj_dict = self.merge_objects()
+        dead_zones = []
+        for pole in obj_dict[RigidType.POLE]:
+            dead_zones.append(Circle(pole.position, 0.3))
+        for obst in obj_dict[RigidType.OBST]:
+            dead_zones.append(Circle(obst.position, 0.3))
+        for ball in obj_dict[RigidType.BALL]:
+            dead_zones.append(Circle(ball.position, 0.5))
+        return
+
+
 
 
 
@@ -168,5 +179,6 @@ if __name__ == "__main__":
     ao(0.5, -0.5, 1)
     ao(0.7, 0, 2)
     ao(1, -0.4, 2)
-    kick_pos = mapA.determine_kick_pos()
-    mapA.show(kick_pos=kick_pos)
+    kick_pos_ = mapA.determine_kick_pos()
+    mapA.routing(Point(0, 0), kick_pos_)
+    mapA.show(kick_pos=kick_pos_)
