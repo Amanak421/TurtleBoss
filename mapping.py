@@ -95,7 +95,7 @@ class Map:
         if path is not None:
             points_x = [x.x for x in path]
             points_y = [x.y for x in path]
-            ax.plot(points_x,points_y, marker="o")
+            ax.plot(points_x, points_y, marker="o", color='#37BB37')
             # compute differences
             x_diff = np.diff(points_x)
             y_diff = np.diff(points_y)
@@ -207,7 +207,7 @@ if __name__ == "__main__":
     ao(0.2, -0.5, 1)
     ao(0.4, 0, 2)
     ao(0.7, -0.4, 2)
-    ao(-0.25, -0.25, 3)
+    ao(-0.35, -0.15, 3)
     kick_pos_ = mapA.determine_kick_pos(dist=0.7)
     path_ = mapA.routing(Point(0, 0), kick_pos_)
     mapA.show(kick_pos=kick_pos_, path=path_, dead_zones=mapA.dead_zones)
