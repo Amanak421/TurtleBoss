@@ -38,7 +38,7 @@ class Map:
         return self.merge_objects()[RigidType.OBST]
 
     def add_object(self, object_a: RigidObject, robot_pos: Point, debug_info: bool = False):
-        if debug_info: print("BEFORE ROTATION:", object_a.postion)
+        if debug_info: print("BEFORE ROTATION:", object_a.position)
         object_a.set_position(transform(object_a.position, robot_pos))
         if debug_info: print("AFTER ROTATION:", object_a.position)
         self.objects.append(object_a)
