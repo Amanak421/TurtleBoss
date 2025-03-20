@@ -1,5 +1,5 @@
+from typing import Union
 import numpy as np
-
 
 def normalize_angle(angle):
         return np.arctan2(np.sin(angle), np.cos(angle))
@@ -21,6 +21,24 @@ class Point:
 
     def __sub__(self, point):
         return Point(self.x - point.x, self.y - point.y, self.angle)
+
+    def __mul__(self, factor):
+        if isinstance(factor, int):
+            return Point(self.x * factor, self.y * factor, self.angle)
+        else:
+            return NotImplemented
+
+    def __rmul__(self, factor):
+        return self.__mul__(factor)
+
+    def __truediv__(self, divisor):
+        if isinstance(divisor, (int, float)) and divisor != 0:  # Prevent division by zero
+            return Point(self.x / divisor, self.y / divisor, self.angle)
+        else:
+            return NotImplemented
+
+    def __rtruediv__(self, divisor: int):
+        return NotImplemented
 
     @property
     def xya(self):
@@ -52,8 +70,7 @@ class Point:
         """Compute angle of connecting line."""
         return np.arctan2(point.y - self.y, point.x - self.x)
 
-
-class Segment:
+class Line:
     def __init__(self, a: Point, b: Point):
         self.a, self.b = a, b
 
@@ -76,23 +93,37 @@ class Segment:
     def is_element_of(self, point: Point, atol=1e-9):
         cross_product = (point.y - self.a.y) * (self.b.x - self.a.x) - (self.b.y - self.a.y) * (point.x - self.a.x)
         collinear = cross_product < atol
+        return collinear
+
+
+class Segment(Line):
+    def __init__(self, a: Point, b: Point):
+        super().__init__(a, b)
+
+    @property
+    def midpoint(self):
+        return (self.a + self.b) / 2
+
+    def is_element_of(self, point: Point, atol=1e-9):
         within_bounds = (min(self.a.x, self.b.x) - atol <= point.x <= max(self.a.x, self.b.x) + atol and
                          min(self.a.y, self.b.y) - atol <= point.y <= max(self.a.y, self.b.y) + atol)
-        return collinear and within_bounds
-
+        return super().is_element_of(point, atol) and within_bounds
 
 
 class Circle:
     def __init__(self, c: Point, r: float):
         self.c, self.r = c, r
 
+    def is_inner(self, point: Point):
+        return np.square(point.x - self.c.x) + np.square(point.y - self.c.y) <= np.square(self.r)
 
-def intersection(circle: Circle, segment: Segment):
+
+def intersection(circle: Circle, linear: Union[Line, Segment]):
     # https://mathworld.wolfram.com/Circle-LineIntersection.html
-    dx = segment.direction_vector.x
-    dy = segment.direction_vector.y
+    dx = linear.direction_vector.x
+    dy = linear.direction_vector.y
     dr = np.sqrt(np.square(dx) + np.square(dy))
-    d = np.linalg.det(((segment.a.x - circle.c.x, segment.b.x - circle.c.x), (segment.a.y - circle.c.y, segment.b.y - circle.c.y)))
+    d = np.linalg.det(((linear.a.x - circle.c.x, linear.b.x - circle.c.x), (linear.a.y - circle.c.y, linear.b.y - circle.c.y)))
     delta = np.square(circle.r) * np.square(dr) - np.square(d)
     if delta < 0:
         return []
@@ -101,12 +132,12 @@ def intersection(circle: Circle, segment: Segment):
         x1 = (d * dy + sign_dy * dx * np.sqrt(delta)) / np.square(dr)
         y1 = (-d * dx + abs(dy) * np.sqrt(delta)) / np.square(dr)
         x2 = (d * dy - sign_dy * dx * np.sqrt(delta)) / np.square(dr)
-        y2 = (-d * dx + abs(dy) * np.sqrt(delta)) / np.square(dr)
+        y2 = (-d * dx - abs(dy) * np.sqrt(delta)) / np.square(dr)
         p1 = Point(x1 + circle.c.x, y1 + circle.c.y)
         p2 = Point(x2 + circle.c.x, y2 + circle.c.y)
         intersects = []
-        if segment.is_element_of(p1): intersects.append(p1)
-        if segment.is_element_of(p2): intersects.append(p2)
+        if linear.is_element_of(p1): intersects.append(p1)
+        if linear.is_element_of(p2): intersects.append(p2)
         return intersects
 
 

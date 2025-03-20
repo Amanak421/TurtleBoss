@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.patches as patches
 import matplotlib.pyplot as plt
-from geometry import Point, Circle, Segment, intersection
+from geometry import Point, Circle, Line, Segment, intersection, normalize_angle
 from rigidobject import RigidObject, RigidType
 from utils import ProcessError
 
@@ -172,14 +172,29 @@ class Map:
     def routing(self, s_pos: Point, f_pos: Point):
         route = [s_pos, f_pos]
         dz = self.dead_zones
-        s = Segment(route[0], route[1])
-        for zone in dz:
-            intersects = intersection(zone, s)
-
+        if any(zone.is_inner(f_pos) for zone in dz): return []
+        change = True
+        change_counter = 0
+        while change and change_counter < 10:
+            change = False
+            for i in range(len(route) - 1):
+                line = Line(route[i], route[i + 1])
+                seg = Segment(route[i], route[i + 1])
+                for zone in sorted(dz, key=lambda z: z.c.distance(route[i])):
+                    intersects = intersection(zone, line)
+                    if (not intersects or intersects[0] == intersects[1] or
+                            not (seg.is_element_of(intersects[0]) or seg.is_element_of(intersects[1]))):
+                        continue
+                    chord_seg = Segment(*intersects)
+                    diameter_line = Line(chord_seg.midpoint, zone.c)
+                    new_stop_candidates = intersection(Circle(zone.c, 2 * zone.r - zone.c.distance(chord_seg.midpoint)), diameter_line)
+                    new_stop = max(new_stop_candidates, key=lambda p: p.distance(self.ball[0]))
+                    route.insert(i + 1, new_stop)
+                    change = True
+                    change_counter += 1
+                    break
+            # mapA.show(kick_pos=kick_pos_, path=route, dead_zones=mapA.dead_zones)
         return route
-
-
-
 
 
 if __name__ == "__main__":
@@ -193,6 +208,7 @@ if __name__ == "__main__":
     ao(0.2, -0.5, 1)
     ao(0.4, 0, 2)
     ao(0.7, -0.4, 2)
+    ao(-0.25, -0.25, 3)
     kick_pos_ = mapA.determine_kick_pos(dist=0.7)
     path_ = mapA.routing(Point(0, 0), kick_pos_)
     mapA.show(kick_pos=kick_pos_, path=path_, dead_zones=mapA.dead_zones)
