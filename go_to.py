@@ -10,7 +10,7 @@ if __name__ == "__main__":
     turtle.play_sound(1)
     sleep(0.3)
     rate = Rate(50)
-    test = Move(turtle, rate, True)
+    test = Move(turtle, rate)
 
     while True:
         inp = input(">> ")
