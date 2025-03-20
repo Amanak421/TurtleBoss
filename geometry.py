@@ -46,5 +46,5 @@ class Point:
     
     def relative_angle(self, point):
         """Compute angle of connecting line."""
-        return np.atan2(point.y - self.y, point.x - self.x)
+        return np.arctan2(point.y - self.y, point.x - self.x)
 

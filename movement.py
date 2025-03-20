@@ -191,7 +191,7 @@ class Move:
         # calculate a angle difference
         turn_end = normalize_angle(point.angle - move_angle)
         if debug_info:
-            print("TEST2", turn_end)
+            print("TEST2", turn_end, "Point", point.angle, move_angle)
             input("PRESS ANY KEY...")
         self.turn(turn_end, speed=angular_velocity, debug_info=debug_info)
 
