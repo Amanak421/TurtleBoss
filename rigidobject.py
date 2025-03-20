@@ -90,7 +90,6 @@ class RigidObject:
         r = (RADIUS_BALL if self.o_type == RigidType.BALL else RADIUS_POLE)
         vector = pc[self.im_p.xy[1]][self.im_p.xy[0]][0], pc[self.im_p.xy[1]][self.im_p.xy[0]][2]
         norm = np.linalg.norm(vector)
-        self.x = pc[self.im_p.xy[1]][self.im_p.xy[0]][2]  # + r * vector[0] / norm
-        self.y = -pc[self.im_p.xy[1]][self.im_p.xy[0]][0]  # + r * vector[1] / norm
+        self.p = Point(pc[self.im_p.xy[1]][self.im_p.xy[0]][2],  -pc[self.im_p.xy[1]][self.im_p.xy[0]][0])  # + r * vector[1] / norm
 
-        print("TEST PRINT X Y: ", self.p.xy[0], self.p.xy[1])
+        print("TEST PRINT X Y: ", self.p.xy)
