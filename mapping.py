@@ -23,6 +23,8 @@ class Map:
     def __init__(self, threshold=0.2):
         self.objects = []
         self.MAX_OBJECTS = {RigidType.POLE: 2, RigidType.BALL: 1}
+        self.M
+
 
         self.threshold = threshold
 
