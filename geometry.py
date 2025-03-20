@@ -1,7 +1,7 @@
 import numpy as np
 
 def normalize_angle(angle):
-        return np.atan2(np.sin(angle), np.cos(angle))
+        return np.arctan2(np.sin(angle), np.cos(angle))
 
 class Point:
     def __init__(self, x, y, angle=0):
