@@ -40,6 +40,10 @@ class Move:
         return self.__repr__()
 
     @property
+    def position(self):
+        return self.robot_pos
+
+    @property
     def xya(self):
         return self.robot_pos.xya
     
@@ -102,7 +106,7 @@ class Move:
             distance = self.get_odometry_x()
 
             error = length - distance
-            if error < self.LINEAR_CORRECTION or self.turtle.is_shutting_down():
+            if abs(error) < self.LINEAR_CORRECTION or self.turtle.is_shutting_down():
                 break
 
             if debug_info: print(f"{self.estimate_position()}")
@@ -131,6 +135,7 @@ class Move:
             return
 
         if np.isclose(target_angle, 0):
+            print("ROTATE REJECTED")
             return
 
         # reset robot odometry
@@ -141,7 +146,8 @@ class Move:
             angle = self.get_odometry_angle()
 
             error = target_angle - angle
-            if error < self.ANGULAR_EPSILON or self.turtle.is_shutting_down():
+            if debug_info: print("ROT ERROR", error)
+            if abs(error) < self.ANGULAR_EPSILON or self.turtle.is_shutting_down():
                 break
             
             if debug_info: print(self.estimate_position())
@@ -165,7 +171,7 @@ class Move:
         self.turtle.cmd_velocity(angular = speed)
         self.rate.sleep()
 
-    def turn(self, target_angle, speed = 0.5, debug_info: bool = False, simulate=False):
+    def turn(self, target_angle, speed = 0.5, debug_info: bool = True, simulate=False):
         if abs(target_angle) > (7/8)*np.pi:
             self.rotate(target_angle/2, speed=speed, debug_info=debug_info, simulate=simulate)
             print("SECOND TURN")

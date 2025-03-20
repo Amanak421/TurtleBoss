@@ -42,10 +42,10 @@ if __name__ == "__main__":
 
         print("ALL OBJECTS:", objects)
         for obj in objects:
-            robot_pos = robot_move.xy
+            robot_pos = robot_move.position
             robot_angle = robot_move.angle
             print("ROBOT POSITION:", robot_pos, robot_angle)
-            robot_map.add_object(obj, robot_pos, robot_angle, True)
+            robot_map.add_object(obj, robot_pos, True)
         print("\tSHOWING OBJECT")
         # robot_map.show(show_all=True, show_merged=False, robot_pos=robot_move.getPosition())
 
@@ -57,13 +57,10 @@ if __name__ == "__main__":
     ball = robot_map.ball
 
     kick_pos = robot_map.determine_kick_pos(dist=0.9)
-    midpoint = robot_move.midpoint(kick_pos[0], kick_pos[1], *ball[0].position)
+    #midpoint = robot_move.midpoint(kick_pos[0], kick_pos[1], *ball[0].position)
     print("MOVING TO POSITION: ", kick_pos)
-    robot_map.show(show_all=False, show_merged=True, robot_pos=robot_move.position, kick_pos=kick_pos, midpoint=midpoint, debug_info=True)
-    robot_move.go_to(*midpoint, 0, linear_velocity=0.4, angular_velocity=0.45)
-
-    input("IN MIDPOINT PRESS ANY KEY")
-    robot_move.go_to(*kick_pos, linear_velocity=0.4, angular_velocity=0.45)
+    robot_map.show(show_all=False, show_merged=True, robot_pos=robot_move.position, kick_pos=kick_pos, debug_info=True)
+    robot_move.go_to(kick_pos, linear_velocity=0.4, angular_velocity=0.45)
 
     offset = 40
     center = 335

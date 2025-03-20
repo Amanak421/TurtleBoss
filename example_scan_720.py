@@ -14,7 +14,7 @@ def scan(turtle):
     pc = turtle.get_point_cloud()
     for o in all_objects:
         o.assign_xy(pc)
-    find_ball.show_objects(rgb_img, all_objects, "Objects", True)
+    # find_ball.show_objects(rgb_img, all_objects, "Objects", True)
     # find_ball.show_objects(rgb_img, [], "Objects", True)
     return all_objects
 
@@ -29,27 +29,53 @@ if __name__ == "__main__":
     robot_map = Map()
     input("START ROBOT BY PRESSING KEY")
     print("ROBOT STARTED")
+
+    #quick first scan
     angle = 0
-    while angle < 4 * pi:
+    while angle < 2*pi:
         print(f"DOING SCAN for angle {angle}")
         objects = scan(turtle_)
             
         if not objects:
             print("NOT FOUND -> ROTATE")
-            robot_move.rotate(pi/6, speed=0.7)
-            angle += pi/6
+            robot_move.rotate(pi/4, speed=0.7)
+            angle += pi/4
             continue
 
         print("ALL OBJECTS:", objects)
         for obj in objects:
-            robot_pos = robot_move.xy
+            robot_pos = robot_move.position
             robot_angle = robot_move.angle
             print("ROBOT POSITION:", robot_pos, robot_angle)
-            robot_map.add_object(obj, robot_pos, robot_angle, True)
+            robot_map.add_object(obj, robot_pos, True)
         print("\tSHOWING OBJECT")
         # robot_map.show(show_all=True, show_merged=False, robot_pos=robot_move.getPosition())
 
-        robot_move.rotate(pi/12)
-        angle += pi/12
+        robot_move.rotate(pi/2)
+        angle += pi/3
+
+    # usable scan
+    angle = 0
+    while angle < 2*pi:
+        print(f"DOING SCAN for angle {angle}")
+        objects = scan(turtle_)
+            
+        if not objects:
+            print("NOT FOUND -> ROTATE")
+            robot_move.rotate(pi/4, speed=0.7)
+            angle += pi/4
+            continue
+
+        print("ALL OBJECTS:", objects)
+        for obj in objects:
+            robot_pos = robot_move.position
+            robot_angle = robot_move.angle
+            print("ROBOT POSITION:", robot_pos, robot_angle)
+            robot_map.add_object(obj, robot_pos, True)
+        print("\tSHOWING OBJECT")
+        # robot_map.show(show_all=True, show_merged=False, robot_pos=robot_move.getPosition())
+
+        robot_move.rotate(pi/2)
+        angle += pi/3
 
     robot_map.show(show_all=True, show_merged=True, debug_info=True)
