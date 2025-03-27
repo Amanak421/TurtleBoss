@@ -2,7 +2,7 @@ import sys
 from math import pi
 from robolab_turtlebot import Turtlebot, sleep, Rate, get_time
 import find_ball
-from mapping import Map
+from mapping import Map, has_all
 from movement import Move
 from geometry import Point
 from rigidobject import RigidObject, RigidType
@@ -26,7 +26,7 @@ if __name__ == "__main__":
     angle = 0
     while angle < 2*pi:
         print(f"DOING SCAN for angle {angle}")
-        objects = robot_map.scan(turtle_)
+        objects = robot_map.scan_environment()
             
         if not objects:
             print("NOT FOUND -> ROTATE")
@@ -43,7 +43,7 @@ if __name__ == "__main__":
         print("\tSHOWING OBJECT")
 
         #all objects was scanned and kick position can be determined
-        if robot_map.has_all:
+        if robot_map.has_all or has_all(objects):
             break
 
         robot_move.rotate(pi/8)
@@ -51,15 +51,19 @@ if __name__ == "__main__":
 
     ball = robot_map.ball
     kick_pos = robot_map.determine_kick_pos(dist=1)
-
+    path = robot_map.routing(robot_pos, kick_pos)
+    
     robot_map.show(show_all=False, show_merged=True, robot_pos=robot_move.position, kick_pos=kick_pos, debug_info=True)
-    input("GO TO POSITION -> PRESS KEY")
+
+    for p in path[1:]:
+
+
     robot_move.go_to(kick_pos, linear_velocity=0.4, angular_velocity=0.45)
 
     # get photo and get better position
     robot_map.reset()
     print(f"DOING SCAN for angle {angle}")
-    objects = robot_map.scan(turtle_)
+    objects = robot_map.scan_environment()
     
     if objects:
         print("ALL OBJECTS:", objects)

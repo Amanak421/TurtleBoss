@@ -25,9 +25,9 @@ def has_all(objects: list):
     ball = 0
 
     for obj in objects:
-        if obj.o_type == RigidType.POLE:
+        if obj.o_type == RigidType.POLE and 40 <= obj.im_p.x <= 600: 
             poles += 1
-        elif obj.o_type == RigidType.BALL:
+        elif obj.o_type == RigidType.BALL and 40 <= obj.im_p.x <= 600:
             ball += 1
 
     if poles == 2 and ball == 1:
@@ -37,7 +37,7 @@ def has_all(objects: list):
 
 
 class Map:
-    def __init__(self, threshold=0.2, turtle):
+    def __init__(self, turtle,threshold=0.2):
         self.objects = []
         self.MAX_OBJECTS = {RigidType.POLE: 2, RigidType.BALL: 1}
         self.MIN_MATCHES = 2
@@ -239,6 +239,7 @@ class Map:
         rgb_img = self.turtle.get_rgb_image()
         all_objects = find_ball.find_objects(rgb_img)
         # wait for point cloud find position of each object
+        find_ball.show_objects(rgb_img, all_objects, "Objects", True)
         self.turtle.wait_for_point_cloud()
         pc = self.turtle.get_point_cloud()
         for o in all_objects:
