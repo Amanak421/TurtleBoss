@@ -65,7 +65,7 @@ class Map:
         for obst in obj_dict[RigidType.OBST]:
             dead_zones.append(Circle(obst.position, 0.3))
         for ball in obj_dict[RigidType.BALL]:
-            dead_zones.append(Circle(ball.position, 0.4))
+            dead_zones.append(Circle(ball.position, 0.3))
         return dead_zones
     
     @property
@@ -97,6 +97,7 @@ class Map:
 
     def show(self, show_all: bool=False, show_merged: bool=True, robot_pos: Point=None,
              kick_pos: Point=None, path: list=None, dead_zones: list=None, debug_info: bool = False)-> None:
+        plt.ion()
         _, ax = plt.subplots(figsize=(6, 6), dpi=100)  # Set 6x6 inches
         ax.set_aspect(1)  # X, Y axis ratio 1:1
         if show_merged:

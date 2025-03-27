@@ -164,7 +164,6 @@ class Robot:
                 break
 
             self.turtle.cmd_velocity(linear=speed)
-            self.check_bumper()
             self.rate.sleep()
 
         self.turtle.cmd_velocity()

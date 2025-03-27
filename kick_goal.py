@@ -21,9 +21,9 @@ if __name__ == "__main__":
 
     ball = robot_map.ball
     kick_pos = robot_map.determine_kick_pos(dist=1)
-    path = robot_map.routing(robot.xy, kick_pos)
+    path = robot_map.routing(robot.position, kick_pos)
     
-    robot_map.show(show_all=False, show_merged=True, robot_pos=robot.position, kick_pos=kick_pos, debug_info=True)
+    robot_map.show(show_all=False, show_merged=True, path=path, dead_zones=robot_map.dead_zones, robot_pos=robot.position, kick_pos=kick_pos, debug_info=True)
 
     # go in front of ball
     for p in path[1:]:
@@ -32,13 +32,12 @@ if __name__ == "__main__":
     # reset all systems and scan the environment for second time
     robot_map.reset()
     robot.reset()
-    robot_map.scan_environment(robot_map)
+    robot.scan_environment(robot_map)
     # calculate position for kick and to it
-    kick_pos = robot_map.determine_kick_pos(dist=1)
+    kick_pos = robot_map.determine_kick_pos(dist=0.5)
     robot.go_to(kick_pos, linear_velocity=0.4, angular_velocity=0.45)
 
     print("INIT KICK MODE")
-    input("PRESS ANY KEY TO CONTINUE")
 
     # center ball to the center of the screen
     robot.center_ball()
