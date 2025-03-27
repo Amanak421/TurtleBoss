@@ -45,8 +45,6 @@ class Map:
         self.MIN_MATCHES = 2
         self.threshold = threshold
 
-        self.turtle = turtle
-
     @property
     def poles(self):
         return self.merge_objects()[0][RigidType.POLE]
