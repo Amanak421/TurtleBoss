@@ -34,7 +34,7 @@ if __name__ == "__main__":
     robot.reset()
     robot.scan_environment(robot_map)
     # calculate position for kick and to it
-    kick_pos = robot_map.determine_kick_pos(dist=0.5)
+    kick_pos = robot_map.determine_kick_pos(dist=0.6)
     robot.go_to(kick_pos, linear_velocity=0.4, angular_velocity=0.45)
 
     print("INIT KICK MODE")
