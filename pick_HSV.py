@@ -1,7 +1,7 @@
 import cv2
 import numpy as np
 import scipy.io
-import os
+
 
 color_pick = []
 

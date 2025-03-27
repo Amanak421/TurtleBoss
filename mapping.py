@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.patches as patches
 import matplotlib.pyplot as plt
-from geometry import Point, Circle, Line, Segment, intersection, normalize_angle
+from geometry import Point, Circle, Line, Segment, intersection
 from rigidobject import RigidObject, RigidType
 from utils import ProcessError
 

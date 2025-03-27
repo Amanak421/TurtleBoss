@@ -4,6 +4,7 @@ from geometry import Point, normalize_angle
 import find_ball
 from mapping import Map, has_all
 
+
 class Robot:
     def __init__(self, turtle, rate):
         self.WAIT_TIME = 0.1
@@ -276,7 +277,7 @@ class Robot:
                 robot_map.add_object(obj, robot_pos, True)
             if debug_info: print("\tSHOWING OBJECT")
 
-            #all objects was scanned and kick position can be determined
+            # all objects were scanned and kick position can be determined
             if robot_map.has_all or has_all(objects):
                 break
 
@@ -307,4 +308,5 @@ class Robot:
             self.rate.sleep()
 
 
-# kladný uhel -> doleva, záporný -> doprava
+# positive angle -> left
+# negative -> right

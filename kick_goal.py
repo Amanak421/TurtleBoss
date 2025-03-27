@@ -2,6 +2,7 @@ from robolab_turtlebot import Turtlebot, sleep, Rate
 from mapping import Map
 from robot import Robot
 
+
 if __name__ == "__main__":
     turtle_ = Turtlebot(rgb=True, depth=True, pc=True)
     sleep(2)
@@ -47,6 +48,6 @@ if __name__ == "__main__":
     robot.stop()
     sleep(0.2)
 
-    #play sound
+    # play sound
     turtle_.play_sound(5)
     print("PROGRAM ENDED")
