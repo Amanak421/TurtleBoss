@@ -7,8 +7,10 @@ from rigidobject import RigidObject, RigidType
 import find_ball
 from utils import ProcessError
 
+
 def average(object_a: RigidObject, object_b: RigidObject):
     return Point(*np.mean([object_a.xy, object_b.xy], axis=0))
+
 
 def transform(position: Point, base_pos: Point, debug_info: bool = False):
     if debug_info: print("Position before rot.", position)
@@ -19,6 +21,7 @@ def transform(position: Point, base_pos: Point, debug_info: bool = False):
     result = np.dot(transform_matrix, position.homog_xy)[:2]
     if debug_info: print("After rotation")
     return Point(*result)
+
 
 def has_all(objects: list):
     poles = 0
@@ -37,7 +40,7 @@ def has_all(objects: list):
 
 
 class Map:
-    def __init__(self, turtle,threshold=0.2):
+    def __init__(self, turtle, threshold=0.2):
         self.objects = []
         self.MAX_OBJECTS = {RigidType.POLE: 2, RigidType.BALL: 1}
         self.MIN_MATCHES = 2
@@ -142,7 +145,6 @@ class Map:
         if dead_zones is not None:
             for zone in dead_zones:
                 ax.add_patch(patches.Circle(zone.c.xy, zone.r, facecolor='r', edgecolor='r', linewidth=2, alpha=0.1))
-
 
         x_lim = plt.xlim()
         y_lim = plt.ylim()
