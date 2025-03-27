@@ -3,7 +3,7 @@ from math import pi
 from robolab_turtlebot import Turtlebot, sleep, Rate, get_time
 import find_ball
 from mapping import Map
-from movement import Move
+from robot import Robot
 from geometry import Point
 from rigidobject import RigidObject, RigidType
 

@@ -3,7 +3,7 @@ from math import pi
 from robolab_turtlebot import Turtlebot, sleep, Rate, get_time
 import find_ball
 from mapping import Map
-from movement import Move
+from robot import Robot
 from geometry import Point
 
 def scan(turtle):
@@ -24,7 +24,7 @@ if __name__ == "__main__":
     turtle_.play_sound(1)
     sleep(0.3)
     rate = Rate(50)
-    robot_move = Move(turtle_, rate)
+    robot_move = Robot(turtle_, rate)
     robot_move.reset()
     robot_map = Map()
     input("START ROBOT BY PRESSING KEY")

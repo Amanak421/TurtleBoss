@@ -1,5 +1,5 @@
 # TODO depreciate or rename to an example
-from movement import Move
+from robot import Robot
 import sys
 from robolab_turtlebot import Turtlebot, sleep, Rate, get_time
 from math import pi
@@ -13,7 +13,7 @@ if __name__ == "__main__":
     sleep(0.3)
     rate = Rate(50)
 
-    test = Move(turtle, rate)
+    test = Robot(turtle, rate)
     test.go(1)
     test.rotate(pi/2)
     test.go(1)

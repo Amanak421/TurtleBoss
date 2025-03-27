@@ -1,5 +1,5 @@
 # TODO depreciate or rename to an example
-from movement import Move
+from robot import Robot
 import sys
 from robolab_turtlebot import Turtlebot, sleep, Rate, get_time
 from math import pi

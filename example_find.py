@@ -1,5 +1,5 @@
 # TODO unsafe, update? (delete?)
-from movement import Move
+from robot import Robot
 import find_ball
 import sys
 from robolab_turtlebot import Turtlebot, sleep, Rate, get_time
@@ -11,7 +11,7 @@ if __name__ == "__main__":
     turtle.play_sound(1)
     sleep(0.3)
     rate = Rate(10)
-    test = Move(turtle, rate, False)
+    test = Robot(turtle, rate, False)
     input()
     offset = 40
     center = 320
