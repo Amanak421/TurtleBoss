@@ -2,11 +2,12 @@ import sys
 import numpy as np
 from geometry import Point, normalize_angle
 import find_ball
+from mapping import Map, has_all
 
-class Move:
+class Robot:
     def __init__(self, turtle, rate):
         self.WAIT_TIME = 0.1
-        self.LINEAR_CORRECTION = 1  # 0.98  # 0.96
+        self.LINEAR_CORRECTION = 0.9 #1  # 0.98  # 0.96
         self.ANGULAR_CORRECTION = 1.02 #1.04  # 1.18
 
         self.BUMPER_NAMES = ['LEFT', 'CENTER', 'RIGHT']
@@ -35,7 +36,7 @@ class Move:
         turtle.register_bumper_event_cb(self.bumper_cb)
 
     def __repr__(self):
-        return f"X: {self.x}, Y: {self.y}, ANGLE: {self.angle}\t"
+        return f"X: {self.robot_pos.x}, Y: {self.robot_pos.y}, ANGLE: {self.angle}\t"
 
     def __str__(self):
         return self.__repr__()
@@ -70,9 +71,12 @@ class Move:
         self.turtle.reset_odometry()
         self.turtle.wait_for_odometry()
 
-    def resetOdometry(self) -> None:
+    def reset_odometry(self) -> None:
         self.turtle.reset_odometry()
         self.turtle.wait_for_odometry()
+
+    def stop(self):
+        self.turtle.cmd_velocity()
 
     def update_odometry_linear(self, x) -> None:
         self.robot_pos = self.robot_pos + Point(x*self.robot_pos.cos, x*self.robot_pos.sin)
@@ -100,7 +104,7 @@ class Move:
             return
 
         # reset robot odometry
-        self.resetOdometry()
+        self.reset_odometry()
 
         # move forward until desired length is hit
         last_error = 0
@@ -134,7 +138,7 @@ class Move:
         self.rate.sleep()
 
     def kick(self, target_distance, speed=0.8):
-        self.resetOdometry()
+        self.reset_odometry()
 
         # move forward until desired length is hit
         while True:
@@ -157,7 +161,7 @@ class Move:
             return
 
         # reset robot odometry
-        self.resetOdometry()
+        self.reset_odometry()
 
         dir_coef = 1 if target_angle >= 0 else -1
         last_error = 0
@@ -198,7 +202,7 @@ class Move:
         else:
             self.rotate(target_angle, speed=speed, debug_info=debug_info, simulate=simulate)
 
-    def go_to(self, point: Point, linear_velocity = 0.3, angular_velocity = 0.5, debug_info: bool = False):
+    def go_to(self, point: Point, linear_velocity = 0.2, angular_velocity = 0.5, debug_info: bool = False):
         distance = self.robot_pos.distance(point)
         if debug_info: print("DIST", distance)
 
@@ -212,38 +216,76 @@ class Move:
         self.turn(turn_start, speed=angular_velocity, debug_info=debug_info)
         # go
         if debug_info: input("PRESS ANY KEY...")
-        self.go(distance, set_speed=0.1, debug_info=debug_info)
+        self.go(distance, set_speed=linear_velocity, debug_info=debug_info)
         # calculate a angle difference
         turn_end = normalize_angle(point.angle - move_angle)
         if debug_info:
             print("TEST2", turn_end, "Point", point.angle, move_angle)
             input("PRESS ANY KEY...")
         self.turn(turn_end, speed=angular_velocity, debug_info=debug_info)
-
-    def midpoint(self, x, y, x_ball, y_ball):
-        mid1 = np.array(((x + self.x + self.y - y)/2, (y + self.y - self.x + x)/2))
-        mid2 = np.array(((x + self.x - self.y + y)/2, (y + self.y + self.x - x)/2))
-        ball = np.array((x_ball, y_ball))
-        dist1 = np.linalg.norm(mid1 - ball)
-        dist2 = np.linalg.norm(mid2 - ball)
-
-        if dist1 > dist2:
-            return mid1
-        else:
-            return mid2
         
-    def scan_environment(self):
+    def get_objects_from_camera(self) -> list:
         # wait for rgb image
         self.turtle.wait_for_rgb_image()
         rgb_img = self.turtle.get_rgb_image()
         all_objects = find_ball.find_objects(rgb_img)
         # wait for point cloud find position of each object
-        find_ball.show_objects(rgb_img, all_objects, "Objects", True)
+        # find_ball.show_objects(rgb_img, all_objects, "Objects", True)
         self.turtle.wait_for_point_cloud()
         pc = self.turtle.get_point_cloud()
         for o in all_objects:
             o.assign_xy(pc)
         return all_objects
+    
+    def scan_environment(self, robot_map: Map, max_angle = 2*np.pi, big = np.pi/6, small = np.pi/8, debug_info: bool = False) -> None:
+        angle = 0
+        while angle < max_angle and not self.turtle.is_shutting_down():
+            if debug_info: print(f"DOING SCAN for angle {angle}")
+            objects = self.get_objects_from_camera()
+                
+            if not objects:
+                if debug_info: print("NOT FOUND -> ROTATE")
+                self.rotate(big, speed=0.5)
+                angle += big
+                continue
+
+            if debug_info: print("ALL OBJECTS:", objects)
+            for obj in objects:
+                robot_pos = self.position
+                robot_angle = self.angle
+                if debug_info: print("ROBOT POSITION:", robot_pos, robot_angle)
+                robot_map.add_object(obj, robot_pos, True)
+            if debug_info: print("\tSHOWING OBJECT")
+
+            #all objects was scanned and kick position can be determined
+            if robot_map.has_all or has_all(objects):
+                break
+
+            self.rotate(small)
+            angle += small
+
+    def center_ball(self, center = 335, offset = 10, debug_info: bool = False) -> None:
+        while not self.turtle.is_shutting_down():
+            all_objects_ = self.get_objects_from_camera()
+            ball = list(filter(lambda x: x.o_type == find_ball.RigidType.BALL, all_objects_))
+
+            if ball:
+                if debug_info: print("---------\n", ball)
+                ball = ball[0]
+            else:
+                self.turtle.cmd_velocity(angular=0.5)
+                continue
+
+            if center - offset <= ball.im_p.x <= center + offset:
+                break
+            elif ball.im_p.x > center:
+                if debug_info: print("RIGHT -> SPEED: ", 0.4)
+                self.turtle.cmd_velocity(angular=-0.4)
+            else:
+                if debug_info: print("LEFT-> SPEED: ", 0.4)
+                self.turtle.cmd_velocity(angular=0.4)
+
+            self.rate.sleep()
 
 
 # kladný uhel -> doleva, záporný -> doprava
