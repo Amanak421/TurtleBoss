@@ -1,6 +1,7 @@
 import sys
 import numpy as np
 from geometry import Point, normalize_angle
+import find_ball
 
 class Move:
     def __init__(self, turtle, rate):
@@ -230,6 +231,19 @@ class Move:
             return mid1
         else:
             return mid2
+        
+    def scan_environment(self):
+        # wait for rgb image
+        self.turtle.wait_for_rgb_image()
+        rgb_img = self.turtle.get_rgb_image()
+        all_objects = find_ball.find_objects(rgb_img)
+        # wait for point cloud find position of each object
+        find_ball.show_objects(rgb_img, all_objects, "Objects", True)
+        self.turtle.wait_for_point_cloud()
+        pc = self.turtle.get_point_cloud()
+        for o in all_objects:
+            o.assign_xy(pc)
+        return all_objects
 
 
 # kladný uhel -> doleva, záporný -> doprava

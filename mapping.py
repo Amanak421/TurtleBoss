@@ -2,7 +2,6 @@ import numpy as np
 import matplotlib.patches as patches
 import matplotlib.pyplot as plt
 from geometry import Point, Circle, Line, Segment, intersection, normalize_angle
-from robolab_turtlebot import Turtlebot, sleep, Rate, get_time
 from rigidobject import RigidObject, RigidType
 import find_ball
 from utils import ProcessError
@@ -234,19 +233,6 @@ class Map:
                     break
             # mapA.show(kick_pos=kick_pos_, path=route, dead_zones=mapA.dead_zones)
         return route
-
-    def scan_environment(self):
-        # wait for rgb image
-        self.turtle.wait_for_rgb_image()
-        rgb_img = self.turtle.get_rgb_image()
-        all_objects = find_ball.find_objects(rgb_img)
-        # wait for point cloud find position of each object
-        find_ball.show_objects(rgb_img, all_objects, "Objects", True)
-        self.turtle.wait_for_point_cloud()
-        pc = self.turtle.get_point_cloud()
-        for o in all_objects:
-            o.assign_xy(pc)
-        return all_objects
 
 
 if __name__ == "__main__":
