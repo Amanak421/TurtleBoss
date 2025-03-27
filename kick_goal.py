@@ -11,8 +11,10 @@ if __name__ == "__main__":
     robot = Robot(turtle_, rate)
     robot.reset()
     robot_map = Map()
-    input("START ROBOT BY PRESSING KEY")
-    print("ROBOT STARTED")
+
+    print("Wait for button press on robot...")
+    while not robot.button:
+        pass
 
     # find ball and poles and add them to the map
     robot.scan_environment(robot_map)

@@ -31,11 +31,13 @@ class Robot:
         self.robot_pos = self.BASE_POSITION
 
         self.bumped = False
+        self.button = False
 
         self.turtle = turtle
         self.rate = rate
 
         turtle.register_bumper_event_cb(self.bumper_cb)
+        turtle.register_button_event_cb(self.button_cb)
 
     def __repr__(self):
         return f"X: {self.robot_pos.x}, Y: {self.robot_pos.y}, ANGLE: {self.angle}\t"
@@ -66,6 +68,13 @@ class Robot:
         print('{} bumper {}'.format(bumper, state))
         print("Bumped! -> Emergency stop!")
         self.bumped = True
+
+    def button_cb(self, msg):
+        """Button callback."""
+        button = self.BUMPER_NAMES[msg.button]
+        state = self.STATE_NAMES[msg.state]
+        print('{} button {}'.format(button, state))
+        self.button = True
 
     def check_bumper(self):
         if self.bumped:
