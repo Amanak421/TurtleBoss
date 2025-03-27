@@ -36,7 +36,7 @@ class Robot:
         turtle.register_bumper_event_cb(self.bumper_cb)
 
     def __repr__(self):
-        return f"X: {self.x}, Y: {self.y}, ANGLE: {self.angle}\t"
+        return f"X: {self.robot_pos.x}, Y: {self.robot_pos.y}, ANGLE: {self.angle}\t"
 
     def __str__(self):
         return self.__repr__()

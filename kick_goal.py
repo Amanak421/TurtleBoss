@@ -1,11 +1,6 @@
-import sys
-from math import pi
-from robolab_turtlebot import Turtlebot, sleep, Rate, get_time
-import find_ball
-from mapping import Map, has_all
+from robolab_turtlebot import Turtlebot, sleep, Rate
+from mapping import Map
 from robot import Robot
-from geometry import Point
-from rigidobject import RigidObject, RigidType
 
 if __name__ == "__main__":
     turtle_ = Turtlebot(rgb=True, depth=True, pc=True)

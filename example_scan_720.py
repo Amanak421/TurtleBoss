@@ -25,7 +25,7 @@ if __name__ == "__main__":
     turtle_.play_sound(1)
     sleep(0.3)
     rate = Rate(50)
-    robot_move = Move(turtle_, rate)
+    robot_move = Robot(turtle_, rate)
     robot_move.reset()
     robot_map = Map()
     input("START ROBOT BY PRESSING KEY")
