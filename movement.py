@@ -23,8 +23,8 @@ class Move:
 
         self.LINEAR_KP = 1
         self.LINEAR_KD = 0.3
-        self.ANGULAR_KP = 0.8
-        self.ANGULAR_KD = 0.3
+        self.ANGULAR_KP = 1 #0.8
+        self.ANGULAR_KD = 0.5 #0.3
 
         self.robot_pos = self.BASE_POSITION
 

@@ -2,7 +2,9 @@ import numpy as np
 import matplotlib.patches as patches
 import matplotlib.pyplot as plt
 from geometry import Point, Circle, Line, Segment, intersection, normalize_angle
+from robolab_turtlebot import Turtlebot, sleep, Rate, get_time
 from rigidobject import RigidObject, RigidType
+import find_ball
 from utils import ProcessError
 
 def average(object_a: RigidObject, object_b: RigidObject):
@@ -18,34 +20,46 @@ def transform(position: Point, base_pos: Point, debug_info: bool = False):
     if debug_info: print("After rotation")
     return Point(*result)
 
+def has_all(objects: list):
+    poles = 0
+    ball = 0
+
+    for obj in objects:
+        if obj.o_type == RigidType.POLE:
+            poles += 1
+        elif obj.o_type == RigidType.BALL:
+            ball += 1
+
+    if poles == 2 and ball == 1:
+        return True
+    else:
+        return False
+
 
 class Map:
-    def __init__(self, threshold=0.2):
+    def __init__(self, threshold=0.2, turtle):
         self.objects = []
         self.MAX_OBJECTS = {RigidType.POLE: 2, RigidType.BALL: 1}
-<<<<<<< HEAD
-=======
         self.MIN_MATCHES = 2
-
-
->>>>>>> 4642808 (update)
         self.threshold = threshold
+
+        self.turtle = turtle
 
     @property
     def poles(self):
-        return self.merge_objects()[RigidType.POLE]
+        return self.merge_objects()[0][RigidType.POLE]
 
     @property
     def ball(self):
-        return self.merge_objects()[RigidType.BALL]
+        return self.merge_objects()[0][RigidType.BALL]
 
     @property
     def obstacles(self):
-        return self.merge_objects()[RigidType.OBST]
+        return self.merge_objects()[0][RigidType.OBST]
 
     @property
     def dead_zones(self):
-        obj_dict = self.merge_objects()
+        obj_dict, _ = self.merge_objects()
         dead_zones = []
         for pole in obj_dict[RigidType.POLE]:
             dead_zones.append(Circle(pole.position, 0.3))
@@ -54,6 +68,19 @@ class Map:
         for ball in obj_dict[RigidType.BALL]:
             dead_zones.append(Circle(ball.position, 0.4))
         return dead_zones
+    
+    @property
+    def has_all(self):
+        obj_dict, counter = self.merge_objects()
+        correct = {x:0 for x in obj_dict}
+        for key in obj_dict:
+            for i, _ in enumerate(obj_dict[key]):
+                if counter[key][i] >= self.MIN_MATCHES:
+                    correct[key] += 1
+        if correct[RigidType.POLE] >= self.MAX_OBJECTS[RigidType.POLE] and correct[RigidType.BALL] >= self.MAX_OBJECTS[RigidType.BALL]:
+            return True
+        else:
+            return False
     
     def reset(self):
         self.objects = []
@@ -74,7 +101,7 @@ class Map:
         _, ax = plt.subplots(figsize=(6, 6), dpi=100)  # Set 6x6 inches
         ax.set_aspect(1)  # X, Y axis ratio 1:1
         if show_merged:
-            obj = self.merge_objects()
+            obj, _ = self.merge_objects()
             type_counter = {x:0 for x in obj}
             for object_type, points in obj.items():
                 for point in points:
@@ -130,6 +157,7 @@ class Map:
 
     def merge_objects(self):
         objects = {}
+        merge_count = {}
         for o_type in RigidType:
             unmerged = list(filter(lambda x: x.o_type == o_type, self.objects))
             merged = []
@@ -159,8 +187,9 @@ class Map:
 
             sorted_objects = [obj for _, obj in sorted(zip(merged_counter, merged), key=lambda x: x[0], reverse=True)]
             objects[o_type] = sorted_objects
-
-        return objects
+            merge_count[o_type] = merged_counter
+        print(merge_count)
+        return objects, merge_count
 
     def determine_kick_pos(self, dist: float=1):
         poles: list[RigidObject] = self.poles
@@ -204,6 +233,18 @@ class Map:
             # mapA.show(kick_pos=kick_pos_, path=route, dead_zones=mapA.dead_zones)
         return route
 
+    def scan_environment(self):
+        # wait for rgb image
+        self.turtle.wait_for_rgb_image()
+        rgb_img = self.turtle.get_rgb_image()
+        all_objects = find_ball.find_objects(rgb_img)
+        # wait for point cloud find position of each object
+        self.turtle.wait_for_point_cloud()
+        pc = self.turtle.get_point_cloud()
+        for o in all_objects:
+            o.assign_xy(pc)
+        return all_objects
+
 
 if __name__ == "__main__":
     mapA = Map()
@@ -213,10 +254,28 @@ if __name__ == "__main__":
         obj.set_position(Point(x, y))
         mapA.add_object(obj, Point(0, 0))
 
+    #ao(0.2, -0.5, 1)
+    #ao(0.4, 0, 2)
+    #ao(0.7, -0.4, 2)
+    #ao(-0.35, -0.15, 3)
+    #kick_pos_ = mapA.determine_kick_pos(dist=0.7)
+    #path_ = mapA.routing(Point(0, 0), kick_pos_)
+    #mapA.show(kick_pos=kick_pos_, path=path_, dead_zones=mapA.dead_zones)
+
     ao(0.2, -0.5, 1)
+    ao(0.25, -0.5, 1)
+    ao(0.2, -0.51, 1)
+
     ao(0.4, 0, 2)
+    ao(0.42, 0, 2)
+    ao(0.4, 0.05, 2)
+
     ao(0.7, -0.4, 2)
-    ao(-0.35, -0.15, 3)
+    ao(0.7, -0.42, 2)
+    ao(0.71, -0.4, 2)
+
     kick_pos_ = mapA.determine_kick_pos(dist=0.7)
-    path_ = mapA.routing(Point(0, 0), kick_pos_)
-    mapA.show(kick_pos=kick_pos_, path=path_, dead_zones=mapA.dead_zones)
+
+    print(mapA.has_all)
+    mapA.show(show_all=True)
+    
