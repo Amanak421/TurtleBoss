@@ -2,7 +2,6 @@ import cv2
 import numpy as np
 import scipy.io
 from rigidobject import RigidObject, RigidType, ColorType
-from geometry import Point
 
 
 class ColorMaskBounding:
