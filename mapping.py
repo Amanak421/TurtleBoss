@@ -3,7 +3,6 @@ import matplotlib.patches as patches
 import matplotlib.pyplot as plt
 from geometry import Point, Circle, Line, Segment, intersection, normalize_angle
 from rigidobject import RigidObject, RigidType
-import find_ball
 from utils import ProcessError
 
 
@@ -46,16 +45,16 @@ class Map:
         self.threshold = threshold
 
     @property
-    def poles(self):
-        return self.merge_objects()[0][RigidType.POLE]
+    def poles(self, debug_info: bool = False):
+        return self.merge_objects(debug_info)[0][RigidType.POLE]
 
     @property
-    def ball(self):
-        return self.merge_objects()[0][RigidType.BALL]
+    def ball(self, debug_info: bool = False):
+        return self.merge_objects(debug_info)[0][RigidType.BALL]
 
     @property
-    def obstacles(self):
-        return self.merge_objects()[0][RigidType.OBST]
+    def obstacles(self, debug_info: bool = False):
+        return self.merge_objects(debug_info)[0][RigidType.OBST]
 
     @property
     def dead_zones(self):
@@ -101,7 +100,7 @@ class Map:
         _, ax = plt.subplots(figsize=(6, 6), dpi=100)  # Set 6x6 inches
         ax.set_aspect(1)  # X, Y axis ratio 1:1
         if show_merged:
-            obj, _ = self.merge_objects()
+            obj, _ = self.merge_objects(debug_info)
             type_counter = {x:0 for x in obj}
             for object_type, points in obj.items():
                 for point in points:
@@ -154,7 +153,7 @@ class Map:
         plt.axvline(0, color='black', linewidth=1, linestyle='--')
         plt.show()
 
-    def merge_objects(self):
+    def merge_objects(self, debug_info: bool = False):
         objects = {}
         merge_count = {}
         for o_type in RigidType:
@@ -187,7 +186,7 @@ class Map:
             sorted_objects = [obj for _, obj in sorted(zip(merged_counter, merged), key=lambda x: x[0], reverse=True)]
             objects[o_type] = sorted_objects
             merge_count[o_type] = merged_counter
-        print(merge_count)
+        if debug_info: print(merge_count)
         return objects, merge_count
 
     def determine_kick_pos(self, dist: float=1):
@@ -205,7 +204,7 @@ class Map:
         angle_rad = np.arctan2(-vector_line[1], -vector_line[0])
         return Point(*pos, angle_rad)
 
-    def routing(self, s_pos: Point, f_pos: Point):
+    def routing(self, s_pos: Point, f_pos: Point, debug_info: bool = False):
         route = [s_pos, f_pos]
         dz = self.dead_zones
         if any(zone.is_inner(f_pos) for zone in dz): return []
@@ -229,7 +228,14 @@ class Map:
                     change = True
                     change_counter += 1
                     break
-            # mapA.show(kick_pos=kick_pos_, path=route, dead_zones=mapA.dead_zones)
+            if debug_info: mapA.show(kick_pos=kick_pos_, path=route, dead_zones=mapA.dead_zones)
+        for point_index in range(1, len(route) - 1):
+            vector = np.append(Line(route[point_index], route[point_index + 1]).direction_vector.xy, 0)
+            zero_angle_vector = np.array((1, 0, 0))
+            route[point_index].angle = np.arctan2(
+                np.cross(zero_angle_vector, vector)[2],
+                np.dot(zero_angle_vector, vector)
+            )
         return route
 
 
@@ -241,28 +247,28 @@ if __name__ == "__main__":
         obj.set_position(Point(x, y))
         mapA.add_object(obj, Point(0, 0))
 
-    #ao(0.2, -0.5, 1)
-    #ao(0.4, 0, 2)
-    #ao(0.7, -0.4, 2)
-    #ao(-0.35, -0.15, 3)
-    #kick_pos_ = mapA.determine_kick_pos(dist=0.7)
-    #path_ = mapA.routing(Point(0, 0), kick_pos_)
-    #mapA.show(kick_pos=kick_pos_, path=path_, dead_zones=mapA.dead_zones)
+    ao(0.2, -0.5, 1)
+    ao(0.4, 0, 2)
+    ao(0.7, -0.4, 2)
+    ao(-0.35, -0.15, 3)
+    kick_pos_ = mapA.determine_kick_pos(dist=0.7)
+    path_ = mapA.routing(Point(0, 0), kick_pos_)
+    print(*path_, sep="\n")
+    mapA.show(kick_pos=kick_pos_, path=path_, dead_zones=mapA.dead_zones)
 
+
+    """
     ao(0.2, -0.5, 1)
     ao(0.25, -0.5, 1)
     ao(0.2, -0.51, 1)
-
     ao(0.4, 0, 2)
     ao(0.42, 0, 2)
     ao(0.4, 0.05, 2)
-
     ao(0.7, -0.4, 2)
     ao(0.7, -0.42, 2)
     ao(0.71, -0.4, 2)
-
     kick_pos_ = mapA.determine_kick_pos(dist=0.7)
-
     print(mapA.has_all)
     mapA.show(show_all=True)
+    """
     
