@@ -30,6 +30,8 @@ class Robot:
 
         self.robot_pos = self.BASE_POSITION
 
+        self.bumped = False
+
         self.turtle = turtle
         self.rate = rate
 
@@ -63,8 +65,12 @@ class Robot:
         state = self.STATE_NAMES[msg.state]
         print('{} bumper {}'.format(bumper, state))
         print("Bumped! -> Emergency stop!")
-        self.turtle.cmd_velocity()
-        sys.exit(66)
+        self.bumped = True
+
+    def check_bumper(self):
+        if self.bumped:
+            self.turtle.cmd_velocity()
+            sys.exit(66)
 
     def reset(self) -> None:
         self.robot_pos = self.BASE_POSITION
@@ -123,6 +129,7 @@ class Robot:
                 speed = set_speed
 
             self.turtle.cmd_velocity(linear=speed)
+            self.check_bumper()
             self.rate.sleep()
 
         if stop: self.turtle.cmd_velocity()
@@ -135,6 +142,7 @@ class Robot:
 
     def go_until(self, speed = 0.3):
         self.turtle.cmd_velocity(linear=speed)
+        self.check_bumper()
         self.rate.sleep()
 
     def kick(self, target_distance, speed=0.8):
@@ -147,6 +155,7 @@ class Robot:
                 break
 
             self.turtle.cmd_velocity(linear=speed)
+            self.check_bumper()
             self.rate.sleep()
 
         self.turtle.cmd_velocity()
@@ -179,6 +188,7 @@ class Robot:
             speed = min(max(regulator, self.MIN_ANGULAR_VELOCITY), self.MAX_ANGULAR_VELOCITY)
 
             self.turtle.cmd_velocity(angular=dir_coef*speed)
+            self.check_bumper()
             self.rate.sleep()
 
 
@@ -192,6 +202,7 @@ class Robot:
 
     def rotate_until(self, speed = 0.5):
         self.turtle.cmd_velocity(angular = speed)
+        self.check_bumper()
         self.rate.sleep()
 
     def turn(self, target_angle, speed = 0.5, debug_info: bool = True, simulate=False):

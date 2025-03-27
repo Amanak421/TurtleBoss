@@ -11,7 +11,7 @@ if __name__ == "__main__":
     turtle.play_sound(1)
     sleep(0.3)
     rate = Rate(50)
-    test = Move(turtle, rate)
+    test = Robot(turtle, rate)
 
     while True:
         inp = input(">> ")
