@@ -39,7 +39,7 @@ def has_all(objects: list):
 
 
 class Map:
-    def __init__(self, turtle, threshold=0.2):
+    def __init__(self, threshold=0.2):
         self.objects = []
         self.MAX_OBJECTS = {RigidType.POLE: 2, RigidType.BALL: 1}
         self.MIN_MATCHES = 2
