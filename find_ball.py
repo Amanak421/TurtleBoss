@@ -14,13 +14,22 @@ COLOR_BOUNDS_OBST = (
     ColorMaskBounding((40, 50, 50), (85, 200, 200), ColorType.GREEN),
     ColorMaskBounding((0, 150, 110), (10, 255, 255), ColorType.RED)
 )
+#--- Results --- Barier
+#Min HSV: [ 13  68 120]
+#Max HSV: [ 18 189 200]
+#Average HSV: [ 15. 135. 160.]
 
-COLOR_BOUND_BALL = ColorMaskBounding((17, 115, 95), (30, 240, 240), ColorType.YELLOW)
+#--- Results --- Ball
+#Min HSV: [ 21 119 113]
+#Max HSV: [ 24 199 195]
+#Average HSV: [ 22.  167.  156.5]
+
+COLOR_BOUND_BALL = ColorMaskBounding((19, 115, 95), (30, 240, 240), ColorType.YELLOW)
 
 
 MIN_AREA_OBST = 200 #400
 MIN_AREA_BALL = 1000 #1500
-MAX_AREA_BALL = 10000 #1500
+MAX_AREA_BALL = 8000 #1500
 
 TOP_Y_BORDER = 1/8
 BOTTOM_Y_BORDER = 7/8
@@ -32,12 +41,12 @@ def find_ball(rgb_img, all_objects) -> None:
     mask = cv2.inRange(hsv, COLOR_BOUND_BALL.lb, COLOR_BOUND_BALL.ub)
 
     contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-    cv2.imshow("Mask ball", mask)#TODO delete
-    cv2.waitKey()#TODO delete
+    #cv2.imshow("Mask ball", mask)#TODO delete
+    #cv2.waitKey()#TODO delete
     if contours:
         largest_c = max(contours, key=cv2.contourArea)
         if cv2.contourArea(largest_c) > MIN_AREA_BALL:
-            print(f"Area of the biggest: {cv2.contourArea(largest_c)}")#TODO delete
+            print(f"Area of the biggest ball: {cv2.contourArea(largest_c)}")#TODO delete
             (x, y), radius = cv2.minEnclosingCircle(largest_c)
             if  rgb_img.shape[0] * TOP_Y_BORDER < y:
                 all_objects.append(RigidObject(int(x), int(y), int(radius), int(radius), RigidType.BALL))
@@ -116,10 +125,10 @@ def find_objects(rgb_img):
 if __name__ == "__main__":
     window_ = "RGB all objects"
     cv2.namedWindow(window_)
-    for img_index in range(1, 15):
-        #rgb_img_ = load_img(f"test_data/test_y{img_index}.mat")
-        rgb_img_ = load_img(f"new_photos/test_p{img_index}.mat")
-        print(f"Loaded photo: test_p{img_index}.mat")
+    for img_index in range(1, 84):
+        rgb_img_ = load_img(f"test_data/test_p{img_index}.mat")
+        #rgb_img_ = load_img(f"new_photos/test_p{img_index}.mat")
+        #print(f"Loaded photo: test_p{img_index}.mat")
         # rgb_img_ = cv2.imread("test_data/block_ball.png")
         # print(f"W: {rgb_img_.shape[1]}, H: {rgb_img_.shape[0]}")  # TODO delete
         # cv2.line(rgb_img_,  (0,int(rgb_img_.shape[0] * TOP_Y_BORDER)), (int(rgb_img_.shape[1]), int(rgb_img_.shape[0] * TOP_Y_BORDER)), (30, 60, 90), thickness=5)  # TODO delete
