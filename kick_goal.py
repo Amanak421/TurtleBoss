@@ -25,7 +25,7 @@ if __name__ == "__main__":
         pass
 
     # find ball and poles and add them to the map
-    robot.scan_environment(robot_map)
+    robot.scan_environment(robot_map, debug_info=True)
 
     ball = robot_map.ball
     kick_pos = robot_map.determine_kick_pos(dist=1)
@@ -41,7 +41,7 @@ if __name__ == "__main__":
     # reset all systems and scan the environment for second time
     robot_map.reset()
     robot.reset()
-    robot.scan_environment(robot_map)
+    robot.scan_environment(robot_map, debug_info=True)
     # calculate position for kick and to it
     kick_pos = robot_map.determine_kick_pos(dist=0.6)
     robot.go_to(kick_pos, linear_velocity=0.4, angular_velocity=0.45)
@@ -52,7 +52,7 @@ if __name__ == "__main__":
     robot.center_ball()
 
     # kick the ball to the goal
-    robot.kick(0.5, speed=1)
+    robot.kick(0.5, speed=1.5)
     robot.stop()
     sleep(0.2)
 

@@ -31,8 +31,8 @@ def find_ball(rgb_img, all_objects) -> None:
     mask = cv2.inRange(hsv, COLOR_BOUND_BALL.lb, COLOR_BOUND_BALL.ub)
 
     contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-    cv2.imshow("Mask ball", mask)#TODO delete
-    cv2.waitKey()#TODO delete
+    # cv2.imshow("Mask ball", mask)#TODO delete
+    # cv2.waitKey()#TODO delete
     if contours:
         largest_c = max(contours, key=cv2.contourArea)
         if cv2.contourArea(largest_c) > MIN_AREA_BALL:

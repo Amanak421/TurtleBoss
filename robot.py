@@ -267,7 +267,7 @@ class Robot:
         angle = 0
         while angle < max_angle and not self.turtle.is_shutting_down():
             if debug_info: print(f"DOING SCAN for angle {angle}")
-            objects = self.get_objects_from_camera()
+            objects = self.get_objects_from_camera(debug_info = debug_info)
                 
             if not objects:
                 if debug_info: print("NOT FOUND -> ROTATE")
@@ -290,7 +290,7 @@ class Robot:
             self.rotate(small)
             angle += small
 
-    def center_ball(self, center = 335, offset = 10, debug_info: bool = False) -> None:
+    def center_ball(self, center = 330, offset = 10, debug_info: bool = False) -> None:
         while not self.turtle.is_shutting_down():
             all_objects_ = self.get_objects_from_camera()
             ball = list(filter(lambda x: x.o_type == find_ball.RigidType.BALL, all_objects_))
