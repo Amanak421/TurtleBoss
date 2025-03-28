@@ -3,7 +3,7 @@ from mapping import Map
 from robot import Robot
 import sys
 
-
+#haha
 if len(sys.argv) > 1:
     DEBUG = True
 else:
