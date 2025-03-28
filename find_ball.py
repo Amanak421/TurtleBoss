@@ -31,6 +31,8 @@ def find_ball(rgb_img, all_objects) -> None:
     mask = cv2.inRange(hsv, COLOR_BOUND_BALL.lb, COLOR_BOUND_BALL.ub)
 
     contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    cv2.imshow("Mask ball", mask)#TODO delete
+    cv2.waitKey()#TODO delete
     if contours:
         largest_c = max(contours, key=cv2.contourArea)
         if cv2.contourArea(largest_c) > MIN_AREA_BALL:
@@ -112,8 +114,10 @@ def find_objects(rgb_img):
 if __name__ == "__main__":
     window_ = "RGB all objects"
     cv2.namedWindow(window_)
-    for img_index in range(1, 9):
-        rgb_img_ = load_img(f"test_data/test_y{img_index}.mat")
+    for img_index in range(1, 15):
+        #rgb_img_ = load_img(f"test_data/test_y{img_index}.mat")
+        rgb_img_ = load_img(f"new_photos/test_p{img_index}.mat")
+        print(f"Loaded photo: test_p{img_index}.mat")
         # rgb_img_ = cv2.imread("test_data/block_ball.png")
         # print(f"W: {rgb_img_.shape[1]}, H: {rgb_img_.shape[0]}")  # TODO delete
         # cv2.line(rgb_img_,  (0,int(rgb_img_.shape[0] * TOP_Y_BORDER)), (int(rgb_img_.shape[1]), int(rgb_img_.shape[0] * TOP_Y_BORDER)), (30, 60, 90), thickness=5)  # TODO delete
