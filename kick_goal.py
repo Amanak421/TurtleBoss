@@ -54,7 +54,7 @@ if __name__ == "__main__":
     # kick the ball to the goal
     robot.kick(0.5, speed=1.5)
     robot.stop()
-    sleep(0.2)
+    sleep(2)
 
     # play sound
     turtle_.play_sound(5)
