@@ -20,6 +20,7 @@ COLOR_BOUND_BALL = ColorMaskBounding((17, 115, 95), (30, 240, 240), ColorType.YE
 
 MIN_AREA_OBST = 200 #400
 MIN_AREA_BALL = 1000 #1500
+MAX_AREA_BALL = 10000 #1500
 
 TOP_Y_BORDER = 1/8
 BOTTOM_Y_BORDER = 7/8
@@ -31,11 +32,12 @@ def find_ball(rgb_img, all_objects) -> None:
     mask = cv2.inRange(hsv, COLOR_BOUND_BALL.lb, COLOR_BOUND_BALL.ub)
 
     contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-    # cv2.imshow("Mask ball", mask)#TODO delete
-    # cv2.waitKey()#TODO delete
+    cv2.imshow("Mask ball", mask)#TODO delete
+    cv2.waitKey()#TODO delete
     if contours:
         largest_c = max(contours, key=cv2.contourArea)
         if cv2.contourArea(largest_c) > MIN_AREA_BALL:
+            print(f"Area of the biggest: {cv2.contourArea(largest_c)}")#TODO delete
             (x, y), radius = cv2.minEnclosingCircle(largest_c)
             if  rgb_img.shape[0] * TOP_Y_BORDER < y:
                 all_objects.append(RigidObject(int(x), int(y), int(radius), int(radius), RigidType.BALL))
