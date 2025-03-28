@@ -244,13 +244,13 @@ class Robot:
             input("PRESS ANY KEY...")
         self.turn(turn_end, speed=angular_velocity, debug_info=debug_info)
         
-    def get_objects_from_camera(self) -> list:
+    def get_objects_from_camera(self, debug_info: bool = False) -> list:
         # wait for rgb image
         self.turtle.wait_for_rgb_image()
         rgb_img = self.turtle.get_rgb_image()
         all_objects = find_ball.find_objects(rgb_img)
         # wait for point cloud find position of each object
-        # find_ball.show_objects(rgb_img, all_objects, "Objects", True)
+        if debug_info: find_ball.show_objects(rgb_img, all_objects, "Objects", True)
         self.turtle.wait_for_point_cloud()
         pc = self.turtle.get_point_cloud()
         for o in all_objects:
