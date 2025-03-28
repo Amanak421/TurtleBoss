@@ -10,12 +10,12 @@ class ColorMaskBounding:
 
 
 COLOR_BOUNDS_OBST = (
-    ColorMaskBounding((90, 150, 65), (110, 255, 210), ColorType.BLUE),
+    ColorMaskBounding((90, 180, 90), (110, 255, 200), ColorType.BLUE),
     ColorMaskBounding((40, 50, 50), (85, 200, 200), ColorType.GREEN),
     ColorMaskBounding((0, 150, 110), (10, 255, 255), ColorType.RED)
 )
 
-COLOR_BOUND_BALL = ColorMaskBounding((20, 130, 95), (30, 255, 255), ColorType.YELLOW)
+COLOR_BOUND_BALL = ColorMaskBounding((17, 115, 95), (30, 240, 240), ColorType.YELLOW)
 
 
 MIN_AREA_OBST = 200 #400
