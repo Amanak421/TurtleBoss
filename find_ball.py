@@ -8,6 +8,7 @@ class ColorMaskBounding:
     def __init__(self, lb, ub, c):
         (self.lb, self.ub, self.c) = (lb, ub, c)
 
+
 COLOR_BOUNDS_OBST = (
     ColorMaskBounding((90, 150, 65), (110, 255, 210), ColorType.BLUE),
     ColorMaskBounding((40, 50, 50), (85, 200, 200), ColorType.GREEN),
@@ -17,8 +18,8 @@ COLOR_BOUNDS_OBST = (
 COLOR_BOUND_BALL = ColorMaskBounding((20, 130, 95), (30, 255, 255), ColorType.YELLOW)
 
 
-MIN_AREA_OBST = 400
-MIN_AREA_BALL = 1500
+MIN_AREA_OBST = 200 #400
+MIN_AREA_BALL = 1000 #1500
 
 TOP_Y_BORDER = 1/8
 BOTTOM_Y_BORDER = 7/8
