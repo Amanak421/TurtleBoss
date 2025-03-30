@@ -1,6 +1,7 @@
 import cv2
 import numpy as np
 import scipy.io
+import os
 
 
 color_pick = []
@@ -24,6 +25,10 @@ def main():
             print(f"Cannot read: test_data/test_y{img_index}.mat")
             continue
 
+        """for file in os.listdir("new_photos"):
+        file_path = os.path.join("new_photos", file)
+        data = scipy.io.loadmat(file_path)
+        img = data["image_rgb"]"""
         cv2.imshow("Pick pixel or Esc", img)
         cv2.setMouseCallback("Pick pixel or Esc", mouse_callback, param=img)
         
