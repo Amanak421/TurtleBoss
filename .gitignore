@@ -5,4 +5,6 @@ __pycache__
 # Built Visual Studio Code Extensions
 *.vsix
 # Pycharm venv
-./venv
+./.venv
+# figures
+./figures

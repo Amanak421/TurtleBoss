@@ -3,11 +3,16 @@ import numpy as np
 from geometry import Point, normalize_angle
 import find_ball
 from mapping import Map, has_all
-from constants import LINEAR_CORRECTION, ANGULAR_CORRECTION, POSITION_NAMES, STATE_NAMES, BASE_POSITION, LINEAR_EPSILON, ANGULAR_EPSILON, MIN_LINEAR_VELOCITY, MAX_LINEAR_VELOCITY, MIN_ANGULAR_VELOCITY, MAX_ANGULAR_VELOCITY, LINEAR_KP, LINEAR_KD, ANGULAR_KP, ANGULAR_KD
+from constants import (LINEAR_CORRECTION, ANGULAR_CORRECTION, POSITION_NAMES,
+                       STATE_NAMES, BASE_POSITION, LINEAR_EPSILON,
+                       ANGULAR_EPSILON, MIN_LINEAR_VELOCITY,
+                       MAX_LINEAR_VELOCITY, MIN_ANGULAR_VELOCITY,
+                       MAX_ANGULAR_VELOCITY, LINEAR_KP, LINEAR_KD, ANGULAR_KP,
+                       ANGULAR_KD)
 
 
 class Robot:
-    def __init__(self, turtle, rate, sleep_func=lambda: None):
+    def __init__(self, turtle, rate, sleep_func=lambda _: None):
         self.robot_pos = BASE_POSITION
 
         self.kick_ball = False
@@ -23,9 +28,8 @@ class Robot:
         turtle.register_button_event_cb(self.button_cb)
 
     def __repr__(self):
-        return f"""X: {self.robot_pos.x},
-                 Y: {self.robot_pos.y},
-                 ANGLE: {self.angle}\t"""
+        return (f"X: {self.robot_pos.x}, Y: {self.robot_pos.y}, "
+                f"ANGLE: {self.angle}\t")
 
     def __str__(self):
         return self.__repr__()
@@ -281,7 +285,7 @@ class Robot:
 
     def scan_environment(self, robot_map: Map, max_angle=2*np.pi,
                          big=np.pi/6, small=np.pi/8,
-                         debug_info: bool = False) -> None:
+                         debug_info: bool = False) -> bool:
         angle = 0
         while angle < max_angle and not self.turtle.is_shutting_down():
             if debug_info:
