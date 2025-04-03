@@ -8,7 +8,7 @@
 - Správné sestavnení mapy prostředí (těžko říct jestli je opravdu potřeba)
   - [-] transformace souřadnic z kamery a odometrie (není přesná)
   - [-] ze získaných dat zkusit poskládat mapu
-- [ ] Přesné ujetí nějaké vzdálenosti a otočení
+- [-] Přesné ujetí nějaké vzdálenosti a otočení
 - [-] Ze známých bodů vypočítat místo, ze kterého kopnout do míče (přímku po které dostat míč do branky)
 - [-] Plánování trasy k bodu, ze kterého dát gól / popř. zmapování prostředí
 - [-] Funkce pro kopnutí do míče (kontrola pozice a správného natočení)
