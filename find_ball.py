@@ -15,7 +15,8 @@ COLOR_BOUNDS_OBST = (
     ColorMaskBounding((0, 150, 110), (10, 255, 255), ColorType.RED)
 )
 
-COLOR_BOUND_BALL = ColorMaskBounding((21, 140, 110), (30, 255, 255), ColorType.YELLOW)
+COLOR_BOUND_BALL = ColorMaskBounding((21, 140, 110), (30, 255, 255),
+                                     ColorType.YELLOW)
 
 
 MIN_AREA_OBST = 200
@@ -30,14 +31,15 @@ def find_ball(rgb_img, all_objects) -> None:
     hsv = cv2.cvtColor(rgb_img, cv2.COLOR_BGR2HSV)
     mask = cv2.inRange(hsv, COLOR_BOUND_BALL.lb, COLOR_BOUND_BALL.ub)
 
-    contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL,
+                                   cv2.CHAIN_APPROX_SIMPLE)
     if contours:
         largest_c = max(contours, key=cv2.contourArea)
         area = cv2.contourArea(largest_c)
 
-        if area > MIN_AREA_BALL : 
+        if area > MIN_AREA_BALL:
             (x, y), radius = cv2.minEnclosingCircle(largest_c)
-            if  rgb_img.shape[0] * TOP_Y_BORDER < y:
+            if rgb_img.shape[0] * TOP_Y_BORDER < y:
                 all_objects.append(RigidObject(int(x), int(y),
                                                int(radius), int(radius),
                                                RigidType.BALL))
@@ -49,7 +51,8 @@ def find_obstacles(rgb_img, all_objects) -> None:
         hsv = cv2.cvtColor(rgb_img, cv2.COLOR_BGR2HSV)
         mask = cv2.inRange(hsv, bound.lb, bound.ub)
 
-        contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+        contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL,
+                                       cv2.CHAIN_APPROX_SIMPLE)
         if contours:
             for cnt in contours:
                 if cv2.contourArea(cnt) > MIN_AREA_OBST:
@@ -98,7 +101,7 @@ def show_objects(rgb_img, all_objects, window, wait=False) -> None:
     if wait:
         cv2.waitKey()
     else:
-        cv2.waitKey(5)# & 0xFF == ord('q')
+        cv2.waitKey(5)  # & 0xFF == ord('q')
 
 
 def load_img(filename):

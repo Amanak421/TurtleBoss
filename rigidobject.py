@@ -1,5 +1,5 @@
 from enum import Enum
-import numpy as np
+# import numpy as np
 from geometry import Point
 
 
@@ -22,7 +22,8 @@ class RigidType(Enum):
 
 
 class RigidObject:
-    def __init__(self, x, y, w, h, o_type: RigidType, c_type: ColorType = None):
+    def __init__(self, x, y, w, h, o_type: RigidType,
+                 c_type: ColorType = None):
         self.p = Point(0, 0)  # (x,y)_pc
         self.im_p = Point(x, y)  # (x,y)_rgb
         self.w = w
@@ -38,7 +39,8 @@ class RigidObject:
             self.c_type = c_type
 
     def __repr__(self):
-        return f"{self.c_type.name} {self.o_type.name} on {self.im_p.xy[0]}, {self.im_p.xy[1]} at {self.p.xy[0]}, {self.p.xy[1]}\t"
+        return f"""{self.c_type.name} {self.o_type.name} on {self.im_p.xy[0]},
+                    {self.im_p.xy[1]} at {self.p.xy[0]}, {self.p.xy[1]}\t"""
 
     def __str__(self):
         return self.__repr__()
@@ -46,10 +48,9 @@ class RigidObject:
     @property
     def color(self):
         """
-        :return: Symbolic color for visualisation
+        :return: Symbolic color for visualization
         """
         return self.c_type.value
-
 
     @property
     def position(self):
@@ -57,7 +58,7 @@ class RigidObject:
         :return: Numpy-fied real-world coordinates x, y as Point
         """
         return self.p
-    
+
     @property
     def xy(self):
         """
@@ -86,8 +87,8 @@ class RigidObject:
         :param pc: Point cloud
         :return:
         """
-        r = (RADIUS_BALL if self.o_type == RigidType.BALL else RADIUS_POLE)
-        vector = pc[self.im_p.xy[1]][self.im_p.xy[0]][0], pc[self.im_p.xy[1]][self.im_p.xy[0]][2]
-        norm = np.linalg.norm(vector)
-        self.p.x = pc[self.im_p.xy[1]][self.im_p.xy[0]][2] # + r * vector[0] / norm
-        self.p.y = -pc[self.im_p.xy[1]][self.im_p.xy[0]][0] # + r * vector[1] / norm
+        # r = (RADIUS_BALL if self.o_type == RigidType.BALL else RADIUS_POLE)
+        # vector = pc[self.im_p.xy[1]][self.im_p.xy[0]][0], pc[self.im_p.xy[1]][self.im_p.xy[0]][2]
+        # norm = np.linalg.norm(vector)
+        self.p.x = pc[self.im_p.xy[1]][self.im_p.xy[0]][2]  # + r * vector[0] / norm
+        self.p.y = -pc[self.im_p.xy[1]][self.im_p.xy[0]][0]  # + r * vector[1] / norm

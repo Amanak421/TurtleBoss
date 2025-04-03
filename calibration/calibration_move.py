@@ -1,7 +1,5 @@
 from robot import Robot
-from robolab_turtlebot import Turtlebot, sleep, Rate, get_time
-from math import pi
-
+from robolab_turtlebot import Turtlebot, sleep, Rate
 
 
 if __name__ == "__main__":
@@ -22,7 +20,7 @@ if __name__ == "__main__":
     test.go(0.5)
     test.go(0.5)
     test.go(0.5)
-    
+
     print("ROBOT AFTER MOVE\n", test.position)
     robot_after = test.xya
     after = float(input("REAL AFTER MOVE: "))

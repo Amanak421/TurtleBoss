@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 from geometry import Point, Circle, Line, Segment, intersection
 from rigidobject import RigidObject, RigidType
 from utils import ProcessError
+from constants import MAX_OBJECTS, MIN_MATCHES
 
 
 def average(object_a: RigidObject, object_b: RigidObject):
@@ -11,13 +12,16 @@ def average(object_a: RigidObject, object_b: RigidObject):
 
 
 def transform(position: Point, base_pos: Point, debug_info: bool = False):
-    if debug_info: print("Position before rot.", position)
-    if debug_info: print("Robot position: ", base_pos)
+    if debug_info:
+        print("Position before rot.", position)
+    if debug_info:
+        print("Robot position: ", base_pos)
     transform_matrix = np.array([[base_pos.cos, -base_pos.sin, base_pos.x],
                                 [base_pos.sin, base_pos.cos, base_pos.y],
                                 [0, 0, 1]])
     result = np.dot(transform_matrix, position.homog_xy)[:2]
-    if debug_info: print("After rotation")
+    if debug_info:
+        print("After rotation")
     return Point(*result)
 
 
@@ -26,7 +30,7 @@ def has_all(objects: list):
     ball = 0
 
     for obj in objects:
-        if obj.o_type == RigidType.POLE and 40 <= obj.im_p.x <= 600: 
+        if obj.o_type == RigidType.POLE and 40 <= obj.im_p.x <= 600:
             poles += 1
         elif obj.o_type == RigidType.BALL and 40 <= obj.im_p.x <= 600:
             ball += 1
@@ -40,8 +44,6 @@ def has_all(objects: list):
 class Map:
     def __init__(self, threshold=0.2):
         self.objects = []
-        self.MAX_OBJECTS = {RigidType.POLE: 2, RigidType.BALL: 1}
-        self.MIN_MATCHES = 2
         self.threshold = threshold
 
     @property
@@ -67,50 +69,60 @@ class Map:
         for ball in obj_dict[RigidType.BALL]:
             danger_zones.append(Circle(ball.position, 0.3))
         return danger_zones
-    
+
     @property
     def has_all(self):
         obj_dict, counter = self.merge_objects()
-        correct = {x:0 for x in obj_dict}
+        correct = {x: 0 for x in obj_dict}
         for key in obj_dict:
             for i, _ in enumerate(obj_dict[key]):
-                if counter[key][i] >= self.MIN_MATCHES:
+                if counter[key][i] >= MIN_MATCHES:
                     correct[key] += 1
-        if correct[RigidType.POLE] >= self.MAX_OBJECTS[RigidType.POLE] and correct[RigidType.BALL] >= self.MAX_OBJECTS[RigidType.BALL]:
+        if (correct[RigidType.POLE] >= MAX_OBJECTS[RigidType.POLE] and correct[RigidType.BALL] >= MAX_OBJECTS[RigidType.BALL]):
             return True
         else:
             return False
-    
-    def reset(self):
+
+    def reset(self) -> None:
         self.objects = []
 
-    def add_object(self, object_a: RigidObject, robot_pos: Point, debug_info: bool = False):
-        if debug_info: print("BEFORE ROTATION:", object_a.position)
-        object_a.set_position(transform(object_a.position, robot_pos, debug_info))
-        if debug_info: print("AFTER ROTATION:", object_a.position)
+    def add_object(self, object_a: RigidObject,
+                   robot_pos: Point, debug_info: bool = False):
+        if debug_info:
+            print("BEFORE ROTATION:", object_a.position)
+        object_a.set_position(transform(object_a.position,
+                                        robot_pos, debug_info))
+        if debug_info:
+            print("AFTER ROTATION:", object_a.position)
         self.objects.append(object_a)
 
     def is_max_reached(self, o_type: RigidType, count: dict) -> bool:
-        is_max_poles = (o_type == RigidType.POLE and count[o_type] >= self.MAX_OBJECTS[o_type])
-        is_max_ball = (o_type == RigidType.BALL and count[o_type] >= self.MAX_OBJECTS[o_type])
+        is_max_poles = (o_type == RigidType.POLE and
+                        count[o_type] >= MAX_OBJECTS[o_type])
+        is_max_ball = (o_type == RigidType.BALL and
+                       count[o_type] >= MAX_OBJECTS[o_type])
         return is_max_poles or is_max_ball
 
-    def show(self, show_all: bool=False, show_merged: bool=True, robot_pos: Point=None,
-             kick_pos: Point=None, path: list=None, danger_zones: list=None, debug_info: bool = False)-> None:
+    def show(self, show_all: bool = False, show_merged: bool = True,
+             robot_pos: Point = None, kick_pos: Point = None,
+             path: list = None, danger_zones: list = None,
+             debug_info: bool = False) -> None:
         _, ax = plt.subplots(figsize=(6, 6), dpi=100)  # Set 6x6 inches
         ax.set_aspect(1)  # X, Y axis ratio 1:1
         if show_merged:
             obj, _ = self.merge_objects(debug_info)
-            type_counter = {x:0 for x in obj}
+            type_counter = {x: 0 for x in obj}
             for object_type, points in obj.items():
                 for point in points:
                     position = point.xy
                     if self.is_max_reached(object_type, type_counter):
-                            ax.scatter(*position, color=point.color, s=50, edgecolors='red', linewidths=2)
+                        ax.scatter(*position, color=point.color, s=50,
+                                   edgecolors='red', linewidths=2)
                     else:
                         ax.scatter(*position, color=point.color, s=50)
                         if object_type == RigidType.BALL:
-                            ax.scatter(*position, facecolors='none', edgecolors='orange', s=50, alpha=0.5)
+                            ax.scatter(*position, facecolors='none',
+                                       edgecolors='orange', s=50, alpha=0.5)
                     type_counter[object_type] += 1
 
         if show_all:
@@ -137,10 +149,13 @@ class Map:
             pos_x = points_x[:-1] + x_diff/2
             pos_y = points_y[:-1] + y_diff/2
             norm = np.sqrt(x_diff**2+y_diff**2)
-            ax.quiver(pos_x, pos_y, x_diff/norm, y_diff/norm, angles="xy", zorder=5, pivot="mid")
+            ax.quiver(pos_x, pos_y, x_diff/norm, y_diff/norm,
+                      angles="xy", zorder=5, pivot="mid")
         if danger_zones is not None:
             for zone in danger_zones:
-                ax.add_patch(patches.Circle(zone.c.xy, zone.r, facecolor='r', edgecolor='r', linewidth=2, alpha=0.1))
+                ax.add_patch(patches.Circle(zone.c.xy, zone.r,
+                                            facecolor='r', edgecolor='r',
+                                            linewidth=2, alpha=0.1))
 
         x_lim = plt.xlim()
         y_lim = plt.ylim()
@@ -183,19 +198,24 @@ class Map:
                     merged.append(pole)
                     merged_counter.append(1)
 
-            sorted_objects = [obj for _, obj in sorted(zip(merged_counter, merged), key=lambda x: x[0], reverse=True)]
+            sorted_objects = [obj for _,
+                              obj in sorted(zip(merged_counter, merged),
+                                            key=lambda x: x[0], reverse=True)]
             objects[o_type] = sorted_objects
             merge_count[o_type] = merged_counter
-        if debug_info: print(merge_count)
+        if debug_info:
+            print(merge_count)
         return objects, merge_count
 
-    def determine_kick_pos(self, dist: float=1):
+    def determine_kick_pos(self, dist: float = 1):
         poles: list[RigidObject] = self.poles
-        if len(poles) < 2: raise ProcessError("Cannot determine kick position, not enough poles!")
+        if len(poles) < 2:
+            raise ProcessError("Cannot determine kick position, not enough poles!")
         p1: np.array = poles[0].xy
         p2: np.array = poles[1].xy
         ball = self.ball
-        if not ball: raise ProcessError("Cannot determine kick position, no ball!")
+        if not ball:
+            raise ProcessError("Cannot determine kick position, no ball!")
         ball_pos: np.array = ball[0].xy
         pole_center = np.array((p1 + p2) / 2)
         vector_line = ball_pos - pole_center
@@ -204,10 +224,11 @@ class Map:
         angle_rad = np.arctan2(-vector_line[1], -vector_line[0])
         return Point(*pos, angle_rad)
 
-    def routing(self, s_pos: Point, f_pos: Point, debug_info: bool = False):
+    def routing(self, s_pos: Point, f_pos: Point):
         route = [s_pos, f_pos]
         dz = self.danger_zones
-        if any(zone.is_inner(f_pos) for zone in dz): return []
+        if any(zone.is_inner(f_pos) for zone in dz):
+            return []
         change = True
         change_counter = 0
         while change and change_counter < 10:
@@ -218,17 +239,18 @@ class Map:
                 for zone in sorted(dz, key=lambda z: z.c.distance(route[i])):
                     intersects = intersection(zone, line)
                     if (not intersects or intersects[0] == intersects[1] or
-                            not (seg.is_element_of(intersects[0]) or seg.is_element_of(intersects[1]))):
+                            not (seg.is_element_of(intersects[0]) or
+                                 seg.is_element_of(intersects[1]))):
                         continue
                     chord_seg = Segment(*intersects)
                     diameter_line = Line(chord_seg.midpoint, zone.c)
                     new_stop_candidates = intersection(Circle(zone.c, 2 * zone.r - zone.c.distance(chord_seg.midpoint)), diameter_line)
-                    new_stop = max(new_stop_candidates, key=lambda p: p.distance(self.ball[0]))
+                    new_stop = max(new_stop_candidates,
+                                   key=lambda p: p.distance(self.ball[0]))
                     route.insert(i + 1, new_stop)
                     change = True
                     change_counter += 1
                     break
-            if debug_info: mapA.show(kick_pos=kick_pos_, path=route, danger_zones=mapA.danger_zones)
         for point_index in range(1, len(route) - 1):
             vector = np.append(Line(route[point_index], route[point_index + 1]).direction_vector.xy, 0)
             zero_angle_vector = np.array((1, 0, 0))
@@ -255,20 +277,3 @@ if __name__ == "__main__":
     path_ = mapA.routing(Point(0, 0), kick_pos_)
     print(*path_, sep="\n")
     mapA.show(kick_pos=kick_pos_, path=path_, danger_zones=mapA.danger_zones)
-
-
-    """
-    ao(0.2, -0.5, 1)
-    ao(0.25, -0.5, 1)
-    ao(0.2, -0.51, 1)
-    ao(0.4, 0, 2)
-    ao(0.42, 0, 2)
-    ao(0.4, 0.05, 2)
-    ao(0.7, -0.4, 2)
-    ao(0.7, -0.42, 2)
-    ao(0.71, -0.4, 2)
-    kick_pos_ = mapA.determine_kick_pos(dist=0.7)
-    print(mapA.has_all)
-    mapA.show(show_all=True)
-    """
-    

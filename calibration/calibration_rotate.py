@@ -1,7 +1,6 @@
 from robot import Robot
-from robolab_turtlebot import Turtlebot, sleep, Rate, get_time
+from robolab_turtlebot import Turtlebot, sleep, Rate
 from math import pi
-
 
 
 if __name__ == "__main__":

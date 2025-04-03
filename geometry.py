@@ -3,7 +3,8 @@ import numpy as np
 
 
 def normalize_angle(angle):
-        return np.arctan2(np.sin(angle), np.cos(angle))
+    return np.arctan2(np.sin(angle), np.cos(angle))
+
 
 class Point:
     def __init__(self, x, y, angle=0):
@@ -16,7 +17,7 @@ class Point:
 
     def __str__(self) -> str:
         return self.__repr__()
-    
+
     def __add__(self, point):
         return Point(self.x + point.x, self.y + point.y, self.angle)
 
@@ -33,7 +34,8 @@ class Point:
         return self.__mul__(factor)
 
     def __truediv__(self, divisor):
-        if isinstance(divisor, (int, float)) and divisor != 0:  # Prevent division by zero
+        # Prevent division by zero
+        if isinstance(divisor, (int, float)) and divisor != 0:
             return Point(self.x / divisor, self.y / divisor, self.angle)
         else:
             return NotImplemented
@@ -44,7 +46,7 @@ class Point:
     @property
     def xya(self):
         return np.array((self.x, self.y, self.angle))
-    
+
     @property
     def xy(self):
         return np.array((self.x, self.y))
@@ -55,21 +57,22 @@ class Point:
 
     @property
     def cos(self):
-        return np.cos(self.angle)   
-    
+        return np.cos(self.angle)
+
     @property
     def homog_xy(self):
         return np.array((self.x, self.y, 1))
-    
+
     def add_angle(self, angle) -> None:
         self.angle = normalize_angle(self.angle + angle)
 
     def distance(self, point):
         return np.sqrt(np.sum(np.power(self.xy - point.xy, 2)))
-    
+
     def relative_angle(self, point):
         """Compute angle of connecting line."""
         return np.arctan2(point.y - self.y, point.x - self.x)
+
 
 class Line:
     def __init__(self, a: Point, b: Point):
@@ -92,7 +95,8 @@ class Line:
         return np.array((nv.x, nv.y, c))
 
     def is_element_of(self, point: Point, atol=1e-9):
-        cross_product = (point.y - self.a.y) * (self.b.x - self.a.x) - (self.b.y - self.a.y) * (point.x - self.a.x)
+        cross_product = ((point.y - self.a.y) * (self.b.x - self.a.x)
+                         - (self.b.y - self.a.y) * (point.x - self.a.x))
         collinear = cross_product < atol
         return collinear
 
@@ -137,10 +141,13 @@ def intersection(circle: Circle, linear: Union[Line, Segment]):
         p1 = Point(x1 + circle.c.x, y1 + circle.c.y)
         p2 = Point(x2 + circle.c.x, y2 + circle.c.y)
         intersects = []
-        if linear.is_element_of(p1): intersects.append(p1)
-        if linear.is_element_of(p2): intersects.append(p2)
+        if linear.is_element_of(p1):
+            intersects.append(p1)
+        if linear.is_element_of(p2):
+            intersects.append(p2)
         return intersects
 
 
 if __name__ == "__main__":
-    print(intersection(Circle(Point(0, 1), 5), Segment(Point(6, 4), Point(-2, 4))))
+    print(intersection(Circle(Point(0, 1), 5),
+                       Segment(Point(6, 4), Point(-2, 4))))

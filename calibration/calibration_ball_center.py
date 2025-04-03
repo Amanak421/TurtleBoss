@@ -1,7 +1,5 @@
 from robot import Robot
-from robolab_turtlebot import Turtlebot, sleep, Rate, get_time
-from math import pi
-
+from robolab_turtlebot import Turtlebot, sleep, Rate
 
 
 if __name__ == "__main__":
@@ -13,7 +11,7 @@ if __name__ == "__main__":
 
     test = Robot(turtle, rate)
     test.reset()
-    
+
     while not turtle.is_shutting_down():
         center, offset = (int(x) for x in input("CENTER, OFFSET: ").split(" ")[:2])
         test.center_ball(center=center, offset=offset)
