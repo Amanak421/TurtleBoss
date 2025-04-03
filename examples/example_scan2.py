@@ -36,7 +36,7 @@ if __name__ == "__main__":
             
         if not objects:
             print("NOT FOUND -> ROTATE")
-            robot_move.rotate(pi/6, speed=0.7)
+            robot_move.rotate(pi/6)
             angle += pi/6
             continue
 

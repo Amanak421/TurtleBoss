@@ -18,7 +18,7 @@ COLOR_BOUNDS_OBST = (
 COLOR_BOUND_BALL = ColorMaskBounding((21, 140, 110), (30, 255, 255), ColorType.YELLOW)
 
 
-MIN_AREA_OBST = 200 
+MIN_AREA_OBST = 200
 MIN_AREA_BALL = 800
 
 TOP_Y_BORDER = 1/8
@@ -38,7 +38,9 @@ def find_ball(rgb_img, all_objects) -> None:
         if area > MIN_AREA_BALL : 
             (x, y), radius = cv2.minEnclosingCircle(largest_c)
             if  rgb_img.shape[0] * TOP_Y_BORDER < y:
-                all_objects.append(RigidObject(int(x), int(y), int(radius), int(radius), RigidType.BALL))
+                all_objects.append(RigidObject(int(x), int(y),
+                                               int(radius), int(radius),
+                                               RigidType.BALL))
 
 
 def find_obstacles(rgb_img, all_objects) -> None:
@@ -62,7 +64,9 @@ def find_obstacles(rgb_img, all_objects) -> None:
                     cy = m['m01'] / m['m00']
                     r_type = RigidType.POLE if bound.c == ColorType.BLUE else RigidType.OBST
                     if rgb_img.shape[0] * TOP_Y_BORDER < cy < rgb_img.shape[0] * BOTTOM_Y_BORDER:
-                        all_objects.append(RigidObject(int(cx), int(cy), int(w), int(h), r_type, bound.c))
+                        all_objects.append(RigidObject(int(cx), int(cy),
+                                                       int(w), int(h),
+                                                       r_type, bound.c))
 
 
 def draw_circle(rgb_img, x, y, r):
@@ -95,7 +99,7 @@ def show_objects(rgb_img, all_objects, window, wait=False) -> None:
         cv2.waitKey()
     else:
         cv2.waitKey(5)# & 0xFF == ord('q')
-    
+
 
 def load_img(filename):
     data = scipy.io.loadmat(filename)

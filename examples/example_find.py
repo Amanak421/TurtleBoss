@@ -26,7 +26,7 @@ if __name__ == "__main__":
         if ball:
             ball = ball[0]
         else:
-            test.rotate(pi/10, speed=0.8)
+            test.rotate(pi/10)
             continue
 
         pc = turtle.get_point_cloud()
@@ -42,6 +42,6 @@ if __name__ == "__main__":
             else:
                 test.go(0.1)
         elif ball.x > center:
-            test.rotate(-pi/20, speed=(min(abs(center - ball.x)/center, 0.3)))
+            test.rotate(-pi/20)
         else:
-            test.rotate(pi/20, speed=(min(abs(center - ball.x)/center, 0.3)))
+            test.rotate(pi/20)
