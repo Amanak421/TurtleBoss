@@ -6,7 +6,7 @@ from mapping import Map, has_all
 
 
 class Robot:
-    def __init__(self, turtle, rate):
+    def __init__(self, turtle, rate, sleep_func = lambda: None):
         self.WAIT_TIME = 0.1
         self.LINEAR_CORRECTION = 0.98 #1  # 0.98  # 0.96
         self.ANGULAR_CORRECTION = 1 #1.04  # 1.18
@@ -31,11 +31,14 @@ class Robot:
 
         self.robot_pos = self.BASE_POSITION
 
+        self.kick_ball = False
+
         self.bumped = False
         self.button = False
 
         self.turtle = turtle
         self.rate = rate
+        self.sleep_func = sleep_func
 
         turtle.register_bumper_event_cb(self.bumper_cb)
         turtle.register_button_event_cb(self.button_cb)
@@ -78,7 +81,12 @@ class Robot:
         self.button = True
 
     def check_bumper(self):
-        if self.bumped:
+        if self.bumped and self.kick_ball:
+            self.turtle.cmd_velocity()
+            self.sleep_func(2)
+            self.turtle.play_sound(5)
+            sys.exit(66)
+        elif self.bumped:
             self.turtle.cmd_velocity()
             sys.exit(66)
 
@@ -90,9 +98,6 @@ class Robot:
     def reset_odometry(self) -> None:
         self.turtle.reset_odometry()
         self.turtle.wait_for_odometry()
-
-    def stop(self):
-        self.turtle.cmd_velocity()
 
     def update_odometry_linear(self, x) -> None:
         self.robot_pos = self.robot_pos + Point(x*self.robot_pos.cos, x*self.robot_pos.sin)
@@ -161,19 +166,21 @@ class Robot:
         self.check_bumper()
         self.rate.sleep()
 
-    def kick(self, target_distance, speed=0.8):
+    def kick(self, target_distance, speed=1.5):
         self.reset_odometry()
+        self.kick_ball = True
 
         # move forward until desired length is hit
         while True:
             distance = self.get_odometry_x()
             if distance > target_distance or self.turtle.is_shutting_down():
                 break
-
+            self.check_bumper()
             self.turtle.cmd_velocity(linear=speed)
             self.rate.sleep()
 
         self.turtle.cmd_velocity()
+        self.kick_ball = False
 
     def rotate(self, target_angle, speed = 0.5, stop = True, use_correction = True, debug_info: bool = False, simulate=False) -> None:
         if simulate:
@@ -285,12 +292,14 @@ class Robot:
 
             # all objects were scanned and kick position can be determined
             if robot_map.has_all or has_all(objects):
-                break
+                return True
 
             self.rotate(small)
             angle += small
 
-    def center_ball(self, center = 330, offset = 10, debug_info: bool = False) -> None:
+        return False
+
+    def center_ball(self, center = 350, offset = 10, debug_info: bool = False) -> None:
         while not self.turtle.is_shutting_down():
             all_objects_ = self.get_objects_from_camera()
             ball = list(filter(lambda x: x.o_type == find_ball.RigidType.BALL, all_objects_))
