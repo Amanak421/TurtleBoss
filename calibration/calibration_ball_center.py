@@ -13,5 +13,6 @@ if __name__ == "__main__":
     test.reset()
 
     while not turtle.is_shutting_down():
-        center, offset = (int(x) for x in input("CENTER, OFFSET: ").split(" ")[:2])
+        center, offset = (int(x) for x in
+                          input("CENTER, OFFSET: ").split(" ")[:2])
         test.center_ball(center=center, offset=offset)

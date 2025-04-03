@@ -27,7 +27,8 @@ if __name__ == "__main__":
             data['point_cloud'] = turtle_.get_point_cloud()
 
             # save data to .mat file
-            filename = datetime.today().strftime("photos/%Y-%m-%d-%H-%M-%S") + ".mat"
+            filename = (datetime.today().strftime("photos/%Y-%m-%d-%H-%M-%S") +
+                        ".mat")
             savemat(filename, data)
 
             print(f"Data saved in {filename}")

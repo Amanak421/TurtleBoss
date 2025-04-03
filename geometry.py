@@ -122,8 +122,8 @@ class Circle:
         self.c, self.r = c, r
 
     def is_inner(self, point: Point):
-        return (np.square(point.x - self.c.x) + np.square(point.y - self.c.y) <=
-                np.square(self.r))
+        return (np.square(point.x - self.c.x) + np.square(point.y - self.c.y)
+                <= np.square(self.r))
 
 
 def intersection(circle: Circle, linear: Union[Line, Segment]):
