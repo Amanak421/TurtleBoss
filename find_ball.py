@@ -65,8 +65,10 @@ def find_obstacles(rgb_img, all_objects) -> None:
                     m = cv2.moments(cnt)
                     cx = m['m10'] / m['m00']
                     cy = m['m01'] / m['m00']
-                    r_type = RigidType.POLE if bound.c == ColorType.BLUE else RigidType.OBST
-                    if rgb_img.shape[0] * TOP_Y_BORDER < cy < rgb_img.shape[0] * BOTTOM_Y_BORDER:
+                    r_type = RigidType.POLE if bound.c == ColorType.BLUE else (
+                        RigidType.OBST)
+                    if (rgb_img.shape[0] * TOP_Y_BORDER < cy <
+                            rgb_img.shape[0] * BOTTOM_Y_BORDER):
                         all_objects.append(RigidObject(int(cx), int(cy),
                                                        int(w), int(h),
                                                        r_type, bound.c))
@@ -83,18 +85,22 @@ def draw_circle(rgb_img, x, y, r):
 def draw_rectangle(rgb_img, obst):
     rgb_img = np.array(rgb_img, dtype=np.uint8)
     rgb_img = cv2.cvtColor(rgb_img, cv2.COLOR_BGR2BGRA)
-    x1, y1 = (obst.im_position[0] - obst.w // 2), (obst.im_position[1] - obst.h // 2)
-    x2, y2 = (obst.im_position[0] + obst.w // 2), (obst.im_position[1] + obst.h // 2)
+    x1, y1 = ((obst.im_position[0] - obst.w // 2),
+              (obst.im_position[1] - obst.h // 2))
+    x2, y2 = ((obst.im_position[0] + obst.w // 2),
+              (obst.im_position[1] + obst.h // 2))
     r_color = (255, 0, 0) if obst.o_type == RigidType.POLE else (0, 0, 255)
     cv2.rectangle(rgb_img, (x1, y1), (x2, y2), r_color, 2)
-    cv2.circle(rgb_img, (obst.im_position[0], obst.im_position[1]), 3, (0, 0, 255), -1)
+    cv2.circle(rgb_img, (obst.im_position[0], obst.im_position[1]),
+               3, (0, 0, 255), -1)
     return rgb_img
 
 
 def show_objects(rgb_img, all_objects, window, wait=False) -> None:
     for obj in all_objects:
         if obj.o_type == RigidType.BALL:
-            rgb_img = draw_circle(rgb_img, obj.im_position[0], obj.im_position[1], obj.w)
+            rgb_img = draw_circle(rgb_img, obj.im_position[0],
+                                  obj.im_position[1], obj.w)
         else:
             rgb_img = draw_rectangle(rgb_img, obj)
     cv2.imshow(window, rgb_img)

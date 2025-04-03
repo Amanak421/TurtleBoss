@@ -78,7 +78,8 @@ class Map:
             for i, _ in enumerate(obj_dict[key]):
                 if counter[key][i] >= MIN_MATCHES:
                     correct[key] += 1
-        if (correct[RigidType.POLE] >= MAX_OBJECTS[RigidType.POLE] and correct[RigidType.BALL] >= MAX_OBJECTS[RigidType.BALL]):
+        if (correct[RigidType.POLE] >= MAX_OBJECTS[RigidType.POLE] and
+                correct[RigidType.BALL] >= MAX_OBJECTS[RigidType.BALL]):
             return True
         else:
             return False
@@ -210,7 +211,8 @@ class Map:
     def determine_kick_pos(self, dist: float = 1):
         poles: list[RigidObject] = self.poles
         if len(poles) < 2:
-            raise ProcessError("Cannot determine kick position, not enough poles!")
+            raise ProcessError("Cannot determine kick position, "
+                               "not enough poles!")
         p1: np.array = poles[0].xy
         p2: np.array = poles[1].xy
         ball = self.ball
@@ -244,7 +246,10 @@ class Map:
                         continue
                     chord_seg = Segment(*intersects)
                     diameter_line = Line(chord_seg.midpoint, zone.c)
-                    new_stop_candidates = intersection(Circle(zone.c, 2 * zone.r - zone.c.distance(chord_seg.midpoint)), diameter_line)
+                    new_stop_candidates = intersection(
+                        Circle(zone.c, 2 * zone.r -
+                               zone.c.distance(chord_seg.midpoint)),
+                        diameter_line)
                     new_stop = max(new_stop_candidates,
                                    key=lambda p: p.distance(self.ball[0]))
                     route.insert(i + 1, new_stop)
@@ -252,7 +257,9 @@ class Map:
                     change_counter += 1
                     break
         for point_index in range(1, len(route) - 1):
-            vector = np.append(Line(route[point_index], route[point_index + 1]).direction_vector.xy, 0)
+            vector = np.append(Line(route[point_index],
+                                    route[point_index + 1]).direction_vector.xy,
+                               0)
             zero_angle_vector = np.array((1, 0, 0))
             route[point_index].angle = np.arctan2(
                 np.cross(zero_angle_vector, vector)[2],

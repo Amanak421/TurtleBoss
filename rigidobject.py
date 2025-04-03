@@ -1,5 +1,5 @@
 from enum import Enum
-# import numpy as np
+import numpy as np
 from geometry import Point
 
 
@@ -87,8 +87,11 @@ class RigidObject:
         :param pc: Point cloud
         :return:
         """
-        # r = (RADIUS_BALL if self.o_type == RigidType.BALL else RADIUS_POLE)
-        # vector = pc[self.im_p.xy[1]][self.im_p.xy[0]][0], pc[self.im_p.xy[1]][self.im_p.xy[0]][2]
-        # norm = np.linalg.norm(vector)
-        self.p.x = pc[self.im_p.xy[1]][self.im_p.xy[0]][2]  # + r * vector[0] / norm
-        self.p.y = -pc[self.im_p.xy[1]][self.im_p.xy[0]][0]  # + r * vector[1] / norm
+        r = 0  # (RADIUS_BALL if self.o_type == RigidType.BALL else RADIUS_POLE)
+        vector = (pc[self.im_p.xy[1]][self.im_p.xy[0]][0],
+                  pc[self.im_p.xy[1]][self.im_p.xy[0]][2])
+        norm = np.linalg.norm(vector)
+        self.p.x = (pc[self.im_p.xy[1]][self.im_p.xy[0]][2] +
+                    r * vector[0] / norm)
+        self.p.y = (-pc[self.im_p.xy[1]][self.im_p.xy[0]][0] +
+                    r * vector[1] / norm)

@@ -42,7 +42,7 @@ if __name__ == "__main__":
 
     # go in front of ball
     for p in path[1:]:
-        robot.go_to(p, linear_velocity=0.4, angular_velocity=0.45)
+        robot.go_to(p)
 
     while True:
         # reset all systems and scan the environment for second time
@@ -55,7 +55,7 @@ if __name__ == "__main__":
         if first_try:
             kick_distance = 0.6
         kick_pos = robot_map.determine_kick_pos(dist=0.6)
-        robot.go_to(kick_pos, linear_velocity=0.4, angular_velocity=0.45)
+        robot.go_to(kick_pos)
 
     print("INIT KICK MODE")
 

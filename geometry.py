@@ -110,8 +110,10 @@ class Segment(Line):
         return (self.a + self.b) / 2
 
     def is_element_of(self, point: Point, atol=1e-9):
-        within_bounds = (min(self.a.x, self.b.x) - atol <= point.x <= max(self.a.x, self.b.x) + atol and
-                         min(self.a.y, self.b.y) - atol <= point.y <= max(self.a.y, self.b.y) + atol)
+        within_bounds = (min(self.a.x, self.b.x) - atol <= point.x <=
+                         max(self.a.x, self.b.x) + atol and
+                         min(self.a.y, self.b.y) - atol <= point.y <=
+                         max(self.a.y, self.b.y) + atol)
         return super().is_element_of(point, atol) and within_bounds
 
 
@@ -120,7 +122,8 @@ class Circle:
         self.c, self.r = c, r
 
     def is_inner(self, point: Point):
-        return np.square(point.x - self.c.x) + np.square(point.y - self.c.y) <= np.square(self.r)
+        return (np.square(point.x - self.c.x) + np.square(point.y - self.c.y) <=
+                np.square(self.r))
 
 
 def intersection(circle: Circle, linear: Union[Line, Segment]):
@@ -128,7 +131,8 @@ def intersection(circle: Circle, linear: Union[Line, Segment]):
     dx = linear.direction_vector.x
     dy = linear.direction_vector.y
     dr = np.sqrt(np.square(dx) + np.square(dy))
-    d = np.linalg.det(((linear.a.x - circle.c.x, linear.b.x - circle.c.x), (linear.a.y - circle.c.y, linear.b.y - circle.c.y)))
+    d = np.linalg.det(((linear.a.x - circle.c.x, linear.b.x - circle.c.x),
+                       (linear.a.y - circle.c.y, linear.b.y - circle.c.y)))
     delta = np.square(circle.r) * np.square(dr) - np.square(d)
     if delta < 0:
         return []
