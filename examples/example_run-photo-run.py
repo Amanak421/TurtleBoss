@@ -39,8 +39,8 @@ def reset_telemetry():
     sleep(0.1)
 
 
-def save_telemetry(fname: str = datetime.today().strftime("%Y-%m-%d-%H-%M-%S")
-                                + ".mat"):
+def save_telemetry(fn: str = datetime.today().strftime("%Y-%m-%d-%H-%M-%S") +
+                             ".mat"):
     # Get K, images, and point cloud
     data = dict()
     data['K_rgb'] = turtle.get_rgb_K()
@@ -50,7 +50,7 @@ def save_telemetry(fname: str = datetime.today().strftime("%Y-%m-%d-%H-%M-%S")
     data['point_cloud'] = turtle.get_point_cloud()
     data['odometry'] = turtle.get_odometry()
     # Save data to .mat file
-    filename = fname
+    filename = fn
     savemat(filename, data)
     print("Data saved in {filename}")
 
@@ -75,8 +75,8 @@ def turn(target_angle: int):
     reset_telemetry()
     angle = turtle.get_odometry()[2]
 
-    ta = target_angle
-    cond = lambda a: a <= ta if ta > 0 else (a > ta)
+    def cond(a) -> bool:
+        return (a <= target_angle) if target_angle > 0 else (a > target_angle)
 
     while cond(angle):
         turtle.cmd_velocity(angular=0.5)

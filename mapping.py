@@ -258,7 +258,7 @@ class Map:
                     break
         for point_index in range(1, len(route) - 1):
             vector = np.append(Line(route[point_index], route[point_index + 1])
-                               .direction_vector.xy,0)
+                               .direction_vector.xy, 0)
             zero_angle_vector = np.array((1, 0, 0))
             route[point_index].angle = np.arctan2(
                 np.cross(zero_angle_vector, vector)[2],
