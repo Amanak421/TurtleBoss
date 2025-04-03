@@ -20,15 +20,18 @@ if __name__ == "__main__":
     robot.reset()
     robot_map = Map()
 
+    # base distance for calculating kick position
+    kick_distance = 1
+
     print("Wait for button press on robot...")
     while not robot.button:
         pass
 
     # find ball and poles and add them to the map
-    robot.scan_environment(robot_map, debug_info=True)
+    robot.scan_environment(robot_map, debug_info=DEBUG)
 
     ball = robot_map.ball
-    kick_pos = robot_map.determine_kick_pos(dist=1)
+    kick_pos = robot_map.determine_kick_pos(dist=kick_distance)
     path = robot_map.routing(robot.position, kick_pos)
     
     if DEBUG:
@@ -38,13 +41,18 @@ if __name__ == "__main__":
     for p in path[1:]:
         robot.go_to(p, linear_velocity=0.4, angular_velocity=0.45)
 
-    # reset all systems and scan the environment for second time
-    robot_map.reset()
-    robot.reset()
-    robot.scan_environment(robot_map, debug_info=True)
-    # calculate position for kick and to it
-    kick_pos = robot_map.determine_kick_pos(dist=0.6)
-    robot.go_to(kick_pos, linear_velocity=0.4, angular_velocity=0.45)
+    while True:
+        # reset all systems and scan the environment for second time
+        robot_map.reset()
+        robot.reset()
+        first_try = robot.scan_environment(robot_map, debug_info=DEBUG)
+        if kick_distance == 0.6 and first_try:
+            break
+        # calculate position for kick and to it
+        if first_try:
+            kick_distance = 0.6
+        kick_pos = robot_map.determine_kick_pos(dist=0.6)
+        robot.go_to(kick_pos, linear_velocity=0.4, angular_velocity=0.45)
 
     print("INIT KICK MODE")
 
@@ -53,9 +61,3 @@ if __name__ == "__main__":
 
     # kick the ball to the goal
     robot.kick(0.5, speed=1.5)
-    robot.stop()
-    sleep(2)
-
-    # play sound
-    turtle_.play_sound(5)
-    print("PROGRAM ENDED")
