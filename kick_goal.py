@@ -32,7 +32,7 @@ if __name__ == "__main__":
     path = robot_map.routing(robot.position, kick_pos)
     
     if DEBUG:
-        robot_map.show(show_all=False, show_merged=True, path=path, dead_zones=robot_map.dead_zones, robot_pos=robot.position, kick_pos=kick_pos, debug_info=True)
+        robot_map.show(show_all=False, show_merged=True, path=path, danger_zones=robot_map.danger_zones, robot_pos=robot.position, kick_pos=kick_pos, debug_info=True)
 
     # go in front of ball
     for p in path[1:]:

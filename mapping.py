@@ -57,16 +57,16 @@ class Map:
         return self.merge_objects(debug_info)[0][RigidType.OBST]
 
     @property
-    def dead_zones(self):
+    def danger_zones(self):
         obj_dict, _ = self.merge_objects()
-        dead_zones = []
+        danger_zones = []
         for pole in obj_dict[RigidType.POLE]:
-            dead_zones.append(Circle(pole.position, 0.3))
+            danger_zones.append(Circle(pole.position, 0.3))
         for obst in obj_dict[RigidType.OBST]:
-            dead_zones.append(Circle(obst.position, 0.3))
+            danger_zones.append(Circle(obst.position, 0.3))
         for ball in obj_dict[RigidType.BALL]:
-            dead_zones.append(Circle(ball.position, 0.3))
-        return dead_zones
+            danger_zones.append(Circle(ball.position, 0.3))
+        return danger_zones
     
     @property
     def has_all(self):
@@ -96,7 +96,7 @@ class Map:
         return is_max_poles or is_max_ball
 
     def show(self, show_all: bool=False, show_merged: bool=True, robot_pos: Point=None,
-             kick_pos: Point=None, path: list=None, dead_zones: list=None, debug_info: bool = False)-> None:
+             kick_pos: Point=None, path: list=None, danger_zones: list=None, debug_info: bool = False)-> None:
         _, ax = plt.subplots(figsize=(6, 6), dpi=100)  # Set 6x6 inches
         ax.set_aspect(1)  # X, Y axis ratio 1:1
         if show_merged:
@@ -138,8 +138,8 @@ class Map:
             pos_y = points_y[:-1] + y_diff/2
             norm = np.sqrt(x_diff**2+y_diff**2)
             ax.quiver(pos_x, pos_y, x_diff/norm, y_diff/norm, angles="xy", zorder=5, pivot="mid")
-        if dead_zones is not None:
-            for zone in dead_zones:
+        if danger_zones is not None:
+            for zone in danger_zones:
                 ax.add_patch(patches.Circle(zone.c.xy, zone.r, facecolor='r', edgecolor='r', linewidth=2, alpha=0.1))
 
         x_lim = plt.xlim()
@@ -206,7 +206,7 @@ class Map:
 
     def routing(self, s_pos: Point, f_pos: Point, debug_info: bool = False):
         route = [s_pos, f_pos]
-        dz = self.dead_zones
+        dz = self.danger_zones
         if any(zone.is_inner(f_pos) for zone in dz): return []
         change = True
         change_counter = 0
@@ -228,7 +228,7 @@ class Map:
                     change = True
                     change_counter += 1
                     break
-            if debug_info: mapA.show(kick_pos=kick_pos_, path=route, dead_zones=mapA.dead_zones)
+            if debug_info: mapA.show(kick_pos=kick_pos_, path=route, danger_zones=mapA.danger_zones)
         for point_index in range(1, len(route) - 1):
             vector = np.append(Line(route[point_index], route[point_index + 1]).direction_vector.xy, 0)
             zero_angle_vector = np.array((1, 0, 0))
@@ -254,7 +254,7 @@ if __name__ == "__main__":
     kick_pos_ = mapA.determine_kick_pos(dist=0.7)
     path_ = mapA.routing(Point(0, 0), kick_pos_)
     print(*path_, sep="\n")
-    mapA.show(kick_pos=kick_pos_, path=path_, dead_zones=mapA.dead_zones)
+    mapA.show(kick_pos=kick_pos_, path=path_, danger_zones=mapA.danger_zones)
 
 
     """
