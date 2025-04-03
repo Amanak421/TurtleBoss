@@ -39,8 +39,8 @@ def reset_telemetry():
     sleep(0.1)
 
 
-def save_telemetry(fn: str = datetime.today().strftime("%Y-%m-%d-%H-%M-%S") +
-                             ".mat"):
+def save_telemetry(fn: str =
+                   datetime.today().strftime("%Y-%m-%d-%H-%M-%S") + ".mat"):
     # Get K, images, and point cloud
     data = dict()
     data['K_rgb'] = turtle.get_rgb_K()
