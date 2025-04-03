@@ -52,7 +52,7 @@ def main():
         # mask point too far
         mask = np.logical_and(mask, pc[:, :, 2] < 3.0)
 
-        #if np.count_nonzero(mask) <= 0:
+        # if np.count_nonzero(mask) <= 0:
         #    print('All point are too far ...')
         #    continue
 

@@ -1,12 +1,9 @@
-import sys
-from math import pi
-from robolab_turtlebot import Turtlebot, sleep, Rate, get_time
-import find_ball
+from robolab_turtlebot import Turtlebot, sleep, Rate
 from mapping import Map
 from robot import Robot
-from geometry import Point
 from scipy.io import savemat
 from datetime import datetime
+
 
 if __name__ == "__main__":
     turtle_ = Turtlebot(rgb=True, depth=True, pc=True)
@@ -17,7 +14,7 @@ if __name__ == "__main__":
     robot = Robot(turtle_, rate)
     robot.reset()
     robot_map = Map()
-    
+
     while not turtle_.is_shutting_down():
         if robot.button:
             turtle_.play_sound(5)
@@ -33,7 +30,5 @@ if __name__ == "__main__":
             filename = datetime.today().strftime("photos/%Y-%m-%d-%H-%M-%S") + ".mat"
             savemat(filename, data)
 
-            print('Data saved in {}'.format(filename))
+            print(f"Data saved in {filename}")
             robot.button = False
-
-

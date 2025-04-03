@@ -3,7 +3,6 @@
 from robolab_turtlebot import Turtlebot, sleep
 
 
-
 def main():
     turtle = Turtlebot()
     sleep(1)

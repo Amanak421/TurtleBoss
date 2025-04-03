@@ -1,7 +1,7 @@
 # TODO depreciate soon
 import sys
 from datetime import datetime
-from robolab_turtlebot import Turtlebot, sleep, Rate, get_time
+from robolab_turtlebot import Turtlebot, sleep, Rate
 from scipy.io import savemat
 
 # Name bumpers and events
@@ -51,7 +51,7 @@ def save_telemetry(fname: str = datetime.today().strftime("%Y-%m-%d-%H-%M-%S") +
     # Save data to .mat file
     filename = fname
     savemat(filename, data)
-    print('Data saved in {}'.format(filename))
+    print("Data saved in {filename}")
 
 
 def go(length: int = 1):

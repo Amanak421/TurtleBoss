@@ -1,9 +1,8 @@
 # TODO depreciate or rename to an example
 from robot import Robot
-import sys
-from robolab_turtlebot import Turtlebot, sleep, Rate, get_time
-from math import pi
-from geometry import Point, normalize_angle
+from robolab_turtlebot import Turtlebot, sleep, Rate
+from geometry import Point
+
 
 if __name__ == "__main__":
     turtle = Turtlebot(rgb=True, depth=True, pc=True)
