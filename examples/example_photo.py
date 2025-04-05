@@ -1,3 +1,8 @@
+"""
+Make a .mat file with RGBd data on button press. Used for testing.
+"""
+
+
 from robolab_turtlebot import Turtlebot, sleep, Rate
 from mapping import Map
 from robot import Robot

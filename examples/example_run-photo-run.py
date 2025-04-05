@@ -1,4 +1,9 @@
-# TODO depreciate soon
+"""
+Testing script from early stages of the project.
+Expected behavior: go around half a circle and make 3 RGBd images
+"""
+
+
 import sys
 from datetime import datetime
 from robolab_turtlebot import Turtlebot, sleep, Rate
@@ -15,7 +20,9 @@ global_angle = 0
 
 
 def bumper_cb(msg):
-    """Bumber callback."""
+    """
+    Bumber callback.
+    """
     bumper = bumper_names[msg.bumper]
     state = state_names[msg.state]
     print('{} bumper {}'.format(bumper, state))
@@ -25,12 +32,19 @@ def bumper_cb(msg):
 
 
 def check_bump():
+    """
+    INVALID! DOES NOT WORK!
+    Stop whole program.
+    """
     if bumped:
         print("Bumped!")
         sys.exit(66)
 
 
 def reset_telemetry():
+    """
+    Reset global data.
+    """
     global global_x_pos, global_y_pos, global_angle
     global_x_pos = turtle.get_odometry()[0]
     global_y_pos = turtle.get_odometry()[1]
@@ -41,6 +55,9 @@ def reset_telemetry():
 
 def save_telemetry(fn: str =
                    datetime.today().strftime("%Y-%m-%d-%H-%M-%S") + ".mat"):
+    """
+    Save .mat file with RGBd data.
+    """
     # Get K, images, and point cloud
     data = dict()
     data['K_rgb'] = turtle.get_rgb_K()
@@ -56,6 +73,9 @@ def save_telemetry(fn: str =
 
 
 def go(length: int = 1):
+    """
+    Go straight.
+    """
     rate = Rate(10)
     reset_telemetry()
     distance = turtle.get_odometry()[0]
@@ -70,6 +90,9 @@ def go(length: int = 1):
 
 
 def turn(target_angle: int):
+    """
+    Turn by angle in degrees.
+    """
     target_angle = target_angle * 3.141592653 / 180
     rate = Rate(10)
     reset_telemetry()
@@ -88,6 +111,9 @@ def turn(target_angle: int):
 
 
 def run():
+    """
+    Make 3 images from 3 positions.
+    """
     turtle.reset_odometry()
     for i in range(3):
         save_telemetry(f"tel{i}.mat")

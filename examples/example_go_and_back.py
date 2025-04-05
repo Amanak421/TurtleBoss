@@ -1,4 +1,8 @@
-# TODO depreciate or rename to an example
+"""
+Simple move test. Go 1 m, turn back, go back, turn again.
+"""
+
+
 from robot import Robot
 from robolab_turtlebot import Turtlebot, sleep, Rate
 from math import pi

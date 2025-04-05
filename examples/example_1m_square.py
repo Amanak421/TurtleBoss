@@ -1,3 +1,8 @@
+"""
+Simple move test. Go around 1 m square.
+"""
+
+
 from robot import Robot
 from robolab_turtlebot import Turtlebot, sleep, Rate
 from math import pi

@@ -1,4 +1,8 @@
-# TODO depreciate or rename to an example
+"""
+Interactive console app to control the robot by sending commands.
+"""
+
+
 from robot import Robot
 from robolab_turtlebot import Turtlebot, sleep, Rate
 from geometry import Point
