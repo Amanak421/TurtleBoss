@@ -1,3 +1,8 @@
+"""
+Constants module used across multiple files.
+"""
+
+
 from geometry import Point
 import numpy as np
 from rigidobject import RigidType

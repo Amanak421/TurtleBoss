@@ -8,7 +8,7 @@ state_names = ['RELEASED', 'PRESSED']
 
 
 def bumper_cb(msg):
-    """Bumber callback."""
+    """Bumper callback."""
     # msg.bumper stores the id of bumper 0:LEFT, 1:CENTER, 2:RIGHT
     bumper = bumper_names[msg.bumper]
 

@@ -1,3 +1,8 @@
+"""
+Calibration for compensation of off-centered camera.
+"""
+
+
 from robot import Robot
 from robolab_turtlebot import Turtlebot, sleep, Rate
 

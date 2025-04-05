@@ -8,6 +8,9 @@ RADIUS_BALL = 0.11
 
 
 class ColorType(Enum):
+    """
+    Enum of colors.
+    """
     YELLOW = "yellow"
     BLUE = "blue"
     GREEN = "green"
@@ -16,12 +19,18 @@ class ColorType(Enum):
 
 
 class RigidType(Enum):
+    """
+    Enum of object types.
+    """
     BALL = 1
     POLE = 2
     OBST = 3
 
 
 class RigidObject:
+    """
+    Template for detectable objects.
+    """
     def __init__(self, x, y, w, h, o_type: RigidType,
                  c_type: ColorType = None):
         self.p = Point(0, 0)  # (x,y)_pc

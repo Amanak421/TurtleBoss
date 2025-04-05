@@ -1,3 +1,8 @@
+"""
+Module to keep, process, evaluate and plan navigational data during a cruise.
+"""
+
+
 import numpy as np
 import matplotlib.patches as patches
 import matplotlib.pyplot as plt
@@ -7,14 +12,28 @@ from utils import ProcessError
 from constants import MAX_OBJECTS, MIN_MATCHES
 
 
-def average(object_a: RigidObject, object_b: RigidObject):
+def average(object_a: RigidObject, object_b: RigidObject) -> Point:
+    """
+    Get an averagely estimated RigidObject from among two RigidObjects
+    :param object_a: first reference RigidObject
+    :param object_b: second reference RigidObject
+    :return: RigidObject estimate
+    """
     return Point(*np.mean([object_a.xy, object_b.xy], axis=0))
 
 
-def transform(position: Point, base_pos: Point, debug_info: bool = False):
+def transform(position: Point,
+              base_pos: Point,
+              debug_info: bool = False) -> Point:
+    """
+    Transform a vector to another system with different base.
+    :param position: vector to transform
+    :param base_pos: default system
+    :param debug_info: boolean for debug
+    :return: Point with newly transformed (rotated and moved) coordinates
+    """
     if debug_info:
         print("Position before rot.", position)
-    if debug_info:
         print("Robot position: ", base_pos)
     transform_matrix = np.array([[base_pos.cos, -base_pos.sin, base_pos.x],
                                 [base_pos.sin, base_pos.cos, base_pos.y],
@@ -25,41 +44,66 @@ def transform(position: Point, base_pos: Point, debug_info: bool = False):
     return Point(*result)
 
 
-def has_all(objects: list):
+def has_all(all_objects: list) -> bool:
+    """
+    Decide whether all known object all_objects contain 2 poles and 1 ball.
+    :param all_objects: list with all known objects
+    :return: boolean
+    """
     poles = 0
     ball = 0
 
-    for obj in objects:
+    for obj in all_objects:
         if obj.o_type == RigidType.POLE and 40 <= obj.im_p.x <= 600:
             poles += 1
         elif obj.o_type == RigidType.BALL and 40 <= obj.im_p.x <= 600:
             ball += 1
 
-    if poles == 2 and ball == 1:
+    if (poles == MAX_OBJECTS[RigidType.POLE] and
+            ball == MAX_OBJECTS[RigidType.BALL]):
         return True
     else:
         return False
 
 
 class Map:
-    def __init__(self, threshold=0.2):
+    """
+    Object for keeping known objects and processing them.
+    """
+    def __init__(self, threshold: float = 0.2):
         self.objects = []
         self.threshold = threshold
 
     @property
     def poles(self, debug_info: bool = False):
+        """
+        :param debug_info: boolean for debug
+        :return: merged all known objects of type POLE
+        """
         return self.merge_objects(debug_info)[0][RigidType.POLE]
 
     @property
     def ball(self, debug_info: bool = False):
+        """
+        :param debug_info: boolean for debug
+        :return: merged all known objects of type BALL
+        """
         return self.merge_objects(debug_info)[0][RigidType.BALL]
 
     @property
     def obstacles(self, debug_info: bool = False):
+        """
+        :param debug_info: boolean for debug
+        :return: merged all known objects of type OBST
+        """
         return self.merge_objects(debug_info)[0][RigidType.OBST]
 
     @property
-    def danger_zones(self):
+    def danger_zones(self) -> list:
+        """
+        Zones that the center of robot should not cross to prevent collisions.
+        :return: list of danger zones
+        """
         obj_dict, _ = self.merge_objects()
         danger_zones = []
         for pole in obj_dict[RigidType.POLE]:
@@ -71,7 +115,11 @@ class Map:
         return danger_zones
 
     @property
-    def has_all(self):
+    def has_all(self) -> bool:
+        """
+        Decide whether all known object all_objects contain 2 poles and 1 ball.
+        :return: boolean
+        """
         obj_dict, counter = self.merge_objects()
         correct = {x: 0 for x in obj_dict}
         for key in obj_dict:
@@ -85,10 +133,19 @@ class Map:
             return False
 
     def reset(self) -> None:
+        """
+        Set all known object to blank list.
+        """
         self.objects = []
 
     def add_object(self, object_a: RigidObject,
                    robot_pos: Point, debug_info: bool = False):
+        """
+        Introduce a new object to all known objects
+        :param object_a: the new object
+        :param robot_pos: robot position
+        :param debug_info: boolean for debug
+        """
         if debug_info:
             print("BEFORE ROTATION:", object_a.position)
         object_a.set_position(transform(object_a.position,
@@ -97,17 +154,37 @@ class Map:
             print("AFTER ROTATION:", object_a.position)
         self.objects.append(object_a)
 
-    def is_max_reached(self, o_type: RigidType, count: dict) -> bool:
+    @staticmethod
+    def is_max_reached(o_type: RigidType, count: dict) -> bool:
+        """
+        Decide whether count is equal or more than requested objects.
+        :param o_type: reference object type
+        :param count: count of known type of reference objects
+        :return: boolean
+        """
         is_max_poles = (o_type == RigidType.POLE and
                         count[o_type] >= MAX_OBJECTS[o_type])
         is_max_ball = (o_type == RigidType.BALL and
                        count[o_type] >= MAX_OBJECTS[o_type])
         return is_max_poles or is_max_ball
 
-    def show(self, show_all: bool = False, show_merged: bool = True,
-             robot_pos: Point = None, kick_pos: Point = None,
-             path: list = None, danger_zones: list = None,
+    def show(self, show_all: bool = False,
+             show_merged: bool = True,
+             robot_pos: Point = None,
+             kick_pos: Point = None,
+             path: list = None,
+             danger_zones: list = None,
              debug_info: bool = False) -> None:
+        """
+        Visual representation of all known objects.
+        :param show_all: show detected objects before merging
+        :param show_merged: show detected objects after merging
+        :param robot_pos: robot position
+        :param kick_pos: kick position
+        :param path: list of points of the planned route
+        :param danger_zones: list of danger zones
+        :param debug_info: boolean for debug
+        """
         _, ax = plt.subplots(figsize=(6, 6), dpi=100)  # Set 6x6 inches
         ax.set_aspect(1)  # X, Y axis ratio 1:1
         if show_merged:
@@ -170,6 +247,11 @@ class Map:
         plt.show()
 
     def merge_objects(self, debug_info: bool = False):
+        """
+        Reduce duplicates of objects to their respective most probable amount.
+        :param debug_info: boolean for debug
+        :return: most probable objects and their amounts of sources
+        """
         objects = {}
         merge_count = {}
         for o_type in RigidType:
@@ -208,7 +290,12 @@ class Map:
             print(merge_count)
         return objects, merge_count
 
-    def determine_kick_pos(self, dist: float = 1):
+    def determine_kick_pos(self, dist: float = 1) -> Point:
+        """
+        Calculate Kick position.
+        :param dist: requested distance from ball, default = 1 m
+        :return: Kick position
+        """
         poles: list[RigidObject] = self.poles
         if len(poles) < 2:
             raise ProcessError("Cannot determine kick position, "
@@ -226,7 +313,14 @@ class Map:
         angle_rad = np.arctan2(-vector_line[1], -vector_line[0])
         return Point(*pos, angle_rad)
 
-    def routing(self, s_pos: Point, f_pos: Point):
+    def routing(self, s_pos: Point, f_pos: Point) -> list:
+        """
+        Algorithm for avoiding objects (precisely their respective danger
+        zones).
+        :param s_pos: starting position
+        :param f_pos: finish position
+        :return: list of positions along the route
+        """
         route = [s_pos, f_pos]
         dz = self.danger_zones
         if any(zone.is_inner(f_pos) for zone in dz):
@@ -271,6 +365,9 @@ if __name__ == "__main__":
     mapA = Map()
 
     def ao(x, y, t):
+        """
+        add object, testing function
+        """
         obj = RigidObject(0, 0, 0, 0, RigidType(t))
         obj.set_position(Point(x, y))
         mapA.add_object(obj, Point(0, 0))

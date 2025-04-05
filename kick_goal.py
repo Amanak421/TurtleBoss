@@ -1,3 +1,8 @@
+"""
+File combining all implemented features in order to complete challenge no. 2.
+"""
+
+
 from robolab_turtlebot import Turtlebot, sleep, Rate
 from mapping import Map
 from robot import Robot

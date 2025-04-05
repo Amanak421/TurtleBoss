@@ -1,3 +1,8 @@
+"""
+Computer vision module based on cv2.
+"""
+
+
 import cv2
 import numpy as np
 import scipy.io
@@ -5,6 +10,9 @@ from rigidobject import RigidObject, RigidType, ColorType
 
 
 class ColorMaskBounding:
+    """
+    Template for masking data: lower and upper bounds, color itself
+    """
     def __init__(self, lb, ub, c):
         (self.lb, self.ub, self.c) = (lb, ub, c)
 
@@ -26,7 +34,12 @@ TOP_Y_BORDER = 1/8
 BOTTOM_Y_BORDER = 7/8
 
 
-def find_ball(rgb_img, all_objects) -> None:
+def find_ball(rgb_img: np.ndarray, all_objects: list) -> None:
+    """
+    Find and add ball to all_objects.
+    :param rgb_img: RGB image
+    :param all_objects: list of objects
+    """
     # Convert to HSV
     hsv = cv2.cvtColor(rgb_img, cv2.COLOR_BGR2HSV)
     mask = cv2.inRange(hsv, COLOR_BOUND_BALL.lb, COLOR_BOUND_BALL.ub)
@@ -45,7 +58,12 @@ def find_ball(rgb_img, all_objects) -> None:
                                                RigidType.BALL))
 
 
-def find_obstacles(rgb_img, all_objects) -> None:
+def find_obstacles(rgb_img: np.ndarray, all_objects: list) -> None:
+    """
+    Find and add obstacles to all_objects.
+    :param rgb_img: RGB image
+    :param all_objects: list of objects
+    """
     for bound in COLOR_BOUNDS_OBST:
         # Convert to HSV
         hsv = cv2.cvtColor(rgb_img, cv2.COLOR_BGR2HSV)
@@ -74,15 +92,31 @@ def find_obstacles(rgb_img, all_objects) -> None:
                                                        r_type, bound.c))
 
 
-def draw_circle(rgb_img, x, y, r):
-    rgb_img = np.array(rgb_img, dtype=np.uint8)
+def draw_circle(rgb_img: np.ndarray, x: int, y: int, r: int) -> np.ndarray:
+    """
+    Add circle to rgb_img on (x, y) with radius r.
+    Used for visualisation and testing purposes.
+    :param rgb_img: RGB image
+    :param x: x coordinate
+    :param y: y coordinate
+    :param r: radius
+    :return: RGB image
+    """
+    rgb_img: np.ndarray = np.array(rgb_img, dtype=np.uint8)
     rgb_img = cv2.cvtColor(rgb_img, cv2.COLOR_BGR2BGRA)
     cv2.circle(rgb_img, (x, y), r, (0, 255, 255), 3)
     cv2.circle(rgb_img, (x, y), 3, (0, 0, 255), -1)
     return rgb_img
 
 
-def draw_rectangle(rgb_img, obst):
+def draw_rectangle(rgb_img: np.ndarray, obst: RigidObject) -> np.ndarray:
+    """
+    Add rectangle around obstacle obst to rgb_img.
+    Used for visualisation and testing purposes.
+    :param rgb_img: RGB image
+    :param obst: Obstacle
+    :return: RGB image
+    """
     rgb_img = np.array(rgb_img, dtype=np.uint8)
     rgb_img = cv2.cvtColor(rgb_img, cv2.COLOR_BGR2BGRA)
     x1, y1 = ((obst.im_position[0] - obst.w // 2),
@@ -96,7 +130,18 @@ def draw_rectangle(rgb_img, obst):
     return rgb_img
 
 
-def show_objects(rgb_img, all_objects, window, wait=False) -> None:
+def show_objects(rgb_img: np.ndarray,
+                 all_objects: list,
+                 window: str,
+                 wait: bool = False) -> None:
+    """
+    Show all_objects.
+    Used for visualisation and testing purposes.
+    :param rgb_img: RGB image
+    :param all_objects: list of visible objects
+    :param window: the name of cv2.namedWindow
+    :param wait: boolean switch, set to True for testing
+    """
     for obj in all_objects:
         if obj.o_type == RigidType.BALL:
             rgb_img = draw_circle(rgb_img, obj.im_position[0],
@@ -110,13 +155,23 @@ def show_objects(rgb_img, all_objects, window, wait=False) -> None:
         cv2.waitKey(5)  # & 0xFF == ord('q')
 
 
-def load_img(filename):
+def load_img(filename: str) -> np.ndarray:
+    """
+    Load matlab .mat file as though as it was regular RGB image
+    :param filename: filepath to matlab .mat file
+    :return: RGB image
+    """
     data = scipy.io.loadmat(filename)
     rgb_img = data["image_rgb"]
     return rgb_img
 
 
-def find_objects(rgb_img):
+def find_objects(rgb_img: np.ndarray) -> list:
+    """
+    Initialize list of objects all_objects and fill it with visible objects.
+    :param rgb_img: RGB image
+    :return: list of objects
+    """
     all_objects = []
     find_ball(rgb_img, all_objects)
     find_obstacles(rgb_img, all_objects)

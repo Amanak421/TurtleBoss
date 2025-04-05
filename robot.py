@@ -306,7 +306,7 @@ class Robot:
                 robot_angle = self.angle
                 if debug_info:
                     print("ROBOT POSITION:", robot_pos, robot_angle)
-                robot_map.add_object(obj, robot_pos, True)
+                robot_map.add_object(obj, robot_pos, debug_info)
             if debug_info:
                 print("\tSHOWING OBJECT")
 

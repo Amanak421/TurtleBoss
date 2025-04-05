@@ -1,3 +1,8 @@
+"""
+Calibration of forward move error constant.
+"""
+
+
 from robot import Robot
 from robolab_turtlebot import Turtlebot, sleep, Rate
 
