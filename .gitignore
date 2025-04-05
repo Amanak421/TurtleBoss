@@ -7,4 +7,4 @@ __pycache__
 # Pycharm venv
 ./.venv
 # figures
-./figures
+./.figures
