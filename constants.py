@@ -1,10 +1,9 @@
-"""
-Constants module used across multiple files.
-"""
+"""Constants module used across multiple files."""
 
+
+import numpy as np
 
 from geometry import Point
-import numpy as np
 from rigidobject import RigidType
 
 # robot.py

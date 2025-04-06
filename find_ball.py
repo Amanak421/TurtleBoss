@@ -1,19 +1,19 @@
-"""
-Computer vision module based on cv2.
-"""
+"""Computer vision module based on cv2."""
 
 
 import cv2
+
 import numpy as np
+
+from rigidobject import ColorType, RigidObject, RigidType
+
 import scipy.io
-from rigidobject import RigidObject, RigidType, ColorType
 
 
 class ColorMaskBounding:
-    """
-    Template for masking data: lower and upper bounds, color itself
-    """
-    def __init__(self, lb, ub, c):
+    """Template for masking data: lower and upper bounds, color itself."""
+
+    def __init__(self, lb: tuple, ub: tuple, c: ColorType) -> None:
         (self.lb, self.ub, self.c) = (lb, ub, c)
 
 
@@ -37,6 +37,7 @@ BOTTOM_Y_BORDER = 7/8
 def find_ball(rgb_img: np.ndarray, all_objects: list) -> None:
     """
     Find and add ball to all_objects.
+
     :param rgb_img: RGB image
     :param all_objects: list of objects
     """
@@ -61,6 +62,7 @@ def find_ball(rgb_img: np.ndarray, all_objects: list) -> None:
 def find_obstacles(rgb_img: np.ndarray, all_objects: list) -> None:
     """
     Find and add obstacles to all_objects.
+
     :param rgb_img: RGB image
     :param all_objects: list of objects
     """
@@ -95,7 +97,9 @@ def find_obstacles(rgb_img: np.ndarray, all_objects: list) -> None:
 def draw_circle(rgb_img: np.ndarray, x: int, y: int, r: int) -> np.ndarray:
     """
     Add circle to rgb_img on (x, y) with radius r.
-    Used for visualisation and testing purposes.
+
+    Used for visualization and testing purposes.
+
     :param rgb_img: RGB image
     :param x: x coordinate
     :param y: y coordinate
@@ -112,7 +116,9 @@ def draw_circle(rgb_img: np.ndarray, x: int, y: int, r: int) -> np.ndarray:
 def draw_rectangle(rgb_img: np.ndarray, obst: RigidObject) -> np.ndarray:
     """
     Add rectangle around obstacle obst to rgb_img.
-    Used for visualisation and testing purposes.
+
+    Used for visualization and testing purposes.
+
     :param rgb_img: RGB image
     :param obst: Obstacle
     :return: RGB image
@@ -136,7 +142,9 @@ def show_objects(rgb_img: np.ndarray,
                  wait: bool = False) -> None:
     """
     Show all_objects.
-    Used for visualisation and testing purposes.
+
+    Used for visualization and testing purposes.
+
     :param rgb_img: RGB image
     :param all_objects: list of visible objects
     :param window: the name of cv2.namedWindow
@@ -157,7 +165,8 @@ def show_objects(rgb_img: np.ndarray,
 
 def load_img(filename: str) -> np.ndarray:
     """
-    Load matlab .mat file as though as it was regular RGB image
+    Load matlab .mat file as though as it was regular RGB image.
+
     :param filename: filepath to matlab .mat file
     :return: RGB image
     """
@@ -169,6 +178,7 @@ def load_img(filename: str) -> np.ndarray:
 def find_objects(rgb_img: np.ndarray) -> list:
     """
     Initialize list of objects all_objects and fill it with visible objects.
+
     :param rgb_img: RGB image
     :return: list of objects
     """

@@ -80,7 +80,7 @@ class Robot:
         print("Bumped! -> Emergency stop!")
         self.bumped = True
 
-    def button_cb(self, msg):
+    def button_cb(self, msg) -> None:
         """
         Button callback.
         """
@@ -317,7 +317,7 @@ class Robot:
                   target_angle - real_angle)
         self.update_odometry_angular(real_angle)
 
-    def rotate_until(self, speed: float = 0.5):
+    def rotate_until(self, speed: float = 0.5) -> None:
         """
         No stoppin' now! (well, except for bumping...)
         :param speed: desired rotate speed
@@ -330,7 +330,7 @@ class Robot:
              target_angle,
              set_speed: float = 0.5,
              debug_info: bool = False,
-             simulate: bool = False):
+             simulate: bool = False) -> None:
         """
         Ensure correct angle manipulation while rotating.
         :param target_angle: angle to turn
@@ -347,7 +347,7 @@ class Robot:
             self.rotate(target_angle, set_speed=set_speed,
                         debug_info=debug_info, simulate=simulate)
 
-    def go_to(self, point: Point, debug_info: bool = False):
+    def go_to(self, point: Point, debug_info: bool = False) -> None:
         """
         Move to (x, y).
         :param point: (x, y) point
