@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="img/logo.png" alt="TurtleBoss Logo" width="80" style="vertical-align: middle;">
+  <img src="img/TurtleBoss_logo.png" alt="TurtleBoss Logo" width="80" style="vertical-align: middle;">
   <span style="font-size:2em; vertical-align: middle;"><strong>TurtleBoss</strong></span>
 </p>
 
