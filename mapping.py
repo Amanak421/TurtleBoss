@@ -379,14 +379,16 @@ if __name__ == "__main__":
         obj.set_position(Point(x, y))
         mapA.add_object(obj, Point(0, 0))
 
-    """ao(0.2, -0.5, 1)
+    """
+    ao(0.2, -0.5, 1)
     ao(0.4, 0, 2)
     ao(0.7, -0.4, 2)
     ao(-0.35, -0.15, 3)
     kick_pos_ = mapA.determine_kick_pos(dist=0.7)
     path_ = mapA.routing(Point(0, 0), kick_pos_)
     print(*path_, sep="\n")
-    mapA.show(kick_pos=kick_pos_, path=path_, danger_zones=mapA.danger_zones)"""
+    mapA.show(kick_pos=kick_pos_, path=path_, danger_zones=mapA.danger_zones)
+    """
 
     ao(0, -0.32, 1)
     ao(0.4, 0, 2)
