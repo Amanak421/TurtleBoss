@@ -328,8 +328,6 @@ class Map:
         change = True
         change_counter = 0
         while change and change_counter < 10:
-            mapA.show(kick_pos=kick_pos_, path=route,
-                      danger_zones=mapA.danger_zones)
             change = False
             for i in range(len(route) - 1):
                 line = Line(route[i], route[i + 1])
