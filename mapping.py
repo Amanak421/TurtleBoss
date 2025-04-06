@@ -328,6 +328,8 @@ class Map:
         change = True
         change_counter = 0
         while change and change_counter < 10:
+            mapA.show(kick_pos=kick_pos_, path=route,
+                      danger_zones=mapA.danger_zones)
             change = False
             for i in range(len(route) - 1):
                 line = Line(route[i], route[i + 1])
@@ -344,8 +346,13 @@ class Map:
                         Circle(zone.c, 2 * zone.r -
                                zone.c.distance(chord_seg.midpoint)),
                         diameter_line)
-                    new_stop = max(new_stop_candidates,
-                                   key=lambda p: p.distance(self.ball[0]))
+                    if np.isclose(*map(lambda p: p.distance(self.ball[0]),
+                                       new_stop_candidates)):
+                        new_stop = min(new_stop_candidates,
+                                       key=lambda p: p.distance(route[i]))
+                    else:
+                        new_stop = max(new_stop_candidates,
+                                       key=lambda p: p.distance(self.ball[0]))
                     route.insert(i + 1, new_stop)
                     change = True
                     change_counter += 1
@@ -372,10 +379,18 @@ if __name__ == "__main__":
         obj.set_position(Point(x, y))
         mapA.add_object(obj, Point(0, 0))
 
-    ao(0.2, -0.5, 1)
+    """ao(0.2, -0.5, 1)
     ao(0.4, 0, 2)
     ao(0.7, -0.4, 2)
     ao(-0.35, -0.15, 3)
+    kick_pos_ = mapA.determine_kick_pos(dist=0.7)
+    path_ = mapA.routing(Point(0, 0), kick_pos_)
+    print(*path_, sep="\n")
+    mapA.show(kick_pos=kick_pos_, path=path_, danger_zones=mapA.danger_zones)"""
+
+    ao(0, -0.32, 1)
+    ao(0.4, 0, 2)
+    ao(0.7, -0.4, 2)
     kick_pos_ = mapA.determine_kick_pos(dist=0.7)
     path_ = mapA.routing(Point(0, 0), kick_pos_)
     print(*path_, sep="\n")
