@@ -1,13 +1,16 @@
 """
-Make a .mat file with RGBd data on button press. Used for testing.
+Make a .mat file with RGBd data on button press.
+
+Used for testing.
 """
 
 
+from datetime import datetime
+
+from scipy.io import savemat
 from robolab_turtlebot import Turtlebot, sleep, Rate
 from mapping import Map
 from robot import Robot
-from scipy.io import savemat
-from datetime import datetime
 
 
 if __name__ == "__main__":

@@ -1,6 +1,4 @@
-"""
-Module for calibration and debug of colors.
-"""
+"""Module for calibration and debug of colors."""
 
 
 import cv2
@@ -10,10 +8,8 @@ import scipy.io
 color_pick = []
 
 
-def mouse_callback(event, x, y, flags, param):
-    """
-    Callback function for pixel selection.
-    """
+def mouse_callback(event: any, x: any, y: any, flags: any, param: any) -> None:
+    """Select a pixel using the callback function."""
     if event == cv2.EVENT_LBUTTONDOWN:
         img = param
         hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
@@ -22,10 +18,8 @@ def mouse_callback(event, x, y, flags, param):
         print(f"Picked HSV: {hsv_value}")
 
 
-def main():
-    """
-    Easy to use GUI app.
-    """
+def main() -> None:
+    """Easy to use GUI app."""
     for img_index in range(1, 84):
         data = scipy.io.loadmat(f"test_data/test_p{img_index}.mat")
         img = data["image_rgb"]

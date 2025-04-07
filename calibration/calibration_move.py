@@ -1,6 +1,4 @@
-"""
-Calibration of forward move error constant.
-"""
+"""Calibration of forward move error constant."""
 
 
 from robot import Robot

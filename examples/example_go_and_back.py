@@ -1,11 +1,10 @@
-"""
-Simple move test. Go 1 m, turn back, go back, turn again.
-"""
+"""Simple move test. Go 1 m, turn back, go back, turn again."""
 
+
+from math import pi
 
 from robot import Robot
 from robolab_turtlebot import Turtlebot, sleep, Rate
-from math import pi
 
 
 if __name__ == "__main__":
