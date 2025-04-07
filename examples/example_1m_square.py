@@ -1,11 +1,10 @@
-"""
-Simple move test. Go around 1 m square.
-"""
+"""Simple move test. Go around 1 m square."""
 
+
+from math import pi
 
 from robot import Robot
 from robolab_turtlebot import Turtlebot, sleep, Rate
-from math import pi
 
 
 if __name__ == "__main__":
@@ -17,10 +16,10 @@ if __name__ == "__main__":
 
     test = Robot(turtle, rate)
     test.go(1)
-    test.rotate(pi/2)
+    test.rotate(pi / 2)
     test.go(1)
-    test.rotate(pi/2)
+    test.rotate(pi / 2)
     test.go(1)
-    test.rotate(pi/2)
+    test.rotate(pi / 2)
     test.go(1)
-    test.rotate(pi/2)
+    test.rotate(pi / 2)

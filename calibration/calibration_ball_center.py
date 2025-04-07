@@ -1,6 +1,4 @@
-"""
-Calibration for compensation of off-centered camera.
-"""
+"""Calibration for compensation of off-centered camera."""
 
 
 from robot import Robot

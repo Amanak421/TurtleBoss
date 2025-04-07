@@ -1,5 +1,7 @@
 """
-Interactive console app to control the robot by sending commands.
+Interactive console app to control the robot.
+
+The robot is controlled by sending commands.
 """
 
 

@@ -1,10 +1,9 @@
-"""
-Calibration of rotational move error constant.
-"""
+"""Calibration of rotational move error constant."""
 
 from robot import Robot
-from robolab_turtlebot import Turtlebot, sleep, Rate
 from math import pi
+
+from robolab_turtlebot import Turtlebot, sleep, Rate
 
 
 if __name__ == "__main__":
@@ -31,4 +30,4 @@ if __name__ == "__main__":
     after = float(input("REAL AFTER MOVE: "))
     print("DIFFERENCE")
     print(robot_after - after)
-    print("Correction constant:", 4*pi / after)
+    print("Correction constant:", 4 * pi / after)

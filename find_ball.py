@@ -2,11 +2,8 @@
 
 
 import cv2
-
 import numpy as np
-
 from rigidobject import ColorType, RigidObject, RigidType
-
 import scipy.io
 
 
@@ -30,8 +27,8 @@ COLOR_BOUND_BALL = ColorMaskBounding((21, 140, 110), (30, 255, 255),
 MIN_AREA_OBST = 200
 MIN_AREA_BALL = 800
 
-TOP_Y_BORDER = 1/8
-BOTTOM_Y_BORDER = 7/8
+TOP_Y_BORDER = 1 / 8
+BOTTOM_Y_BORDER = 7 / 8
 
 
 def find_ball(rgb_img: np.ndarray, all_objects: list) -> None:

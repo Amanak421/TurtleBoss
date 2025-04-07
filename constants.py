@@ -2,7 +2,6 @@
 
 
 import numpy as np
-
 from geometry import Point
 from rigidobject import RigidType
 
@@ -11,7 +10,7 @@ LINEAR_CORRECTION = 0.98  # 1  # 0.98  # 0.96
 ANGULAR_CORRECTION = 1  # 1.04  # 1.18
 POSITION_NAMES = ['LEFT', 'CENTER', 'RIGHT']
 STATE_NAMES = ['RELEASED', 'PRESSED']
-BASE_POSITION = Point(0, 0, np.pi/2)
+BASE_POSITION = Point(0, 0, np.pi / 2)
 LINEAR_EPSILON = 0.01
 ANGULAR_EPSILON = 0.03
 MIN_LINEAR_VELOCITY = 0.1

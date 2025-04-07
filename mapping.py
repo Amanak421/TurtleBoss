@@ -1,4 +1,4 @@
-"""Module to keep, process, evaluate and plan navigational data during a move."""
+"""Module to keep, process and plan navigational data during a move."""
 
 
 import matplotlib.patches as patches
@@ -130,7 +130,7 @@ class Map:
         :return: boolean
         """
         obj_dict, counter = self.merge_objects()
-        correct = {x: 0 for x in obj_dict}
+        correct = dict.fromkeys(obj_dict, 0)
         for key in obj_dict:
             for i, _ in enumerate(obj_dict[key]):
                 if counter[key][i] >= MIN_MATCHES:
@@ -199,7 +199,7 @@ class Map:
         ax.set_aspect(1)  # X, Y axis ratio 1:1
         if show_merged:
             obj, _ = self.merge_objects(debug_info)
-            type_counter = {x: 0 for x in obj}
+            type_counter = dict.fromkeys(obj, 0)
             for object_type, points in obj.items():
                 for point in points:
                     position = point.xy
@@ -327,7 +327,7 @@ class Map:
 
     def routing(self, s_pos: Point, f_pos: Point) -> list:
         """
-        Algorithm for avoiding objects (precisely their respective danger zones).
+        Algorithm for avoiding objects (their respective danger zones).
 
         :param s_pos: starting position
         :param f_pos: finish position
@@ -356,8 +356,8 @@ class Map:
                         Circle(zone.c, 2 * zone.r -
                                zone.c.distance(chord_seg.midpoint)),
                         diameter_line)
-                    if np.isclose(*map(lambda p: p.distance(self.ball[0]),
-                                       new_stop_candidates)):
+                    if np.isclose(*(p.distance(self.ball[0]) for p in
+                                    new_stop_candidates)):
                         new_stop = min(new_stop_candidates,
                                        key=lambda p: p.distance(route[i]))
                     else:
