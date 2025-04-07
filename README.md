@@ -1,7 +1,7 @@
 # TurtleBoss
 
 <p align="center">
-  <img src="_static/Turtle_Boss.png" alt="Project Logo" width="300">
+  <img src="img/Turtle_Boss.png" alt="Project Logo" width="300">
 </p>
 
 This is the documentation for our team project for **B3B33LAR**.  
