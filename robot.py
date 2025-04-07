@@ -410,6 +410,8 @@ class Robot:
         # wait for point cloud find position of each object
         if debug_info:
             find_ball.show_objects(rgb_img, all_objects, "Objects", True)
+        if not all_objects:
+            return all_objects
         self.turtle.wait_for_point_cloud()
         pc = self.turtle.get_point_cloud()
         for o in all_objects:
