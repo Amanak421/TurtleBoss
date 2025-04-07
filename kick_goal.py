@@ -1,4 +1,4 @@
-"""File combining all implemented features in order to complete challenge no. 2."""
+"""All implemented features for completion challenge no. 2."""
 
 
 import sys

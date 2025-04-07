@@ -6,6 +6,7 @@ Used primarily in mapping.py.
 
 
 from typing import Union
+
 import numpy as np
 
 
@@ -39,22 +40,22 @@ class Point:
         """Return string representation of object."""
         return self.__repr__()
 
-    def __add__(self, point: 'Point') -> 'Point':
+    def __add__(self, point: 'Point'):
         return Point(self.x + point.x, self.y + point.y, self.angle)
 
-    def __sub__(self, point: 'Point') -> 'Point':
+    def __sub__(self, point: 'Point'):
         return Point(self.x - point.x, self.y - point.y, self.angle)
 
-    def __mul__(self, factor: float) -> ('Point' | NotImplementedError):
+    def __mul__(self, factor: float):
         if isinstance(factor, int):
             return Point(self.x * factor, self.y * factor, self.angle)
         else:
             return NotImplemented
 
-    def __rmul__(self, factor: float) -> ('Point' | NotImplementedError):
+    def __rmul__(self, factor: float):
         return self.__mul__(factor)
 
-    def __truediv__(self, divisor: float) -> ('Point' | NotImplementedError):
+    def __truediv__(self, divisor: float):
         # Prevent division by zero
         if isinstance(divisor, (int, float)) and divisor != 0:
             return Point(self.x / divisor, self.y / divisor, self.angle)
@@ -187,7 +188,7 @@ class Line:
 
 
 class Segment(Line):
-    """Line, except is_element_of is adjusted to fit general geometric properties."""
+    """Line, except it is adjusted to fit general geometric properties."""
 
     def __init__(self, a: Point, b: Point) -> None:
         super().__init__(a, b)
@@ -235,8 +236,9 @@ class Circle:
 
 def intersection(circle: Circle, linear: Union[Line, Segment]) -> list:
     """
-    Com.
-    
+    Calculate intersects.
+
+    Algorithm based on:
     https://mathworld.wolfram.com/Circle-LineIntersection.html
 
     :param circle: reference Circle
