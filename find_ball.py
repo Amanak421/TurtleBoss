@@ -27,14 +27,15 @@ COLOR_BOUNDS_OBST = (
     ColorMaskBounding((0, 150, 110), (10, 255, 255), ColorType.RED)
 )
 
-COLOR_BOUND_BALL = ColorMaskBounding((21, 140, 110), (30, 255, 255),
+COLOR_BOUND_BALL = ColorMaskBounding((21, 140, 80), (30, 255, 255),
                                      ColorType.YELLOW)
+
 
 
 MIN_AREA_OBST = 200
 MIN_AREA_BALL = 800
 
-TOP_Y_BORDER = 1 / 8
+TOP_Y_BORDER = 1 / 6
 BOTTOM_Y_BORDER = 7 / 8
 
 
@@ -51,16 +52,16 @@ def find_ball(rgb_img: np.ndarray, all_objects: list) -> None:
 
     contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL,
                                    cv2.CHAIN_APPROX_SIMPLE)
-    if contours:
-        largest_c = max(contours, key=cv2.contourArea)
-        area = cv2.contourArea(largest_c)
+    contours = list(c for c in contours if cv2.contourArea(c) > MIN_AREA_BALL)
+    contours.sort(key=cv2.contourArea, reverse=True)
 
-        if area > MIN_AREA_BALL:
-            (x, y), radius = cv2.minEnclosingCircle(largest_c)
-            if rgb_img.shape[0] * TOP_Y_BORDER < y:
-                all_objects.append(RigidObject(int(x), int(y),
-                                               int(radius), int(radius),
-                                               RigidType.BALL))
+    for c in contours:
+        (x, y), radius = cv2.minEnclosingCircle(c)
+        if rgb_img.shape[0] * TOP_Y_BORDER < y:
+            all_objects.append(RigidObject(int(x), int(y),
+                                           int(radius), int(radius),
+                                           RigidType.BALL))
+            break
 
 
 def find_obstacles(rgb_img: np.ndarray, all_objects: list) -> None:
@@ -195,8 +196,9 @@ def find_objects(rgb_img: np.ndarray) -> list:
 if __name__ == "__main__":
     window_ = "RGB all objects"
     cv2.namedWindow(window_)
-    for img_index in range(1, 84):
-        rgb_img_ = load_img(f"test_data/test_p{img_index}.mat")
+    for img_index in range(49, 55):
+        rgb_img_ = cv2.imread(f"test_data/test_p{img_index}.png")
+        #rgb_img_ = load_img(f"test_data/test_p{img_index}.mat")
         all_objects_ = find_objects(rgb_img_)
         show_objects(rgb_img_, all_objects_, window_, wait=True)
         print(all_objects_)
