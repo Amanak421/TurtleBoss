@@ -53,13 +53,13 @@ if __name__ == "__main__":
         robot_map.reset()
         robot.reset()
         first_try = robot.scan_environment(robot_map, debug_info=DEBUG)
-        if KICK_DISTANCE == 0.6 and first_try:
-            break
         # calculate position for kick and to it
         if first_try:
             KICK_DISTANCE = 0.6
         kick_pos = robot_map.determine_kick_pos(dist=0.6)
         robot.go_to(kick_pos)
+        if KICK_DISTANCE == 0.6:
+            break
 
     print("INIT KICK MODE")
 
