@@ -309,7 +309,7 @@ class Robot:
             if set_speed:
                 speed = set_speed
 
-            self.turtle.cmd_velocity(angular=(dir_coef * speed))
+            self.turtle.cmd_velocity(angular=dir_coef * speed)
             self.check_bumper()
             self.rate.sleep()
 

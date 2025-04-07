@@ -3,8 +3,8 @@
 
 import sys
 
-from mapping import Map
 from robolab_turtlebot import Rate, Turtlebot, sleep
+from mapping import Map
 from robot import Robot
 
 
@@ -25,7 +25,7 @@ if __name__ == "__main__":
     robot_map = Map()
 
     # base distance for calculating kick position
-    kick_distance = 1
+    KICK_DISTANCE = 1
 
     print("Wait for button press on robot...")
     while not robot.button:
@@ -35,7 +35,7 @@ if __name__ == "__main__":
     robot.scan_environment(robot_map, debug_info=DEBUG)
 
     ball = robot_map.ball
-    kick_pos = robot_map.determine_kick_pos(dist=kick_distance)
+    kick_pos = robot_map.determine_kick_pos(dist=KICK_DISTANCE)
     path = robot_map.routing(robot.position, kick_pos)
 
     if DEBUG:
@@ -53,11 +53,11 @@ if __name__ == "__main__":
         robot_map.reset()
         robot.reset()
         first_try = robot.scan_environment(robot_map, debug_info=DEBUG)
-        if kick_distance == 0.6 and first_try:
+        if KICK_DISTANCE == 0.6 and first_try:
             break
         # calculate position for kick and to it
         if first_try:
-            kick_distance = 0.6
+            KICK_DISTANCE = 0.6
         kick_pos = robot_map.determine_kick_pos(dist=0.6)
         robot.go_to(kick_pos)
 
