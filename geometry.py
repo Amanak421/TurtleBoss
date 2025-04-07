@@ -28,6 +28,13 @@ class Point:
     """
 
     def __init__(self, x: float, y: float, angle: float = 0) -> None:
+        """
+        Create Point instance.
+
+        :param x: x position
+        :param y: y position
+        :param angle: rotation of the vector
+        """
         self.x = x
         self.y = y
         self.angle = angle
@@ -41,28 +48,54 @@ class Point:
         return self.__repr__()
 
     def __add__(self, point: 'Point'):
+        """
+        Add another point to itself.
+
+        Angle is inherited from self.
+        :param point: second Point
+        """
         return Point(self.x + point.x, self.y + point.y, self.angle)
 
     def __sub__(self, point: 'Point'):
+        """
+        Subtract another point from itself.
+
+        Angle is inherited from self.
+        :param point: second Point
+        """
         return Point(self.x - point.x, self.y - point.y, self.angle)
 
     def __mul__(self, factor: float):
+        """
+        Multiply point by a factor.
+
+        Angle is untouched.
+        :param factor: multiplication factor
+        """
         if isinstance(factor, int):
             return Point(self.x * factor, self.y * factor, self.angle)
         else:
             return NotImplemented
 
     def __rmul__(self, factor: float):
+        """Comitative multiplication."""
         return self.__mul__(factor)
 
     def __truediv__(self, divisor: float):
+        """
+        Define true division by a factor.
+
+        Angle is untouched.
+        :param factor: division factor
+        """
         # Prevent division by zero
         if isinstance(divisor, (int, float)) and divisor != 0:
             return Point(self.x / divisor, self.y / divisor, self.angle)
         else:
             return NotImplemented
 
-    def __rtruediv__(self, divisor: int) -> NotImplementedError:
+    def __rtruediv__(self, divisor: int):
+        """Right true division not implemented."""
         return NotImplemented
 
     @property
@@ -141,6 +174,12 @@ class Line:
     """Line object defined by two points a and b."""
 
     def __init__(self, a: Point, b: Point) -> None:
+        """
+        Create a Line instance.
+
+        :param a: first point
+        :param b: second point
+        """
         self.a, self.b = a, b
 
     @property
@@ -191,6 +230,12 @@ class Segment(Line):
     """Line, except it is adjusted to fit general geometric properties."""
 
     def __init__(self, a: Point, b: Point) -> None:
+        """
+        Create a Segment instance.
+
+        :param a: first point
+        :param b: second point
+        """
         super().__init__(a, b)
 
     @property
@@ -221,6 +266,12 @@ class Circle:
     """Circle object defined by a center point c and radius r."""
 
     def __init__(self, c: Point, r: float) -> None:
+        """
+        Create Circle instance.
+
+        :param c: center
+        :param r: radius
+        """
         self.c, self.r = c, r
 
     def is_inner(self, point: Point) -> bool:

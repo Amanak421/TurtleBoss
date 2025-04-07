@@ -33,6 +33,15 @@ class RigidObject:
 
     def __init__(self, x: int, y: int, w: int, h: int, o_type: RigidType,
                  c_type: ColorType = None) -> None:
+        """
+        Create RigidObject instance.
+
+        :param x: x position in image
+        :param y: y position in image
+        :param w: width of object
+        :param h: height of object
+        :param o_type: type of object
+        """
         self.p = Point(0, 0)  # (x,y)_pc
         self.im_p = Point(x, y)  # (x,y)_rgb
         self.w = w

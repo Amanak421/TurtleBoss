@@ -20,12 +20,13 @@ def mouse_callback(event: any, x: any, y: any, flags: any, param: any) -> None:
 
 def main() -> None:
     """Easy to use GUI app."""
-    for img_index in range(1, 84):
-        data = scipy.io.loadmat(f"test_data/test_p{img_index}.mat")
-        img = data["image_rgb"]
+    for img_index in range(1, 2):
+        #data = scipy.io.loadmat(f"../test_data/test_p{img_index}.mat")
+        #img = data["image_rgb"]
+        img = cv2.imread("test_data/test_p1.png")
 
         if img is None:
-            print(f"Cannot read: test_data/test_y{img_index}.mat")
+            print(f"Cannot read: test_data/test_{img_index}.mat")
             continue
 
         """for file in os.listdir("new_photos"):
