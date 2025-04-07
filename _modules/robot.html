@@ -1,0 +1,681 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>robot &mdash; TurtleBoss 1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+
+  
+    <link rel="shortcut icon" href="../_static/favicon.ico"/>
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=f2a433a1"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            TurtleBoss
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../geometry.html">Geometry</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../mapping.html">Mapping</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../robot.html">Robot</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../rigidobject.html">Rigid Object</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../find_ball.html">Find ball</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../constants.html">Constants</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../utils.html">Utils</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../kick_goal.html">Kick goal</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">TurtleBoss</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">Module code</a></li>
+      <li class="breadcrumb-item active">robot</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for robot</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;Robot control module.&quot;&quot;&quot;</span>
+
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">geometry</span><span class="w"> </span><span class="kn">import</span> <span class="n">Point</span><span class="p">,</span> <span class="n">normalize_angle</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">find_ball</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">mapping</span><span class="w"> </span><span class="kn">import</span> <span class="n">Map</span><span class="p">,</span> <span class="n">has_all</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">constants</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span><span class="n">LINEAR_CORRECTION</span><span class="p">,</span> <span class="n">ANGULAR_CORRECTION</span><span class="p">,</span> <span class="n">POSITION_NAMES</span><span class="p">,</span>
+                       <span class="n">STATE_NAMES</span><span class="p">,</span> <span class="n">BASE_POSITION</span><span class="p">,</span> <span class="n">LINEAR_EPSILON</span><span class="p">,</span>
+                       <span class="n">ANGULAR_EPSILON</span><span class="p">,</span> <span class="n">MIN_LINEAR_VELOCITY</span><span class="p">,</span>
+                       <span class="n">MAX_LINEAR_VELOCITY</span><span class="p">,</span> <span class="n">MIN_ANGULAR_VELOCITY</span><span class="p">,</span>
+                       <span class="n">MAX_ANGULAR_VELOCITY</span><span class="p">,</span> <span class="n">LINEAR_KP</span><span class="p">,</span> <span class="n">LINEAR_KD</span><span class="p">,</span> <span class="n">ANGULAR_KP</span><span class="p">,</span>
+                       <span class="n">ANGULAR_KD</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="Robot">
+<a class="viewcode-back" href="../robot.html#robot.Robot">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">Robot</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Robot object.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">turtle</span><span class="p">:</span> <span class="nb">any</span><span class="p">,</span> <span class="n">rate</span><span class="p">:</span> <span class="nb">any</span><span class="p">,</span>
+                 <span class="n">sleep_func</span><span class="p">:</span> <span class="nb">any</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">_</span><span class="p">:</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create Robot instance.</span>
+
+<span class="sd">        :param turtle: turtle instance</span>
+<span class="sd">        :param rate: rate instance</span>
+<span class="sd">        :param sleep_func: sleep function</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">robot_pos</span> <span class="o">=</span> <span class="n">BASE_POSITION</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">kick_ball</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">bumped</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">button</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">turtle</span> <span class="o">=</span> <span class="n">turtle</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">rate</span> <span class="o">=</span> <span class="n">rate</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sleep_func</span> <span class="o">=</span> <span class="n">sleep_func</span>
+
+        <span class="n">turtle</span><span class="o">.</span><span class="n">register_bumper_event_cb</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">bumper_cb</span><span class="p">)</span>
+        <span class="n">turtle</span><span class="o">.</span><span class="n">register_button_event_cb</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">button_cb</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return string representation of object.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">(</span><span class="sa">f</span><span class="s2">&quot;X: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">robot_pos</span><span class="o">.</span><span class="n">x</span><span class="si">}</span><span class="s2">, Y: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">robot_pos</span><span class="o">.</span><span class="n">y</span><span class="si">}</span><span class="s2">, &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;ANGLE: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">angle</span><span class="si">}</span><span class="se">\t</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return string representation of object.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="fm">__repr__</span><span class="p">()</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">position</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Point</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get position of the robot.</span>
+
+<span class="sd">        :return: Position of the robot</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">robot_pos</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">xya</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get position of the robot.</span>
+
+<span class="sd">        :return: x, y coordinates and angle</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">robot_pos</span><span class="o">.</span><span class="n">xya</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">xy</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get position of the robot.</span>
+
+<span class="sd">        :return: x, y coordinates</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">robot_pos</span><span class="o">.</span><span class="n">xy</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">angle</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get the angle of the robot.</span>
+
+<span class="sd">        :return: angle (rotation from base position)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">robot_pos</span><span class="o">.</span><span class="n">angle</span>
+
+<div class="viewcode-block" id="Robot.bumper_cb">
+<a class="viewcode-back" href="../robot.html#robot.Robot.bumper_cb">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">bumper_cb</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">msg</span><span class="p">:</span> <span class="nb">any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Bumper callback.&quot;&quot;&quot;</span>
+        <span class="n">bumper</span> <span class="o">=</span> <span class="n">POSITION_NAMES</span><span class="p">[</span><span class="n">msg</span><span class="o">.</span><span class="n">bumper</span><span class="p">]</span>
+        <span class="n">state</span> <span class="o">=</span> <span class="n">STATE_NAMES</span><span class="p">[</span><span class="n">msg</span><span class="o">.</span><span class="n">state</span><span class="p">]</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">bumper</span><span class="si">}</span><span class="s2"> bumper </span><span class="si">{</span><span class="n">state</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Bumped! -&gt; Emergency stop!&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">bumped</span> <span class="o">=</span> <span class="kc">True</span></div>
+
+
+<div class="viewcode-block" id="Robot.button_cb">
+<a class="viewcode-back" href="../robot.html#robot.Robot.button_cb">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">button_cb</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">msg</span><span class="p">:</span> <span class="nb">any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Button callback.&quot;&quot;&quot;</span>
+        <span class="n">button</span> <span class="o">=</span> <span class="n">POSITION_NAMES</span><span class="p">[</span><span class="n">msg</span><span class="o">.</span><span class="n">button</span><span class="p">]</span>
+        <span class="n">state</span> <span class="o">=</span> <span class="n">STATE_NAMES</span><span class="p">[</span><span class="n">msg</span><span class="o">.</span><span class="n">state</span><span class="p">]</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">button</span><span class="si">}</span><span class="s2"> button </span><span class="si">{</span><span class="n">state</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">button</span> <span class="o">=</span> <span class="kc">True</span></div>
+
+
+<div class="viewcode-block" id="Robot.check_bumper">
+<a class="viewcode-back" href="../robot.html#robot.Robot.check_bumper">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">check_bumper</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Stop the robot (and its program) if bumped.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">bumped</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">kick_ball</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">turtle</span><span class="o">.</span><span class="n">cmd_velocity</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">sleep_func</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">turtle</span><span class="o">.</span><span class="n">play_sound</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
+            <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">66</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">bumped</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">turtle</span><span class="o">.</span><span class="n">cmd_velocity</span><span class="p">()</span>
+            <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">66</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Robot.reset">
+<a class="viewcode-back" href="../robot.html#robot.Robot.reset">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">reset</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Reset data.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">robot_pos</span> <span class="o">=</span> <span class="n">BASE_POSITION</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">turtle</span><span class="o">.</span><span class="n">reset_odometry</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">turtle</span><span class="o">.</span><span class="n">wait_for_odometry</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="Robot.reset_odometry">
+<a class="viewcode-back" href="../robot.html#robot.Robot.reset_odometry">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">reset_odometry</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Odometry reset.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">turtle</span><span class="o">.</span><span class="n">reset_odometry</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">turtle</span><span class="o">.</span><span class="n">wait_for_odometry</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="Robot.update_odometry_linear">
+<a class="viewcode-back" href="../robot.html#robot.Robot.update_odometry_linear">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">update_odometry_linear</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Call this after going forward (or backward) to update internal data.</span>
+
+<span class="sd">        :param x: movement difference</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">robot_pos</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">robot_pos</span> <span class="o">+</span> <span class="n">Point</span><span class="p">(</span><span class="n">x</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">robot_pos</span><span class="o">.</span><span class="n">cos</span><span class="p">,</span>
+                                                <span class="n">x</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">robot_pos</span><span class="o">.</span><span class="n">sin</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Robot.update_odometry_angular">
+<a class="viewcode-back" href="../robot.html#robot.Robot.update_odometry_angular">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">update_odometry_angular</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">angle</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Call this after rotating to update internal data.</span>
+
+<span class="sd">        :param angle: rotation difference</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">robot_pos</span><span class="o">.</span><span class="n">add_angle</span><span class="p">(</span><span class="n">angle</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Robot.get_odometry_angle">
+<a class="viewcode-back" href="../robot.html#robot.Robot.get_odometry_angle">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_odometry_angle</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">use_correction</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Angle getter.</span>
+
+<span class="sd">        :param use_correction: boolean for using predefined correction</span>
+<span class="sd">        :return: angle</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">use_correction</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">turtle</span><span class="o">.</span><span class="n">get_odometry</span><span class="p">()[</span><span class="mi">2</span><span class="p">]</span> <span class="o">*</span> <span class="n">ANGULAR_CORRECTION</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">turtle</span><span class="o">.</span><span class="n">get_odometry</span><span class="p">()[</span><span class="mi">2</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="Robot.get_odometry_x">
+<a class="viewcode-back" href="../robot.html#robot.Robot.get_odometry_x">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_odometry_x</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">use_correction</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Directional move getter.</span>
+
+<span class="sd">        :param use_correction: boolean for using predefined correction</span>
+<span class="sd">        :return: x move</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">use_correction</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">turtle</span><span class="o">.</span><span class="n">get_odometry</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">LINEAR_CORRECTION</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">turtle</span><span class="o">.</span><span class="n">get_odometry</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="Robot.estimate_position">
+<a class="viewcode-back" href="../robot.html#robot.Robot.estimate_position">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">estimate_position</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Point</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Estimate position with available odometry data.</span>
+
+<span class="sd">        :return: newly estimated position</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">x</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">angle</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">turtle</span><span class="o">.</span><span class="n">get_odometry</span><span class="p">()</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">robot_pos</span> <span class="o">+</span> <span class="n">Point</span><span class="p">(</span><span class="n">x</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">robot_pos</span><span class="o">.</span><span class="n">cos</span><span class="p">,</span>
+                                      <span class="n">x</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">robot_pos</span><span class="o">.</span><span class="n">sin</span><span class="p">,</span>
+                                      <span class="n">normalize_angle</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">robot_pos</span><span class="o">.</span><span class="n">angle</span>
+                                                      <span class="o">+</span> <span class="n">angle</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="Robot.go">
+<a class="viewcode-back" href="../robot.html#robot.Robot.go">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">go</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+           <span class="n">length</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+           <span class="n">set_speed</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+           <span class="n">stop</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+           <span class="n">simulate</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+           <span class="n">use_correction</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+           <span class="n">debug_info</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Directional move with PD regulator.</span>
+
+<span class="sd">        :param length: directional move length</span>
+<span class="sd">        :param set_speed: desired speed</span>
+<span class="sd">        :param stop: boolean for hard brake (True) or soft stop (False)</span>
+<span class="sd">        :param simulate: boolean for virtual setup during debug</span>
+<span class="sd">        :param use_correction: boolean for using predefined correction</span>
+<span class="sd">        :param debug_info: boolean for debug</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">simulate</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">update_odometry_linear</span><span class="p">(</span><span class="n">length</span><span class="p">)</span>
+            <span class="k">return</span>
+
+        <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="n">length</span><span class="p">,</span> <span class="mi">0</span><span class="p">):</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;LINEAR REJECTED&quot;</span><span class="p">)</span>
+            <span class="k">return</span>
+
+        <span class="c1"># reset robot odometry</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">reset_odometry</span><span class="p">()</span>
+
+        <span class="c1"># move forward until desired length is hit</span>
+        <span class="n">last_error</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="n">distance</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_odometry_x</span><span class="p">(</span><span class="n">use_correction</span><span class="o">=</span><span class="n">use_correction</span><span class="p">)</span>
+
+            <span class="n">error</span> <span class="o">=</span> <span class="n">length</span> <span class="o">-</span> <span class="n">distance</span>
+            <span class="k">if</span> <span class="nb">abs</span><span class="p">(</span><span class="n">error</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">LINEAR_EPSILON</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">turtle</span><span class="o">.</span><span class="n">is_shutting_down</span><span class="p">():</span>
+                <span class="k">break</span>
+
+            <span class="k">if</span> <span class="n">debug_info</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">estimate_position</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+            <span class="n">regulator</span> <span class="o">=</span> <span class="n">LINEAR_KP</span> <span class="o">*</span> <span class="n">error</span> <span class="o">+</span> <span class="n">LINEAR_KD</span> <span class="o">*</span> <span class="p">(</span><span class="n">error</span> <span class="o">-</span> <span class="n">last_error</span><span class="p">)</span>
+            <span class="n">speed</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="n">regulator</span><span class="p">,</span> <span class="n">MIN_LINEAR_VELOCITY</span><span class="p">),</span>
+                        <span class="n">MAX_LINEAR_VELOCITY</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">set_speed</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">speed</span> <span class="o">=</span> <span class="n">set_speed</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">turtle</span><span class="o">.</span><span class="n">cmd_velocity</span><span class="p">(</span><span class="n">linear</span><span class="o">=</span><span class="n">speed</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">check_bumper</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">rate</span><span class="o">.</span><span class="n">sleep</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="n">stop</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">turtle</span><span class="o">.</span><span class="n">cmd_velocity</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">turtle</span><span class="o">.</span><span class="n">wait_for_odometry</span><span class="p">()</span>
+        <span class="n">real_distance</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_odometry_x</span><span class="p">(</span><span class="n">use_correction</span><span class="o">=</span><span class="n">use_correction</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">debug_info</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;UPDATING ODOMETRY BY DISTANCE: &quot;</span><span class="p">,</span> <span class="n">real_distance</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">update_odometry_linear</span><span class="p">(</span><span class="n">real_distance</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Robot.go_until">
+<a class="viewcode-back" href="../robot.html#robot.Robot.go_until">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">go_until</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">speed</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.3</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        No stoppin&#39; now! (well, except for bumping...).</span>
+
+<span class="sd">        :param speed: desired move speed</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">turtle</span><span class="o">.</span><span class="n">cmd_velocity</span><span class="p">(</span><span class="n">linear</span><span class="o">=</span><span class="n">speed</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">check_bumper</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">rate</span><span class="o">.</span><span class="n">sleep</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="Robot.kick">
+<a class="viewcode-back" href="../robot.html#robot.Robot.kick">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">kick</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target_distance</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">speed</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.5</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Kick the ball. Should be run only from the Kick position.</span>
+
+<span class="sd">        :param target_distance: distance corresponding to Kick position</span>
+<span class="sd">        :param speed: move speed</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">reset_odometry</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">kick_ball</span> <span class="o">=</span> <span class="kc">True</span>
+
+        <span class="c1"># move forward until desired length is hit</span>
+        <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="n">distance</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_odometry_x</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">distance</span> <span class="o">&gt;</span> <span class="n">target_distance</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">turtle</span><span class="o">.</span><span class="n">is_shutting_down</span><span class="p">():</span>
+                <span class="k">break</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">check_bumper</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">turtle</span><span class="o">.</span><span class="n">cmd_velocity</span><span class="p">(</span><span class="n">linear</span><span class="o">=</span><span class="n">speed</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">rate</span><span class="o">.</span><span class="n">sleep</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">turtle</span><span class="o">.</span><span class="n">cmd_velocity</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">kick_ball</span> <span class="o">=</span> <span class="kc">False</span></div>
+
+
+<div class="viewcode-block" id="Robot.rotate">
+<a class="viewcode-back" href="../robot.html#robot.Robot.rotate">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">rotate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+               <span class="n">target_angle</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+               <span class="n">set_speed</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+               <span class="n">stop</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+               <span class="n">simulate</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+               <span class="n">use_correction</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+               <span class="n">debug_info</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Rotational move with PD regulator.</span>
+
+<span class="sd">        :param target_angle: rotational move angle</span>
+<span class="sd">        :param set_speed: desired speed</span>
+<span class="sd">        :param stop: boolean for hard brake (True) or soft stop (False)</span>
+<span class="sd">        :param simulate: boolean for virtual setup during debug</span>
+<span class="sd">        :param use_correction: boolean for using predefined correction</span>
+<span class="sd">        :param debug_info: boolean for debug</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">simulate</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">update_odometry_angular</span><span class="p">(</span><span class="n">target_angle</span><span class="p">)</span>
+            <span class="k">return</span>
+
+        <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="n">target_angle</span><span class="p">,</span> <span class="mi">0</span><span class="p">):</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;ROTATE REJECTED&quot;</span><span class="p">)</span>
+            <span class="k">return</span>
+
+        <span class="c1"># reset robot odometry</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">reset_odometry</span><span class="p">()</span>
+
+        <span class="n">dir_coef</span> <span class="o">=</span> <span class="mi">1</span> <span class="k">if</span> <span class="n">target_angle</span> <span class="o">&gt;=</span> <span class="mi">0</span> <span class="k">else</span> <span class="o">-</span><span class="mi">1</span>
+        <span class="n">last_error</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="n">angle</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_odometry_angle</span><span class="p">(</span><span class="n">use_correction</span><span class="o">=</span><span class="n">use_correction</span><span class="p">)</span>
+
+            <span class="n">error</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">target_angle</span><span class="p">)</span> <span class="o">-</span> <span class="nb">abs</span><span class="p">(</span><span class="n">angle</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">debug_info</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;ROT ERROR&quot;</span><span class="p">,</span> <span class="n">error</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">abs</span><span class="p">(</span><span class="n">error</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">ANGULAR_EPSILON</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">turtle</span><span class="o">.</span><span class="n">is_shutting_down</span><span class="p">():</span>
+                <span class="k">break</span>
+
+            <span class="k">if</span> <span class="n">debug_info</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">estimate_position</span><span class="p">())</span>
+
+            <span class="n">regulator</span> <span class="o">=</span> <span class="n">ANGULAR_KP</span> <span class="o">*</span> <span class="n">error</span> <span class="o">+</span> <span class="n">ANGULAR_KD</span> <span class="o">*</span> <span class="p">(</span><span class="n">error</span> <span class="o">-</span> <span class="n">last_error</span><span class="p">)</span>
+            <span class="n">speed</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="n">regulator</span><span class="p">,</span> <span class="n">MIN_ANGULAR_VELOCITY</span><span class="p">),</span>
+                        <span class="n">MAX_ANGULAR_VELOCITY</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">set_speed</span><span class="p">:</span>
+                <span class="n">speed</span> <span class="o">=</span> <span class="n">set_speed</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">turtle</span><span class="o">.</span><span class="n">cmd_velocity</span><span class="p">(</span><span class="n">angular</span><span class="o">=</span><span class="n">dir_coef</span> <span class="o">*</span> <span class="n">speed</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">check_bumper</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">rate</span><span class="o">.</span><span class="n">sleep</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="n">stop</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">turtle</span><span class="o">.</span><span class="n">cmd_velocity</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">turtle</span><span class="o">.</span><span class="n">wait_for_odometry</span><span class="p">()</span>
+        <span class="n">real_angle</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_odometry_angle</span><span class="p">(</span><span class="n">use_correction</span><span class="o">=</span><span class="n">use_correction</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">debug_info</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;UPDATING ODOMETRY BY ANGLE: &quot;</span><span class="p">,</span>
+                  <span class="n">real_angle</span><span class="p">,</span> <span class="s2">&quot;FINAL ERROR:&quot;</span><span class="p">,</span>
+                  <span class="n">target_angle</span> <span class="o">-</span> <span class="n">real_angle</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">update_odometry_angular</span><span class="p">(</span><span class="n">real_angle</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Robot.rotate_until">
+<a class="viewcode-back" href="../robot.html#robot.Robot.rotate_until">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">rotate_until</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">speed</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.5</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        No stoppin&#39; now! (well, except for bumping...).</span>
+
+<span class="sd">        :param speed: desired rotate speed</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">turtle</span><span class="o">.</span><span class="n">cmd_velocity</span><span class="p">(</span><span class="n">angular</span><span class="o">=</span><span class="n">speed</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">check_bumper</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">rate</span><span class="o">.</span><span class="n">sleep</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="Robot.turn">
+<a class="viewcode-back" href="../robot.html#robot.Robot.turn">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">turn</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+             <span class="n">target_angle</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+             <span class="n">set_speed</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.5</span><span class="p">,</span>
+             <span class="n">debug_info</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+             <span class="n">simulate</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Ensure correct angle manipulation while rotating.</span>
+
+<span class="sd">        :param target_angle: angle to turn</span>
+<span class="sd">        :param set_speed: desired move speed</span>
+<span class="sd">        :param debug_info: boolean for debug</span>
+<span class="sd">        :param simulate: boolean for virtual setup during debug</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">abs</span><span class="p">(</span><span class="n">target_angle</span><span class="p">)</span> <span class="o">&gt;</span> <span class="p">(</span><span class="mi">7</span> <span class="o">/</span> <span class="mi">8</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">rotate</span><span class="p">(</span><span class="n">target_angle</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="n">set_speed</span><span class="o">=</span><span class="n">set_speed</span><span class="p">,</span>
+                        <span class="n">debug_info</span><span class="o">=</span><span class="n">debug_info</span><span class="p">,</span> <span class="n">simulate</span><span class="o">=</span><span class="n">simulate</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">rotate</span><span class="p">(</span><span class="n">target_angle</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="n">set_speed</span><span class="o">=</span><span class="n">set_speed</span><span class="p">,</span>
+                        <span class="n">debug_info</span><span class="o">=</span><span class="n">debug_info</span><span class="p">,</span> <span class="n">simulate</span><span class="o">=</span><span class="n">simulate</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">rotate</span><span class="p">(</span><span class="n">target_angle</span><span class="p">,</span> <span class="n">set_speed</span><span class="o">=</span><span class="n">set_speed</span><span class="p">,</span>
+                        <span class="n">debug_info</span><span class="o">=</span><span class="n">debug_info</span><span class="p">,</span> <span class="n">simulate</span><span class="o">=</span><span class="n">simulate</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Robot.go_to">
+<a class="viewcode-back" href="../robot.html#robot.Robot.go_to">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">go_to</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">point</span><span class="p">:</span> <span class="n">Point</span><span class="p">,</span> <span class="n">debug_info</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Move to (x, y).</span>
+
+<span class="sd">        :param point: (x, y) point</span>
+<span class="sd">        :param debug_info: boolean for debug</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">distance</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">robot_pos</span><span class="o">.</span><span class="n">distance</span><span class="p">(</span><span class="n">point</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">debug_info</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;DIST&quot;</span><span class="p">,</span> <span class="n">distance</span><span class="p">)</span>
+
+        <span class="n">move_angle</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">robot_pos</span><span class="o">.</span><span class="n">relative_angle</span><span class="p">(</span><span class="n">point</span><span class="p">)</span>
+
+        <span class="n">turn_start</span> <span class="o">=</span> <span class="n">normalize_angle</span><span class="p">(</span><span class="n">move_angle</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">robot_pos</span><span class="o">.</span><span class="n">angle</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">debug_info</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;TEST&quot;</span><span class="p">,</span> <span class="n">point</span><span class="o">.</span><span class="n">angle</span><span class="p">,</span> <span class="n">move_angle</span><span class="p">,</span> <span class="n">turn_start</span><span class="p">)</span>
+            <span class="nb">input</span><span class="p">(</span><span class="s2">&quot;PRESS ANY KEY...&quot;</span><span class="p">)</span>
+        <span class="c1"># rotate for diagonal</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">turn</span><span class="p">(</span><span class="n">turn_start</span><span class="p">,</span> <span class="n">debug_info</span><span class="o">=</span><span class="n">debug_info</span><span class="p">)</span>
+
+        <span class="c1"># go</span>
+        <span class="k">if</span> <span class="n">debug_info</span><span class="p">:</span>
+            <span class="nb">input</span><span class="p">(</span><span class="s2">&quot;PRESS ANY KEY...&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">go</span><span class="p">(</span><span class="n">distance</span><span class="p">,</span> <span class="n">debug_info</span><span class="o">=</span><span class="n">debug_info</span><span class="p">)</span>
+
+        <span class="c1"># calculate a angle difference</span>
+        <span class="n">turn_end</span> <span class="o">=</span> <span class="n">normalize_angle</span><span class="p">(</span><span class="n">point</span><span class="o">.</span><span class="n">angle</span> <span class="o">-</span> <span class="n">move_angle</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">debug_info</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;TEST2&quot;</span><span class="p">,</span> <span class="n">turn_end</span><span class="p">,</span> <span class="s2">&quot;Point&quot;</span><span class="p">,</span> <span class="n">point</span><span class="o">.</span><span class="n">angle</span><span class="p">,</span> <span class="n">move_angle</span><span class="p">)</span>
+            <span class="nb">input</span><span class="p">(</span><span class="s2">&quot;PRESS ANY KEY...&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">turn</span><span class="p">(</span><span class="n">turn_end</span><span class="p">,</span> <span class="n">debug_info</span><span class="o">=</span><span class="n">debug_info</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Robot.get_objects_from_camera">
+<a class="viewcode-back" href="../robot.html#robot.Robot.get_objects_from_camera">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_objects_from_camera</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">debug_info</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Save all visible objects.</span>
+
+<span class="sd">        :param debug_info: boolean for debug</span>
+<span class="sd">        :return: list of all visible objects</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># wait for rgb image</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">turtle</span><span class="o">.</span><span class="n">wait_for_rgb_image</span><span class="p">()</span>
+        <span class="n">rgb_img</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">turtle</span><span class="o">.</span><span class="n">get_rgb_image</span><span class="p">()</span>
+        <span class="n">all_objects</span> <span class="o">=</span> <span class="n">find_ball</span><span class="o">.</span><span class="n">find_objects</span><span class="p">(</span><span class="n">rgb_img</span><span class="p">)</span>
+        <span class="c1"># wait for point cloud find position of each object</span>
+        <span class="k">if</span> <span class="n">debug_info</span><span class="p">:</span>
+            <span class="n">find_ball</span><span class="o">.</span><span class="n">show_objects</span><span class="p">(</span><span class="n">rgb_img</span><span class="p">,</span> <span class="n">all_objects</span><span class="p">,</span> <span class="s2">&quot;Objects&quot;</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">all_objects</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">all_objects</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">turtle</span><span class="o">.</span><span class="n">wait_for_point_cloud</span><span class="p">()</span>
+        <span class="n">pc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">turtle</span><span class="o">.</span><span class="n">get_point_cloud</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">o</span> <span class="ow">in</span> <span class="n">all_objects</span><span class="p">:</span>
+            <span class="n">o</span><span class="o">.</span><span class="n">assign_xy</span><span class="p">(</span><span class="n">pc</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">all_objects</span></div>
+
+
+<div class="viewcode-block" id="Robot.scan_environment">
+<a class="viewcode-back" href="../robot.html#robot.Robot.scan_environment">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">scan_environment</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                         <span class="n">robot_map</span><span class="p">:</span> <span class="n">Map</span><span class="p">,</span>
+                         <span class="n">max_angle</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">,</span>
+                         <span class="n">big</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">/</span> <span class="mi">6</span><span class="p">,</span>
+                         <span class="n">small</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">/</span> <span class="mi">8</span><span class="p">,</span>
+                         <span class="n">debug_info</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Scan objects around 360 ° or until or expected objects are found.</span>
+
+<span class="sd">        :param robot_map: Map with internal data</span>
+<span class="sd">        :param max_angle: 2pi for full rotation</span>
+<span class="sd">        :param big: angle to rotate if there are no objects on the camera</span>
+<span class="sd">        :param small: angle to rotate if there are some objects on the camera</span>
+<span class="sd">        :param debug_info: boolean for debug</span>
+<span class="sd">        :return: list of all seen objects during the scan</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">angle</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">while</span> <span class="n">angle</span> <span class="o">&lt;</span> <span class="n">max_angle</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">turtle</span><span class="o">.</span><span class="n">is_shutting_down</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">debug_info</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;DOING SCAN for angle </span><span class="si">{</span><span class="n">angle</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">objects</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_objects_from_camera</span><span class="p">(</span><span class="n">debug_info</span><span class="o">=</span><span class="n">debug_info</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">objects</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">debug_info</span><span class="p">:</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;NOT FOUND -&gt; ROTATE&quot;</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">rotate</span><span class="p">(</span><span class="n">big</span><span class="p">)</span>
+                <span class="n">angle</span> <span class="o">+=</span> <span class="n">big</span>
+                <span class="k">continue</span>
+
+            <span class="k">if</span> <span class="n">debug_info</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;ALL OBJECTS:&quot;</span><span class="p">,</span> <span class="n">objects</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">obj</span> <span class="ow">in</span> <span class="n">objects</span><span class="p">:</span>
+                <span class="n">robot_pos</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">position</span>
+                <span class="n">robot_angle</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">angle</span>
+                <span class="k">if</span> <span class="n">debug_info</span><span class="p">:</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;ROBOT POSITION:&quot;</span><span class="p">,</span> <span class="n">robot_pos</span><span class="p">,</span> <span class="n">robot_angle</span><span class="p">)</span>
+                <span class="n">robot_map</span><span class="o">.</span><span class="n">add_object</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">robot_pos</span><span class="p">,</span> <span class="n">debug_info</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">debug_info</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\t</span><span class="s2">SHOWING OBJECT&quot;</span><span class="p">)</span>
+
+            <span class="c1"># all objects were scanned and kick position can be determined</span>
+            <span class="k">if</span> <span class="n">robot_map</span><span class="o">.</span><span class="n">has_all</span> <span class="ow">or</span> <span class="n">has_all</span><span class="p">(</span><span class="n">objects</span><span class="p">):</span>
+                <span class="k">return</span> <span class="kc">True</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">rotate</span><span class="p">(</span><span class="n">small</span><span class="p">)</span>
+            <span class="n">angle</span> <span class="o">+=</span> <span class="n">small</span>
+
+        <span class="k">return</span> <span class="kc">False</span></div>
+
+
+<div class="viewcode-block" id="Robot.center_ball">
+<a class="viewcode-back" href="../robot.html#robot.Robot.center_ball">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">center_ball</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                    <span class="n">center</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">350</span><span class="p">,</span>
+                    <span class="n">offset</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span>
+                    <span class="n">debug_info</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Set correctly in front of the ball.</span>
+
+<span class="sd">        :param center: center of the screen in px</span>
+<span class="sd">        :param offset: offset of the camera in px</span>
+<span class="sd">        :param debug_info: boolean for debug</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">while</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">turtle</span><span class="o">.</span><span class="n">is_shutting_down</span><span class="p">():</span>
+            <span class="n">all_objects_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_objects_from_camera</span><span class="p">()</span>
+            <span class="n">ball</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">filter</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">o_type</span> <span class="o">==</span>
+                               <span class="n">find_ball</span><span class="o">.</span><span class="n">RigidType</span><span class="o">.</span><span class="n">BALL</span><span class="p">,</span> <span class="n">all_objects_</span><span class="p">))</span>
+
+            <span class="k">if</span> <span class="n">ball</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">debug_info</span><span class="p">:</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;---------</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">ball</span><span class="p">)</span>
+                <span class="n">ball</span> <span class="o">=</span> <span class="n">ball</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">turtle</span><span class="o">.</span><span class="n">cmd_velocity</span><span class="p">(</span><span class="n">angular</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+                <span class="k">continue</span>
+
+            <span class="k">if</span> <span class="n">center</span> <span class="o">-</span> <span class="n">offset</span> <span class="o">&lt;=</span> <span class="n">ball</span><span class="o">.</span><span class="n">im_p</span><span class="o">.</span><span class="n">x</span> <span class="o">&lt;=</span> <span class="n">center</span> <span class="o">+</span> <span class="n">offset</span><span class="p">:</span>
+                <span class="k">break</span>
+            <span class="k">elif</span> <span class="n">ball</span><span class="o">.</span><span class="n">im_p</span><span class="o">.</span><span class="n">x</span> <span class="o">&gt;</span> <span class="n">center</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">debug_info</span><span class="p">:</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;RIGHT -&gt; SPEED: &quot;</span><span class="p">,</span> <span class="mf">0.4</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">turtle</span><span class="o">.</span><span class="n">cmd_velocity</span><span class="p">(</span><span class="n">angular</span><span class="o">=-</span><span class="mf">0.4</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">debug_info</span><span class="p">:</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;LEFT-&gt; SPEED: &quot;</span><span class="p">,</span> <span class="mf">0.4</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">turtle</span><span class="o">.</span><span class="n">cmd_velocity</span><span class="p">(</span><span class="n">angular</span><span class="o">=</span><span class="mf">0.4</span><span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">rate</span><span class="o">.</span><span class="n">sleep</span><span class="p">()</span></div>
+</div>
+
+
+
+<span class="c1"># positive angle -&gt; left</span>
+<span class="c1"># negative -&gt; right</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Jakub Andrlík, Pavel Jána, Štěpán Taláček.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

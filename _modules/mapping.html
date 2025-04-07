@@ -1,0 +1,568 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>mapping &mdash; TurtleBoss 1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+
+  
+    <link rel="shortcut icon" href="../_static/favicon.ico"/>
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=f2a433a1"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            TurtleBoss
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../geometry.html">Geometry</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../mapping.html">Mapping</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../robot.html">Robot</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../rigidobject.html">Rigid Object</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../find_ball.html">Find ball</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../constants.html">Constants</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../utils.html">Utils</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../kick_goal.html">Kick goal</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">TurtleBoss</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">Module code</a></li>
+      <li class="breadcrumb-item active">mapping</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for mapping</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;Module to keep, process and plan navigational data during a move.&quot;&quot;&quot;</span>
+
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.patches</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">patches</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">geometry</span><span class="w"> </span><span class="kn">import</span> <span class="n">Circle</span><span class="p">,</span> <span class="n">Line</span><span class="p">,</span> <span class="n">Point</span><span class="p">,</span> <span class="n">Segment</span><span class="p">,</span> <span class="n">intersection</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">rigidobject</span><span class="w"> </span><span class="kn">import</span> <span class="n">RigidObject</span><span class="p">,</span> <span class="n">RigidType</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">constants</span><span class="w"> </span><span class="kn">import</span> <span class="n">MAX_OBJECTS</span><span class="p">,</span> <span class="n">MIN_MATCHES</span><span class="p">,</span> <span class="n">DISCRETE_INCREMENT</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">ProcessError</span>
+
+
+<div class="viewcode-block" id="average">
+<a class="viewcode-back" href="../mapping.html#mapping.average">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">average</span><span class="p">(</span><span class="n">object_a</span><span class="p">:</span> <span class="n">RigidObject</span><span class="p">,</span> <span class="n">object_b</span><span class="p">:</span> <span class="n">RigidObject</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Point</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Get an averagely estimated RigidObject from among two RigidObjects.</span>
+
+<span class="sd">    :param object_a: first reference RigidObject</span>
+<span class="sd">    :param object_b: second reference RigidObject</span>
+<span class="sd">    :return: RigidObject estimate</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">Point</span><span class="p">(</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">([</span><span class="n">object_a</span><span class="o">.</span><span class="n">xy</span><span class="p">,</span> <span class="n">object_b</span><span class="o">.</span><span class="n">xy</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">))</span></div>
+
+
+
+<div class="viewcode-block" id="transform">
+<a class="viewcode-back" href="../mapping.html#mapping.transform">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">transform</span><span class="p">(</span><span class="n">position</span><span class="p">:</span> <span class="n">Point</span><span class="p">,</span>
+              <span class="n">base_pos</span><span class="p">:</span> <span class="n">Point</span><span class="p">,</span>
+              <span class="n">debug_info</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Point</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Transform a vector to another system with different base.</span>
+
+<span class="sd">    :param position: vector to transform</span>
+<span class="sd">    :param base_pos: default system</span>
+<span class="sd">    :param debug_info: boolean for debug</span>
+<span class="sd">    :return: Point with newly transformed (rotated and moved) coordinates</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">debug_info</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Position before rot.&quot;</span><span class="p">,</span> <span class="n">position</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Robot position: &quot;</span><span class="p">,</span> <span class="n">base_pos</span><span class="p">)</span>
+    <span class="n">transform_matrix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="n">base_pos</span><span class="o">.</span><span class="n">cos</span><span class="p">,</span> <span class="o">-</span><span class="n">base_pos</span><span class="o">.</span><span class="n">sin</span><span class="p">,</span> <span class="n">base_pos</span><span class="o">.</span><span class="n">x</span><span class="p">],</span>
+                                <span class="p">[</span><span class="n">base_pos</span><span class="o">.</span><span class="n">sin</span><span class="p">,</span> <span class="n">base_pos</span><span class="o">.</span><span class="n">cos</span><span class="p">,</span> <span class="n">base_pos</span><span class="o">.</span><span class="n">y</span><span class="p">],</span>
+                                <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]])</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">transform_matrix</span><span class="p">,</span> <span class="n">position</span><span class="o">.</span><span class="n">homog_xy</span><span class="p">)[:</span><span class="mi">2</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">debug_info</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;After rotation&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">Point</span><span class="p">(</span><span class="o">*</span><span class="n">result</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="has_all">
+<a class="viewcode-back" href="../mapping.html#mapping.has_all">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">has_all</span><span class="p">(</span><span class="n">all_objects</span><span class="p">:</span> <span class="nb">list</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Decide whether all known object all_objects contain 2 poles and 1 ball.</span>
+
+<span class="sd">    :param all_objects: list with all known objects</span>
+<span class="sd">    :return: boolean</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">poles</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">ball</span> <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="k">for</span> <span class="n">obj</span> <span class="ow">in</span> <span class="n">all_objects</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">obj</span><span class="o">.</span><span class="n">o_type</span> <span class="o">==</span> <span class="n">RigidType</span><span class="o">.</span><span class="n">POLE</span> <span class="ow">and</span> <span class="mi">40</span> <span class="o">&lt;=</span> <span class="n">obj</span><span class="o">.</span><span class="n">im_p</span><span class="o">.</span><span class="n">x</span> <span class="o">&lt;=</span> <span class="mi">600</span><span class="p">:</span>
+            <span class="n">poles</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="k">elif</span> <span class="n">obj</span><span class="o">.</span><span class="n">o_type</span> <span class="o">==</span> <span class="n">RigidType</span><span class="o">.</span><span class="n">BALL</span> <span class="ow">and</span> <span class="mi">40</span> <span class="o">&lt;=</span> <span class="n">obj</span><span class="o">.</span><span class="n">im_p</span><span class="o">.</span><span class="n">x</span> <span class="o">&lt;=</span> <span class="mi">600</span><span class="p">:</span>
+            <span class="n">ball</span> <span class="o">+=</span> <span class="mi">1</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="n">poles</span> <span class="o">==</span> <span class="n">MAX_OBJECTS</span><span class="p">[</span><span class="n">RigidType</span><span class="o">.</span><span class="n">POLE</span><span class="p">]</span> <span class="ow">and</span>
+            <span class="n">ball</span> <span class="o">==</span> <span class="n">MAX_OBJECTS</span><span class="p">[</span><span class="n">RigidType</span><span class="o">.</span><span class="n">BALL</span><span class="p">]):</span>
+        <span class="k">return</span> <span class="kc">True</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">False</span></div>
+
+
+
+<div class="viewcode-block" id="Map">
+<a class="viewcode-back" href="../mapping.html#mapping.Map">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">Map</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Object for keeping known objects and processing them.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">threshold</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.2</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Set up a Map instance.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">objects</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">threshold</span> <span class="o">=</span> <span class="n">threshold</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">poles</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">debug_info</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Gets merged positions of poles in one list sorted by merge counter.</span>
+
+<span class="sd">        :param debug_info: boolean for debug</span>
+<span class="sd">        :return: merged all known objects of type POLE</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">merge_objects</span><span class="p">(</span><span class="n">debug_info</span><span class="o">=</span><span class="n">debug_info</span><span class="p">)[</span><span class="mi">0</span><span class="p">][</span><span class="n">RigidType</span><span class="o">.</span><span class="n">POLE</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">ball</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">debug_info</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Gets merged positions of balls in one list sorted by merge counter.</span>
+
+<span class="sd">        :param debug_info: boolean for debug</span>
+<span class="sd">        :return: merged all known objects of type BALL</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">merge_objects</span><span class="p">(</span><span class="n">debug_info</span><span class="o">=</span><span class="n">debug_info</span><span class="p">)[</span><span class="mi">0</span><span class="p">][</span><span class="n">RigidType</span><span class="o">.</span><span class="n">BALL</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">obstacles</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">debug_info</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Gets merged positions of obstacles in one list sorted by merge counter.</span>
+
+<span class="sd">        :param debug_info: boolean for debug</span>
+<span class="sd">        :return: merged all known objects of type OBST</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">merge_objects</span><span class="p">(</span><span class="n">debug_info</span><span class="o">=</span><span class="n">debug_info</span><span class="p">)[</span><span class="mi">0</span><span class="p">][</span><span class="n">RigidType</span><span class="o">.</span><span class="n">OBST</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">danger_zones</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Zones that the center of robot should not cross to prevent collisions.</span>
+
+<span class="sd">        :return: list of danger zones</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">obj_dict</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">merge_objects</span><span class="p">()</span>
+        <span class="n">danger_zones</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">pole</span> <span class="ow">in</span> <span class="n">obj_dict</span><span class="p">[</span><span class="n">RigidType</span><span class="o">.</span><span class="n">POLE</span><span class="p">]:</span>
+            <span class="n">danger_zones</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Circle</span><span class="p">(</span><span class="n">pole</span><span class="o">.</span><span class="n">position</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">))</span>
+        <span class="k">for</span> <span class="n">obst</span> <span class="ow">in</span> <span class="n">obj_dict</span><span class="p">[</span><span class="n">RigidType</span><span class="o">.</span><span class="n">OBST</span><span class="p">]:</span>
+            <span class="n">danger_zones</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Circle</span><span class="p">(</span><span class="n">obst</span><span class="o">.</span><span class="n">position</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">))</span>
+        <span class="k">for</span> <span class="n">ball</span> <span class="ow">in</span> <span class="n">obj_dict</span><span class="p">[</span><span class="n">RigidType</span><span class="o">.</span><span class="n">BALL</span><span class="p">]:</span>
+            <span class="n">danger_zones</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Circle</span><span class="p">(</span><span class="n">ball</span><span class="o">.</span><span class="n">position</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">danger_zones</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">has_all</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Decide whether all known object all_objects contain 2 poles and 1 ball.</span>
+
+<span class="sd">        :return: boolean</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">obj_dict</span><span class="p">,</span> <span class="n">counter</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">merge_objects</span><span class="p">()</span>
+        <span class="n">correct</span> <span class="o">=</span> <span class="nb">dict</span><span class="o">.</span><span class="n">fromkeys</span><span class="p">(</span><span class="n">obj_dict</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">obj_dict</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">obj_dict</span><span class="p">[</span><span class="n">key</span><span class="p">]):</span>
+                <span class="k">if</span> <span class="n">counter</span><span class="p">[</span><span class="n">key</span><span class="p">][</span><span class="n">i</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">MIN_MATCHES</span><span class="p">:</span>
+                    <span class="n">correct</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">correct</span><span class="p">[</span><span class="n">RigidType</span><span class="o">.</span><span class="n">POLE</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">MAX_OBJECTS</span><span class="p">[</span><span class="n">RigidType</span><span class="o">.</span><span class="n">POLE</span><span class="p">]</span> <span class="ow">and</span>
+                <span class="n">correct</span><span class="p">[</span><span class="n">RigidType</span><span class="o">.</span><span class="n">BALL</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">MAX_OBJECTS</span><span class="p">[</span><span class="n">RigidType</span><span class="o">.</span><span class="n">BALL</span><span class="p">]):</span>
+            <span class="k">return</span> <span class="kc">True</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span>
+
+<div class="viewcode-block" id="Map.reset">
+<a class="viewcode-back" href="../mapping.html#mapping.Map.reset">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">reset</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Set all known object to blank list.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">objects</span> <span class="o">=</span> <span class="p">[]</span></div>
+
+
+<div class="viewcode-block" id="Map.add_object">
+<a class="viewcode-back" href="../mapping.html#mapping.Map.add_object">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">add_object</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">object_a</span><span class="p">:</span> <span class="n">RigidObject</span><span class="p">,</span>
+                   <span class="n">robot_pos</span><span class="p">:</span> <span class="n">Point</span><span class="p">,</span> <span class="n">debug_info</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Introduce a new object to all known objects.</span>
+
+<span class="sd">        :param object_a: the new object</span>
+<span class="sd">        :param robot_pos: robot position</span>
+<span class="sd">        :param debug_info: boolean for debug</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">debug_info</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;BEFORE ROTATION:&quot;</span><span class="p">,</span> <span class="n">object_a</span><span class="o">.</span><span class="n">position</span><span class="p">)</span>
+        <span class="n">object_a</span><span class="o">.</span><span class="n">set_position</span><span class="p">(</span><span class="n">transform</span><span class="p">(</span><span class="n">object_a</span><span class="o">.</span><span class="n">position</span><span class="p">,</span>
+                                        <span class="n">robot_pos</span><span class="p">,</span> <span class="n">debug_info</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">debug_info</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;AFTER ROTATION:&quot;</span><span class="p">,</span> <span class="n">object_a</span><span class="o">.</span><span class="n">position</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">object_a</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Map.is_max_reached">
+<a class="viewcode-back" href="../mapping.html#mapping.Map.is_max_reached">[docs]</a>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">is_max_reached</span><span class="p">(</span><span class="n">o_type</span><span class="p">:</span> <span class="n">RigidType</span><span class="p">,</span> <span class="n">count</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Decide whether count is equal or more than requested objects.</span>
+
+<span class="sd">        :param o_type: reference object type</span>
+<span class="sd">        :param count: count of known type of reference objects</span>
+<span class="sd">        :return: boolean</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">is_max_poles</span> <span class="o">=</span> <span class="p">(</span><span class="n">o_type</span> <span class="o">==</span> <span class="n">RigidType</span><span class="o">.</span><span class="n">POLE</span> <span class="ow">and</span>
+                        <span class="n">count</span><span class="p">[</span><span class="n">o_type</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">MAX_OBJECTS</span><span class="p">[</span><span class="n">o_type</span><span class="p">])</span>
+        <span class="n">is_max_ball</span> <span class="o">=</span> <span class="p">(</span><span class="n">o_type</span> <span class="o">==</span> <span class="n">RigidType</span><span class="o">.</span><span class="n">BALL</span> <span class="ow">and</span>
+                       <span class="n">count</span><span class="p">[</span><span class="n">o_type</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">MAX_OBJECTS</span><span class="p">[</span><span class="n">o_type</span><span class="p">])</span>
+        <span class="k">return</span> <span class="n">is_max_poles</span> <span class="ow">or</span> <span class="n">is_max_ball</span></div>
+
+
+<div class="viewcode-block" id="Map.show">
+<a class="viewcode-back" href="../mapping.html#mapping.Map.show">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">show</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">show_all</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+             <span class="n">show_merged</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+             <span class="n">robot_pos</span><span class="p">:</span> <span class="n">Point</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+             <span class="n">kick_pos</span><span class="p">:</span> <span class="n">Point</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+             <span class="n">path</span><span class="p">:</span> <span class="nb">list</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+             <span class="n">danger_zones</span><span class="p">:</span> <span class="nb">list</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+             <span class="n">debug_info</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Visual representation of all known objects.</span>
+
+<span class="sd">        :param show_all: show detected objects before merging</span>
+<span class="sd">        :param show_merged: show detected objects after merging</span>
+<span class="sd">        :param robot_pos: robot position</span>
+<span class="sd">        :param kick_pos: kick position</span>
+<span class="sd">        :param path: list of points of the planned route</span>
+<span class="sd">        :param danger_zones: list of danger zones</span>
+<span class="sd">        :param debug_info: boolean for debug</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">_</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">6</span><span class="p">,</span> <span class="mi">6</span><span class="p">),</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span>  <span class="c1"># Set 6x6 inches</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_aspect</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>  <span class="c1"># X, Y axis ratio 1:1</span>
+        <span class="k">if</span> <span class="n">show_merged</span><span class="p">:</span>
+            <span class="n">obj</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">merge_objects</span><span class="p">(</span><span class="n">debug_info</span><span class="p">)</span>
+            <span class="n">type_counter</span> <span class="o">=</span> <span class="nb">dict</span><span class="o">.</span><span class="n">fromkeys</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">object_type</span><span class="p">,</span> <span class="n">points</span> <span class="ow">in</span> <span class="n">obj</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="k">for</span> <span class="n">point</span> <span class="ow">in</span> <span class="n">points</span><span class="p">:</span>
+                    <span class="n">position</span> <span class="o">=</span> <span class="n">point</span><span class="o">.</span><span class="n">xy</span>
+                    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_max_reached</span><span class="p">(</span><span class="n">object_type</span><span class="p">,</span> <span class="n">type_counter</span><span class="p">):</span>
+                        <span class="n">ax</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="o">*</span><span class="n">position</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">point</span><span class="o">.</span><span class="n">color</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span>
+                                   <span class="n">edgecolors</span><span class="o">=</span><span class="s1">&#39;red&#39;</span><span class="p">,</span> <span class="n">linewidths</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">ax</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="o">*</span><span class="n">position</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">point</span><span class="o">.</span><span class="n">color</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="mi">50</span><span class="p">)</span>
+                        <span class="k">if</span> <span class="n">object_type</span> <span class="o">==</span> <span class="n">RigidType</span><span class="o">.</span><span class="n">BALL</span><span class="p">:</span>
+                            <span class="n">ax</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="o">*</span><span class="n">position</span><span class="p">,</span> <span class="n">facecolors</span><span class="o">=</span><span class="s1">&#39;none&#39;</span><span class="p">,</span>
+                                       <span class="n">edgecolors</span><span class="o">=</span><span class="s1">&#39;orange&#39;</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+                    <span class="n">type_counter</span><span class="p">[</span><span class="n">object_type</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+
+        <span class="k">if</span> <span class="n">show_all</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">point</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">objects</span><span class="p">:</span>
+                <span class="n">pos</span> <span class="o">=</span> <span class="n">point</span><span class="o">.</span><span class="n">xy</span>
+                <span class="n">ax</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="o">*</span><span class="n">pos</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">point</span><span class="o">.</span><span class="n">color</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="mi">25</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.2</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">robot_pos</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">x_end</span> <span class="o">=</span> <span class="n">robot_pos</span><span class="o">.</span><span class="n">x</span> <span class="o">+</span> <span class="mf">0.2</span> <span class="o">*</span> <span class="n">robot_pos</span><span class="o">.</span><span class="n">cos</span>
+            <span class="n">y_end</span> <span class="o">=</span> <span class="n">robot_pos</span><span class="o">.</span><span class="n">y</span> <span class="o">+</span> <span class="mf">0.2</span> <span class="o">*</span> <span class="n">robot_pos</span><span class="o">.</span><span class="n">sin</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">([</span><span class="n">robot_pos</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">x_end</span><span class="p">],</span> <span class="p">[</span><span class="n">robot_pos</span><span class="o">.</span><span class="n">y</span><span class="p">,</span> <span class="n">y_end</span><span class="p">])</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="o">*</span><span class="n">robot_pos</span><span class="o">.</span><span class="n">xy</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;black&quot;</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="mi">60</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">kick_pos</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">x_end</span> <span class="o">=</span> <span class="n">kick_pos</span><span class="o">.</span><span class="n">x</span> <span class="o">+</span> <span class="mf">0.2</span> <span class="o">*</span> <span class="n">kick_pos</span><span class="o">.</span><span class="n">cos</span>
+            <span class="n">y_end</span> <span class="o">=</span> <span class="n">kick_pos</span><span class="o">.</span><span class="n">y</span> <span class="o">+</span> <span class="mf">0.2</span> <span class="o">*</span> <span class="n">kick_pos</span><span class="o">.</span><span class="n">sin</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">([</span><span class="n">kick_pos</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">x_end</span><span class="p">],</span> <span class="p">[</span><span class="n">kick_pos</span><span class="o">.</span><span class="n">y</span><span class="p">,</span> <span class="n">y_end</span><span class="p">])</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="o">*</span><span class="n">kick_pos</span><span class="o">.</span><span class="n">xy</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;cyan&quot;</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="mi">60</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">path</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">points_x</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span><span class="o">.</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">path</span><span class="p">]</span>
+            <span class="n">points_y</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span><span class="o">.</span><span class="n">y</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">path</span><span class="p">]</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">points_x</span><span class="p">,</span> <span class="n">points_y</span><span class="p">,</span> <span class="n">marker</span><span class="o">=</span><span class="s2">&quot;o&quot;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;#37BB37&#39;</span><span class="p">)</span>
+            <span class="c1"># compute differences</span>
+            <span class="n">x_diff</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">points_x</span><span class="p">)</span>
+            <span class="n">y_diff</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">points_y</span><span class="p">)</span>
+            <span class="n">pos_x</span> <span class="o">=</span> <span class="n">points_x</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">x_diff</span> <span class="o">/</span> <span class="mi">2</span>
+            <span class="n">pos_y</span> <span class="o">=</span> <span class="n">points_y</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">y_diff</span> <span class="o">/</span> <span class="mi">2</span>
+            <span class="n">norm</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">x_diff</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="n">y_diff</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">quiver</span><span class="p">(</span><span class="n">pos_x</span><span class="p">,</span> <span class="n">pos_y</span><span class="p">,</span> <span class="n">x_diff</span> <span class="o">/</span> <span class="n">norm</span><span class="p">,</span> <span class="n">y_diff</span> <span class="o">/</span> <span class="n">norm</span><span class="p">,</span>
+                      <span class="n">angles</span><span class="o">=</span><span class="s2">&quot;xy&quot;</span><span class="p">,</span> <span class="n">zorder</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">pivot</span><span class="o">=</span><span class="s2">&quot;mid&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">danger_zones</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">zone</span> <span class="ow">in</span> <span class="n">danger_zones</span><span class="p">:</span>
+                <span class="n">ax</span><span class="o">.</span><span class="n">add_patch</span><span class="p">(</span><span class="n">patches</span><span class="o">.</span><span class="n">Circle</span><span class="p">(</span><span class="n">zone</span><span class="o">.</span><span class="n">c</span><span class="o">.</span><span class="n">xy</span><span class="p">,</span> <span class="n">zone</span><span class="o">.</span><span class="n">r</span><span class="p">,</span>
+                                            <span class="n">facecolor</span><span class="o">=</span><span class="s1">&#39;r&#39;</span><span class="p">,</span> <span class="n">edgecolor</span><span class="o">=</span><span class="s1">&#39;r&#39;</span><span class="p">,</span>
+                                            <span class="n">linewidth</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.1</span><span class="p">))</span>
+
+        <span class="n">x_lim</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">xlim</span><span class="p">()</span>
+        <span class="n">y_lim</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">ylim</span><span class="p">()</span>
+        <span class="n">x_range</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="n">x_lim</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="nb">abs</span><span class="p">(</span><span class="n">x_lim</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
+        <span class="n">y_range</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="n">y_lim</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="nb">abs</span><span class="p">(</span><span class="n">y_lim</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
+        <span class="n">max_range</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">x_range</span><span class="p">,</span> <span class="n">y_range</span><span class="p">)</span> <span class="o">*</span> <span class="mf">1.1</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">xlim</span><span class="p">(</span><span class="o">-</span><span class="n">max_range</span><span class="p">,</span> <span class="n">max_range</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">ylim</span><span class="p">(</span><span class="o">-</span><span class="n">max_range</span><span class="p">,</span> <span class="n">max_range</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">axhline</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;black&#39;</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">linestyle</span><span class="o">=</span><span class="s1">&#39;--&#39;</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">axvline</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;black&#39;</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">linestyle</span><span class="o">=</span><span class="s1">&#39;--&#39;</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="Map.merge_objects">
+<a class="viewcode-back" href="../mapping.html#mapping.Map.merge_objects">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">merge_objects</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">debug_info</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Reduce duplicates of objects to their respective most probable amount.</span>
+
+<span class="sd">        :param debug_info: boolean for debug</span>
+<span class="sd">        :return: most probable objects and their amounts of sources</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">objects</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">merge_count</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">o_type</span> <span class="ow">in</span> <span class="n">RigidType</span><span class="p">:</span>
+            <span class="n">unmerged</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">filter</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">o_type</span> <span class="o">==</span> <span class="n">o_type</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">objects</span><span class="p">))</span>
+            <span class="n">merged</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="n">merged_counter</span> <span class="o">=</span> <span class="p">[]</span>
+
+            <span class="k">for</span> <span class="n">pole</span> <span class="ow">in</span> <span class="n">unmerged</span><span class="p">:</span>
+                <span class="c1"># add pole when empty</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">merged</span><span class="p">:</span>
+                    <span class="n">merged</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">pole</span><span class="p">)</span>
+                    <span class="n">merged_counter</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+                    <span class="k">continue</span>
+
+                <span class="n">dists</span> <span class="o">=</span> <span class="p">[</span><span class="n">pole</span><span class="o">.</span><span class="n">position</span><span class="o">.</span><span class="n">distance</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">merged</span><span class="p">]</span>
+                <span class="n">is_merged</span> <span class="o">=</span> <span class="kc">False</span>
+                <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">dists</span><span class="p">):</span>
+                    <span class="c1"># merge into existing object</span>
+                    <span class="k">if</span> <span class="n">x</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">threshold</span><span class="p">:</span>
+                        <span class="n">merged</span><span class="p">[</span><span class="n">k</span><span class="p">]</span><span class="o">.</span><span class="n">set_position</span><span class="p">(</span><span class="n">average</span><span class="p">(</span><span class="n">merged</span><span class="p">[</span><span class="n">k</span><span class="p">],</span> <span class="n">pole</span><span class="p">))</span>
+                        <span class="n">merged_counter</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+                        <span class="n">is_merged</span> <span class="o">=</span> <span class="kc">True</span>
+
+                <span class="k">if</span> <span class="n">is_merged</span><span class="p">:</span>
+                    <span class="k">continue</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">merged</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">pole</span><span class="p">)</span>
+                    <span class="n">merged_counter</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+
+            <span class="n">sorted_objects</span> <span class="o">=</span> <span class="p">[</span><span class="n">obj</span> <span class="k">for</span> <span class="n">_</span><span class="p">,</span>
+                              <span class="n">obj</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">merged_counter</span><span class="p">,</span> <span class="n">merged</span><span class="p">),</span>
+                                            <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">reverse</span><span class="o">=</span><span class="kc">True</span><span class="p">)]</span>
+            <span class="n">objects</span><span class="p">[</span><span class="n">o_type</span><span class="p">]</span> <span class="o">=</span> <span class="n">sorted_objects</span>
+            <span class="n">merge_count</span><span class="p">[</span><span class="n">o_type</span><span class="p">]</span> <span class="o">=</span> <span class="n">merged_counter</span>
+        <span class="k">if</span> <span class="n">debug_info</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">merge_count</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">objects</span><span class="p">,</span> <span class="n">merge_count</span></div>
+
+
+<div class="viewcode-block" id="Map.determine_kick_pos">
+<a class="viewcode-back" href="../mapping.html#mapping.Map.determine_kick_pos">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">determine_kick_pos</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dist</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">1</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Point</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Calculate Kick position.</span>
+
+<span class="sd">        :param dist: requested distance from ball, default = 1 m</span>
+<span class="sd">        :return: Kick position</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">poles</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">RigidObject</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">poles</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">poles</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">ProcessError</span><span class="p">(</span><span class="s2">&quot;Cannot determine kick position, &quot;</span>
+                               <span class="s2">&quot;not enough poles!&quot;</span><span class="p">)</span>
+        <span class="n">p1</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span> <span class="o">=</span> <span class="n">poles</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">xy</span>
+        <span class="n">p2</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span> <span class="o">=</span> <span class="n">poles</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">xy</span>
+        <span class="n">ball</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ball</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">ball</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">ProcessError</span><span class="p">(</span><span class="s2">&quot;Cannot determine kick position, no ball!&quot;</span><span class="p">)</span>
+        <span class="n">ball_pos</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span> <span class="o">=</span> <span class="n">ball</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">xy</span>
+        <span class="n">pole_center</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">((</span><span class="n">p1</span> <span class="o">+</span> <span class="n">p2</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span>
+        <span class="n">vector_line</span> <span class="o">=</span> <span class="n">ball_pos</span> <span class="o">-</span> <span class="n">pole_center</span>
+        <span class="n">v_length</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">vector_line</span><span class="p">)</span>
+        <span class="n">pos</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">ball_pos</span> <span class="o">+</span> <span class="n">dist</span> <span class="o">*</span> <span class="n">vector_line</span> <span class="o">/</span> <span class="n">v_length</span><span class="p">)</span>
+        <span class="n">angle_rad</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arctan2</span><span class="p">(</span><span class="o">-</span><span class="n">vector_line</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="o">-</span><span class="n">vector_line</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="k">return</span> <span class="n">Point</span><span class="p">(</span><span class="o">*</span><span class="n">pos</span><span class="p">,</span> <span class="n">angle_rad</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Map.routing">
+<a class="viewcode-back" href="../mapping.html#mapping.Map.routing">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">routing</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">s_pos</span><span class="p">:</span> <span class="n">Point</span><span class="p">,</span> <span class="n">f_pos</span><span class="p">:</span> <span class="n">Point</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Algorithm for avoiding objects (their respective danger zones).</span>
+
+<span class="sd">        :param s_pos: starting position</span>
+<span class="sd">        :param f_pos: finish position</span>
+<span class="sd">        :return: list of positions along the route</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">route</span> <span class="o">=</span> <span class="p">[</span><span class="n">s_pos</span><span class="p">,</span> <span class="n">f_pos</span><span class="p">]</span>
+        <span class="n">dz</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">danger_zones</span>
+        <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="n">zone</span><span class="o">.</span><span class="n">is_inner</span><span class="p">(</span><span class="n">f_pos</span><span class="p">)</span> <span class="k">for</span> <span class="n">zone</span> <span class="ow">in</span> <span class="n">dz</span><span class="p">):</span>
+            <span class="k">return</span> <span class="p">[]</span>
+        <span class="n">change</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="n">change_counter</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">while</span> <span class="n">change</span> <span class="ow">and</span> <span class="n">change_counter</span> <span class="o">&lt;</span> <span class="mi">10</span><span class="p">:</span>
+            <span class="n">change</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">route</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">):</span>
+                <span class="n">line</span> <span class="o">=</span> <span class="n">Line</span><span class="p">(</span><span class="n">route</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">route</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">])</span>
+                <span class="n">seg</span> <span class="o">=</span> <span class="n">Segment</span><span class="p">(</span><span class="n">route</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">route</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">])</span>
+                <span class="k">for</span> <span class="n">zone</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">dz</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">z</span><span class="p">:</span> <span class="n">z</span><span class="o">.</span><span class="n">c</span><span class="o">.</span><span class="n">distance</span><span class="p">(</span><span class="n">route</span><span class="p">[</span><span class="n">i</span><span class="p">])):</span>
+                    <span class="n">intersects</span> <span class="o">=</span> <span class="n">intersection</span><span class="p">(</span><span class="n">zone</span><span class="p">,</span> <span class="n">line</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="p">(</span><span class="ow">not</span> <span class="n">intersects</span> <span class="ow">or</span> <span class="n">intersects</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">intersects</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="ow">or</span>
+                            <span class="ow">not</span> <span class="p">(</span><span class="n">seg</span><span class="o">.</span><span class="n">is_element_of</span><span class="p">(</span><span class="n">intersects</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="ow">or</span>
+                                 <span class="n">seg</span><span class="o">.</span><span class="n">is_element_of</span><span class="p">(</span><span class="n">intersects</span><span class="p">[</span><span class="mi">1</span><span class="p">]))):</span>
+                        <span class="k">continue</span>
+                    <span class="n">chord_seg</span> <span class="o">=</span> <span class="n">Segment</span><span class="p">(</span><span class="o">*</span><span class="n">intersects</span><span class="p">)</span>
+                    <span class="n">diameter_line</span> <span class="o">=</span> <span class="n">Line</span><span class="p">(</span><span class="n">chord_seg</span><span class="o">.</span><span class="n">midpoint</span><span class="p">,</span> <span class="n">zone</span><span class="o">.</span><span class="n">c</span><span class="p">)</span>
+                    <span class="n">new_stop_candidates</span> <span class="o">=</span> <span class="n">intersection</span><span class="p">(</span>
+                        <span class="n">Circle</span><span class="p">(</span><span class="n">zone</span><span class="o">.</span><span class="n">c</span><span class="p">,</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">zone</span><span class="o">.</span><span class="n">r</span> <span class="o">-</span>
+                               <span class="n">zone</span><span class="o">.</span><span class="n">c</span><span class="o">.</span><span class="n">distance</span><span class="p">(</span><span class="n">chord_seg</span><span class="o">.</span><span class="n">midpoint</span><span class="p">)),</span>
+                        <span class="n">diameter_line</span>
+                    <span class="p">)</span>
+                    <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="o">*</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">distance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ball</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span>
+                                    <span class="n">new_stop_candidates</span><span class="p">)):</span>
+                        <span class="n">new_stop</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">new_stop_candidates</span><span class="p">,</span>
+                                       <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">p</span><span class="p">:</span> <span class="n">p</span><span class="o">.</span><span class="n">distance</span><span class="p">(</span><span class="n">route</span><span class="p">[</span><span class="n">i</span><span class="p">]))</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">new_stop</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">new_stop_candidates</span><span class="p">,</span>
+                                       <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">p</span><span class="p">:</span> <span class="n">p</span><span class="o">.</span><span class="n">distance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ball</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+
+
+                    <span class="k">while</span> <span class="nb">any</span><span class="p">(</span><span class="n">z</span><span class="o">.</span><span class="n">is_inner</span><span class="p">(</span><span class="n">new_stop</span><span class="p">)</span> <span class="k">for</span> <span class="n">z</span> <span class="ow">in</span> <span class="n">dz</span><span class="p">):</span>
+                        <span class="n">new_stop_candidates</span> <span class="o">=</span> <span class="n">intersection</span><span class="p">(</span>
+                            <span class="n">Circle</span><span class="p">(</span><span class="n">zone</span><span class="o">.</span><span class="n">c</span><span class="p">,</span> <span class="n">zone</span><span class="o">.</span><span class="n">c</span><span class="o">.</span><span class="n">distance</span><span class="p">(</span><span class="n">new_stop</span><span class="p">)</span> <span class="o">+</span>
+                                   <span class="n">DISCRETE_INCREMENT</span><span class="p">),</span>
+                            <span class="n">Line</span><span class="p">(</span><span class="n">new_stop</span><span class="p">,</span> <span class="n">zone</span><span class="o">.</span><span class="n">c</span><span class="p">)</span>
+                        <span class="p">)</span>
+                        <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="o">*</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">distance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ball</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span>
+                                        <span class="n">new_stop_candidates</span><span class="p">)):</span>
+                            <span class="n">new_stop</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">new_stop_candidates</span><span class="p">,</span>
+                                           <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">p</span><span class="p">:</span> <span class="n">p</span><span class="o">.</span><span class="n">distance</span><span class="p">(</span><span class="n">route</span><span class="p">[</span><span class="n">i</span><span class="p">]))</span>
+                        <span class="k">else</span><span class="p">:</span>
+                            <span class="n">new_stop</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">new_stop_candidates</span><span class="p">,</span>
+                                           <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">p</span><span class="p">:</span> <span class="n">p</span><span class="o">.</span><span class="n">distance</span><span class="p">(</span>
+                                               <span class="bp">self</span><span class="o">.</span><span class="n">ball</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+
+                    <span class="n">route</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">new_stop</span><span class="p">)</span>
+                    <span class="n">change</span> <span class="o">=</span> <span class="kc">True</span>
+                    <span class="n">change_counter</span> <span class="o">+=</span> <span class="mi">1</span>
+                    <span class="k">break</span>
+        <span class="k">for</span> <span class="n">point_index</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">route</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">):</span>
+            <span class="n">vector</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Line</span><span class="p">(</span><span class="n">route</span><span class="p">[</span><span class="n">point_index</span><span class="p">],</span> <span class="n">route</span><span class="p">[</span><span class="n">point_index</span> <span class="o">+</span> <span class="mi">1</span><span class="p">])</span>
+                               <span class="o">.</span><span class="n">direction_vector</span><span class="o">.</span><span class="n">xy</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+            <span class="n">zero_angle_vector</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">((</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+            <span class="n">route</span><span class="p">[</span><span class="n">point_index</span><span class="p">]</span><span class="o">.</span><span class="n">angle</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arctan2</span><span class="p">(</span>
+                <span class="n">np</span><span class="o">.</span><span class="n">cross</span><span class="p">(</span><span class="n">zero_angle_vector</span><span class="p">,</span> <span class="n">vector</span><span class="p">)[</span><span class="mi">2</span><span class="p">],</span>
+                <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">zero_angle_vector</span><span class="p">,</span> <span class="n">vector</span><span class="p">)</span>
+            <span class="p">)</span>
+        <span class="k">return</span> <span class="n">route</span></div>
+</div>
+
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">mapA</span> <span class="o">=</span> <span class="n">Map</span><span class="p">()</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">ao</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">t</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Add object, testing function.&quot;&quot;&quot;</span>
+        <span class="n">obj</span> <span class="o">=</span> <span class="n">RigidObject</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">RigidType</span><span class="p">(</span><span class="n">t</span><span class="p">))</span>
+        <span class="n">obj</span><span class="o">.</span><span class="n">set_position</span><span class="p">(</span><span class="n">Point</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">))</span>
+        <span class="n">mapA</span><span class="o">.</span><span class="n">add_object</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">Point</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    ao(0.2, -0.5, 1)</span>
+<span class="sd">    ao(0.4, 0, 2)</span>
+<span class="sd">    ao(0.7, -0.4, 2)</span>
+<span class="sd">    ao(-0.35, -0.15, 3)</span>
+<span class="sd">    kick_pos_ = mapA.determine_kick_pos(dist=0.7)</span>
+<span class="sd">    path_ = mapA.routing(Point(0, 0), kick_pos_)</span>
+<span class="sd">    print(*path_, sep=&quot;\n&quot;)</span>
+<span class="sd">    mapA.show(kick_pos=kick_pos_, path=path_, danger_zones=mapA.danger_zones)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">ao</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.32</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">ao</span><span class="p">(</span><span class="mf">0.4</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+    <span class="n">ao</span><span class="p">(</span><span class="mf">0.7</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.4</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+    <span class="n">ao</span><span class="p">(</span><span class="o">-</span><span class="mf">0.4</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+    <span class="n">kick_pos_</span> <span class="o">=</span> <span class="n">mapA</span><span class="o">.</span><span class="n">determine_kick_pos</span><span class="p">(</span><span class="n">dist</span><span class="o">=</span><span class="mf">0.7</span><span class="p">)</span>
+    <span class="n">path_</span> <span class="o">=</span> <span class="n">mapA</span><span class="o">.</span><span class="n">routing</span><span class="p">(</span><span class="n">Point</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="n">kick_pos_</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="o">*</span><span class="n">path_</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">mapA</span><span class="o">.</span><span class="n">show</span><span class="p">(</span><span class="n">kick_pos</span><span class="o">=</span><span class="n">kick_pos_</span><span class="p">,</span> <span class="n">path</span><span class="o">=</span><span class="n">path_</span><span class="p">,</span> <span class="n">danger_zones</span><span class="o">=</span><span class="n">mapA</span><span class="o">.</span><span class="n">danger_zones</span><span class="p">)</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Jakub Andrlík, Pavel Jána, Štěpán Taláček.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
