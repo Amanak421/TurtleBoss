@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from geometry import Circle, Line, Point, Segment, intersection
 from rigidobject import RigidObject, RigidType
-from constants import MAX_OBJECTS, MIN_MATCHES
+from constants import MAX_OBJECTS, MIN_MATCHES, DISCRETE_INCREMENT
 from utils import ProcessError
 
 
@@ -355,7 +355,8 @@ class Map:
                     new_stop_candidates = intersection(
                         Circle(zone.c, 2 * zone.r -
                                zone.c.distance(chord_seg.midpoint)),
-                        diameter_line)
+                        diameter_line
+                    )
                     if np.isclose(*(p.distance(self.ball[0]) for p in
                                     new_stop_candidates)):
                         new_stop = min(new_stop_candidates,
@@ -363,6 +364,23 @@ class Map:
                     else:
                         new_stop = max(new_stop_candidates,
                                        key=lambda p: p.distance(self.ball[0]))
+
+
+                    while any(z.is_inner(new_stop) for z in dz):
+                        new_stop_candidates = intersection(
+                            Circle(zone.c, zone.c.distance(new_stop) +
+                                   DISCRETE_INCREMENT),
+                            Line(new_stop, zone.c)
+                        )
+                        if np.isclose(*(p.distance(self.ball[0]) for p in
+                                        new_stop_candidates)):
+                            new_stop = min(new_stop_candidates,
+                                           key=lambda p: p.distance(route[i]))
+                        else:
+                            new_stop = max(new_stop_candidates,
+                                           key=lambda p: p.distance(
+                                               self.ball[0]))
+
                     route.insert(i + 1, new_stop)
                     change = True
                     change_counter += 1
@@ -401,6 +419,7 @@ if __name__ == "__main__":
     ao(0, -0.32, 1)
     ao(0.4, 0, 2)
     ao(0.7, -0.4, 2)
+    ao(-0.4, 0.1, 3)
     kick_pos_ = mapA.determine_kick_pos(dist=0.7)
     path_ = mapA.routing(Point(0, 0), kick_pos_)
     print(*path_, sep="\n")
