@@ -11,6 +11,13 @@ class ColorMaskBounding:
     """Template for masking data: lower and upper bounds, color itself."""
 
     def __init__(self, lb: tuple, ub: tuple, c: ColorType) -> None:
+        """
+        Create ColorMaskBounding instance.
+
+        :param lb: lower boundary
+        :param ub: upper boundary
+        :param c: color
+        """
         (self.lb, self.ub, self.c) = (lb, ub, c)
 
 

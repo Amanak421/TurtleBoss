@@ -20,6 +20,13 @@ class Robot:
 
     def __init__(self, turtle: any, rate: any,
                  sleep_func: any = lambda _: None) -> None:
+        """
+        Create Robot instance.
+
+        :param turtle: turtle instance
+        :param rate: rate instance
+        :param sleep_func: sleep function
+        """
         self.robot_pos = BASE_POSITION
 
         self.kick_ball = False
