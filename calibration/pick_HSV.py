@@ -1,5 +1,8 @@
 """Module for calibration and debug of colors."""
 
+# This testing script was inspired by:
+# https://pastebin.com/MJfWmD6W
+
 
 import cv2
 import numpy as np
