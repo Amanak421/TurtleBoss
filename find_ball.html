@@ -19,7 +19,9 @@
       <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
-    <link rel="search" title="Search" href="search.html" /> 
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Constants" href="constants.html" />
+    <link rel="prev" title="Rigid Object" href="rigidobject.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -42,8 +44,25 @@
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="api.html">API Documentation</a></li>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="geometry.html">Geometry</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mapping.html">Mapping</a></li>
+<li class="toctree-l1"><a class="reference internal" href="robot.html">Robot</a></li>
+<li class="toctree-l1"><a class="reference internal" href="rigidobject.html">Rigid Object</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Find ball</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#find_ball.ColorMaskBounding"><code class="docutils literal notranslate"><span class="pre">ColorMaskBounding</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#find_ball.draw_circle"><code class="docutils literal notranslate"><span class="pre">draw_circle()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#find_ball.draw_rectangle"><code class="docutils literal notranslate"><span class="pre">draw_rectangle()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#find_ball.find_ball"><code class="docutils literal notranslate"><span class="pre">find_ball()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#find_ball.find_objects"><code class="docutils literal notranslate"><span class="pre">find_objects()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#find_ball.find_obstacles"><code class="docutils literal notranslate"><span class="pre">find_obstacles()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#find_ball.load_img"><code class="docutils literal notranslate"><span class="pre">load_img()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#find_ball.show_objects"><code class="docutils literal notranslate"><span class="pre">show_objects()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="constants.html">Constants</a></li>
+<li class="toctree-l1"><a class="reference internal" href="utils.html">Utils</a></li>
+<li class="toctree-l1"><a class="reference internal" href="kick_goal.html">Kick goal</a></li>
 </ul>
 
         </div>
@@ -75,7 +94,7 @@
 <p>Computer vision module based on cv2.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="find_ball.ColorMaskBounding">
-<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">find_ball.</span></span><span class="sig-name descname"><span class="pre">ColorMaskBounding</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lb</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tuple</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ub</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tuple</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">c</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="api.html#rigidobject.ColorType" title="rigidobject.ColorType"><span class="pre">ColorType</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#find_ball.ColorMaskBounding" title="Link to this definition"></a></dt>
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">find_ball.</span></span><span class="sig-name descname"><span class="pre">ColorMaskBounding</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lb</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tuple</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ub</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tuple</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">c</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="rigidobject.html#rigidobject.ColorType" title="rigidobject.ColorType"><span class="pre">ColorType</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#find_ball.ColorMaskBounding" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Template for masking data: lower and upper bounds, color itself.</p>
 </dd></dl>
@@ -102,7 +121,7 @@
 
 <dl class="py function">
 <dt class="sig sig-object py" id="find_ball.draw_rectangle">
-<span class="sig-prename descclassname"><span class="pre">find_ball.</span></span><span class="sig-name descname"><span class="pre">draw_rectangle</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rgb_img</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">obst</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="api.html#rigidobject.RigidObject" title="rigidobject.RigidObject"><span class="pre">RigidObject</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ndarray</span></span></span><a class="headerlink" href="#find_ball.draw_rectangle" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">find_ball.</span></span><span class="sig-name descname"><span class="pre">draw_rectangle</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rgb_img</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">obst</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="rigidobject.html#rigidobject.RigidObject" title="rigidobject.RigidObject"><span class="pre">RigidObject</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ndarray</span></span></span><a class="headerlink" href="#find_ball.draw_rectangle" title="Link to this definition"></a></dt>
 <dd><p>Add rectangle around obstacle obst to rgb_img.</p>
 <p>Used for visualization and testing purposes.</p>
 <dl class="field-list simple">
@@ -196,7 +215,10 @@
 
            </div>
           </div>
-          <footer>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="rigidobject.html" class="btn btn-neutral float-left" title="Rigid Object" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="constants.html" class="btn btn-neutral float-right" title="Constants" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
 
   <hr/>
 

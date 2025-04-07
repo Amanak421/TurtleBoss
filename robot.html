@@ -19,7 +19,9 @@
       <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
-    <link rel="search" title="Search" href="search.html" /> 
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Rigid Object" href="rigidobject.html" />
+    <link rel="prev" title="Mapping" href="mapping.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -42,8 +44,44 @@
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="api.html">API Documentation</a></li>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="geometry.html">Geometry</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mapping.html">Mapping</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Robot</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#robot.Robot"><code class="docutils literal notranslate"><span class="pre">Robot</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#robot.Robot.angle"><code class="docutils literal notranslate"><span class="pre">Robot.angle</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#robot.Robot.bumper_cb"><code class="docutils literal notranslate"><span class="pre">Robot.bumper_cb()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#robot.Robot.button_cb"><code class="docutils literal notranslate"><span class="pre">Robot.button_cb()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#robot.Robot.center_ball"><code class="docutils literal notranslate"><span class="pre">Robot.center_ball()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#robot.Robot.check_bumper"><code class="docutils literal notranslate"><span class="pre">Robot.check_bumper()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#robot.Robot.estimate_position"><code class="docutils literal notranslate"><span class="pre">Robot.estimate_position()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#robot.Robot.get_objects_from_camera"><code class="docutils literal notranslate"><span class="pre">Robot.get_objects_from_camera()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#robot.Robot.get_odometry_angle"><code class="docutils literal notranslate"><span class="pre">Robot.get_odometry_angle()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#robot.Robot.get_odometry_x"><code class="docutils literal notranslate"><span class="pre">Robot.get_odometry_x()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#robot.Robot.go"><code class="docutils literal notranslate"><span class="pre">Robot.go()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#robot.Robot.go_to"><code class="docutils literal notranslate"><span class="pre">Robot.go_to()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#robot.Robot.go_until"><code class="docutils literal notranslate"><span class="pre">Robot.go_until()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#robot.Robot.kick"><code class="docutils literal notranslate"><span class="pre">Robot.kick()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#robot.Robot.position"><code class="docutils literal notranslate"><span class="pre">Robot.position</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#robot.Robot.reset"><code class="docutils literal notranslate"><span class="pre">Robot.reset()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#robot.Robot.reset_odometry"><code class="docutils literal notranslate"><span class="pre">Robot.reset_odometry()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#robot.Robot.rotate"><code class="docutils literal notranslate"><span class="pre">Robot.rotate()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#robot.Robot.rotate_until"><code class="docutils literal notranslate"><span class="pre">Robot.rotate_until()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#robot.Robot.scan_environment"><code class="docutils literal notranslate"><span class="pre">Robot.scan_environment()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#robot.Robot.turn"><code class="docutils literal notranslate"><span class="pre">Robot.turn()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#robot.Robot.update_odometry_angular"><code class="docutils literal notranslate"><span class="pre">Robot.update_odometry_angular()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#robot.Robot.update_odometry_linear"><code class="docutils literal notranslate"><span class="pre">Robot.update_odometry_linear()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#robot.Robot.xy"><code class="docutils literal notranslate"><span class="pre">Robot.xy</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#robot.Robot.xya"><code class="docutils literal notranslate"><span class="pre">Robot.xya</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="rigidobject.html">Rigid Object</a></li>
+<li class="toctree-l1"><a class="reference internal" href="find_ball.html">Find ball</a></li>
+<li class="toctree-l1"><a class="reference internal" href="constants.html">Constants</a></li>
+<li class="toctree-l1"><a class="reference internal" href="utils.html">Utils</a></li>
+<li class="toctree-l1"><a class="reference internal" href="kick_goal.html">Kick goal</a></li>
 </ul>
 
         </div>
@@ -371,7 +409,10 @@
 
            </div>
           </div>
-          <footer>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="mapping.html" class="btn btn-neutral float-left" title="Mapping" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="rigidobject.html" class="btn btn-neutral float-right" title="Rigid Object" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
 
   <hr/>
 
