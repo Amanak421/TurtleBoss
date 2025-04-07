@@ -1,0 +1,66 @@
+TurtleBoss
+============
+
+
+.. image:: _static/Turtle_Boss.png
+   :width: 300px
+   :alt: Project Logo
+   :align: center
+
+
+This is the documentation for our team project for B3B33LAR. The goal of the assignment is to find a ball and two goal posts and score a goal between them. Assignment for the team project can be found `here <https://cw.fel.cvut.cz/wiki/courses/b3b33lar/tasks/scoregoal_cs>`_.
+
+
+Project report
+---------------
+Technical report for the project can be found here.
+
+
+Authors
+--------
+
+- **Jakub Andrlík** - *andrlja4@fel.cvut.cz*
+- **Pavel Jána** - *janapav1@fel.cvut.cz*
+- **Štěpán taláček** - *talacste@fel.cvut.cz*
+
+
+License
+-------
+
+This project is licensed under the MIT License – see the `LICENSE <https://github.com/Amanak421/TurtleBoss/blob/main/LICENSE>`_ file for details.
+
+
+Usage
+-----
+
+The program can be started by running following command in the terminal.
+
+
+.. code-block:: python
+
+
+  python3 kick_goal.py
+
+If any argument are added, the program will run in DEBUG mode.
+
+
+.. code-block:: python
+
+
+  python3 kick_goal.py DEBUG
+
+
+
+.. toctree::
+  :maxdepth: 2
+  :caption: Contents:
+
+
+  geometry
+  mapping
+  robot
+  rigidobject
+  find_ball
+  constants
+  utils
+  kick_goal

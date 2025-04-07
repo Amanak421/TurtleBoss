@@ -1,0 +1,7 @@
+Rigid Object
+=================
+
+.. automodule:: rigidobject
+  :members:
+  :undoc-members:
+  :show-inheritance:

@@ -1,0 +1,4 @@
+Kick goal
+=================
+
+Contains main program for the robot. This script should be executed.

@@ -1,0 +1,398 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Geometry &mdash; Turtleboss 1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+
+  
+    <link rel="shortcut icon" href="_static/favicon.ico"/>
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=f2a433a1"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Mapping" href="mapping.html" />
+    <link rel="prev" title="TurtleBoss" href="index.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            Turtleboss
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Geometry</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#geometry.Circle"><code class="docutils literal notranslate"><span class="pre">Circle</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#geometry.Circle.is_inner"><code class="docutils literal notranslate"><span class="pre">Circle.is_inner()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#geometry.Line"><code class="docutils literal notranslate"><span class="pre">Line</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#geometry.Line.direction_vector"><code class="docutils literal notranslate"><span class="pre">Line.direction_vector</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#geometry.Line.equation"><code class="docutils literal notranslate"><span class="pre">Line.equation</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#geometry.Line.is_element_of"><code class="docutils literal notranslate"><span class="pre">Line.is_element_of()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#geometry.Line.norm_vector"><code class="docutils literal notranslate"><span class="pre">Line.norm_vector</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#geometry.Point"><code class="docutils literal notranslate"><span class="pre">Point</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#geometry.Point.add_angle"><code class="docutils literal notranslate"><span class="pre">Point.add_angle()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#geometry.Point.cos"><code class="docutils literal notranslate"><span class="pre">Point.cos</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#geometry.Point.distance"><code class="docutils literal notranslate"><span class="pre">Point.distance()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#geometry.Point.homog_xy"><code class="docutils literal notranslate"><span class="pre">Point.homog_xy</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#geometry.Point.relative_angle"><code class="docutils literal notranslate"><span class="pre">Point.relative_angle()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#geometry.Point.sin"><code class="docutils literal notranslate"><span class="pre">Point.sin</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#geometry.Point.xy"><code class="docutils literal notranslate"><span class="pre">Point.xy</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#geometry.Point.xya"><code class="docutils literal notranslate"><span class="pre">Point.xya</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#geometry.Segment"><code class="docutils literal notranslate"><span class="pre">Segment</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#geometry.Segment.is_element_of"><code class="docutils literal notranslate"><span class="pre">Segment.is_element_of()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#geometry.Segment.midpoint"><code class="docutils literal notranslate"><span class="pre">Segment.midpoint</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#geometry.intersection"><code class="docutils literal notranslate"><span class="pre">intersection()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#geometry.normalize_angle"><code class="docutils literal notranslate"><span class="pre">normalize_angle()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="mapping.html">Mapping</a></li>
+<li class="toctree-l1"><a class="reference internal" href="robot.html">Robot</a></li>
+<li class="toctree-l1"><a class="reference internal" href="rigidobject.html">Rigid Object</a></li>
+<li class="toctree-l1"><a class="reference internal" href="find_ball.html">Find ball</a></li>
+<li class="toctree-l1"><a class="reference internal" href="constants.html">Constants</a></li>
+<li class="toctree-l1"><a class="reference internal" href="utils.html">Utils</a></li>
+<li class="toctree-l1"><a class="reference internal" href="kick_goal.html">Kick goal</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Turtleboss</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Geometry</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/geometry.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-geometry">
+<span id="geometry"></span><h1>Geometry<a class="headerlink" href="#module-geometry" title="Link to this heading"></a></h1>
+<p>Geometry module with Point, Line and Segment.</p>
+<p>Used primarily in mapping.py.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="geometry.Circle">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">geometry.</span></span><span class="sig-name descname"><span class="pre">Circle</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">c</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#geometry.Point" title="geometry.Point"><span class="pre">Point</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">r</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#geometry.Circle" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Circle object defined by a center point c and radius r.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="geometry.Circle.is_inner">
+<span class="sig-name descname"><span class="pre">is_inner</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">point</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#geometry.Point" title="geometry.Point"><span class="pre">Point</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#geometry.Circle.is_inner" title="Link to this definition"></a></dt>
+<dd><p>Decide whether a given point lies in the inner part of the Circle.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>point</strong> – reference point</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>boolean determining whether the point is in the Circle</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="geometry.Line">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">geometry.</span></span><span class="sig-name descname"><span class="pre">Line</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">a</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#geometry.Point" title="geometry.Point"><span class="pre">Point</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">b</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#geometry.Point" title="geometry.Point"><span class="pre">Point</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#geometry.Line" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Line object defined by two points a and b.</p>
+<dl class="py property">
+<dt class="sig sig-object py" id="geometry.Line.direction_vector">
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">direction_vector</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#geometry.Point" title="geometry.Point"><span class="pre">Point</span></a></em><a class="headerlink" href="#geometry.Line.direction_vector" title="Link to this definition"></a></dt>
+<dd><p>Vector get with b - a.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>direction vector</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="geometry.Line.equation">
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">equation</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ndarray</span></em><a class="headerlink" href="#geometry.Line.equation" title="Link to this definition"></a></dt>
+<dd><p>Algebraic equation of the Line in form ax + bx = c.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>(a, b, c)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="geometry.Line.is_element_of">
+<span class="sig-name descname"><span class="pre">is_element_of</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">point</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#geometry.Point" title="geometry.Point"><span class="pre">Point</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">atol</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1e-09</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#geometry.Line.is_element_of" title="Link to this definition"></a></dt>
+<dd><p>Decide whether a given point lies on the Line.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>point</strong> – reference point</p></li>
+<li><p><strong>atol</strong> – arithmetic tolerance, default 1e-9</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>boolean determining whether the point is on the Line</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="geometry.Line.norm_vector">
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">norm_vector</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#geometry.Point" title="geometry.Point"><span class="pre">Point</span></a></em><a class="headerlink" href="#geometry.Line.norm_vector" title="Link to this definition"></a></dt>
+<dd><p>Vector perpendicular to directional vector.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>normal vector</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="geometry.Point">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">geometry.</span></span><span class="sig-name descname"><span class="pre">Point</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">angle</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#geometry.Point" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Vector representing a location of a certain point.</p>
+<p>Implemented basic arithmetic operations.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="geometry.Point.add_angle">
+<span class="sig-name descname"><span class="pre">add_angle</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">angle</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#geometry.Point.add_angle" title="Link to this definition"></a></dt>
+<dd><p>Update angle by adding another one.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>angle</strong> – angle to add</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="geometry.Point.cos">
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">cos</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ndarray</span></em><a class="headerlink" href="#geometry.Point.cos" title="Link to this definition"></a></dt>
+<dd><p>Get cos of the point angle.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>cos of angle</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="geometry.Point.distance">
+<span class="sig-name descname"><span class="pre">distance</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">point</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#geometry.Point" title="geometry.Point"><span class="pre">Point</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#geometry.Point.distance" title="Link to this definition"></a></dt>
+<dd><p>Based on pythagorean theorem, calculate distance from a point.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>point</strong> – target point</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>distance from the point</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="geometry.Point.homog_xy">
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">homog_xy</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ndarray</span></em><a class="headerlink" href="#geometry.Point.homog_xy" title="Link to this definition"></a></dt>
+<dd><p>Homogenize (x, y) -&gt; (x, y, 1).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>homogenous coordinates</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="geometry.Point.relative_angle">
+<span class="sig-name descname"><span class="pre">relative_angle</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">point</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#geometry.Point" title="geometry.Point"><span class="pre">Point</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ndarray</span></span></span><a class="headerlink" href="#geometry.Point.relative_angle" title="Link to this definition"></a></dt>
+<dd><p>Compute angle of connecting line.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>point</strong> – reference point</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>angle in the range (-π, π]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="geometry.Point.sin">
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">sin</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ndarray</span></em><a class="headerlink" href="#geometry.Point.sin" title="Link to this definition"></a></dt>
+<dd><p>Get sin of the point angle.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>sin of angle</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="geometry.Point.xy">
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">xy</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ndarray</span></em><a class="headerlink" href="#geometry.Point.xy" title="Link to this definition"></a></dt>
+<dd><p>Get position of the point.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>x, y coordinates</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="geometry.Point.xya">
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">xya</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ndarray</span></em><a class="headerlink" href="#geometry.Point.xya" title="Link to this definition"></a></dt>
+<dd><p>Get position of the point.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>x, y coordinates and angle</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="geometry.Segment">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">geometry.</span></span><span class="sig-name descname"><span class="pre">Segment</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">a</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#geometry.Point" title="geometry.Point"><span class="pre">Point</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">b</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#geometry.Point" title="geometry.Point"><span class="pre">Point</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#geometry.Segment" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#geometry.Line" title="geometry.Line"><code class="xref py py-class docutils literal notranslate"><span class="pre">Line</span></code></a></p>
+<p>Line, except it is adjusted to fit general geometric properties.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="geometry.Segment.is_element_of">
+<span class="sig-name descname"><span class="pre">is_element_of</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">point</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#geometry.Point" title="geometry.Point"><span class="pre">Point</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">atol</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1e-09</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#geometry.Segment.is_element_of" title="Link to this definition"></a></dt>
+<dd><p>Decide whether a given point lies on the Segment.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>point</strong> – reference point</p></li>
+<li><p><strong>atol</strong> – arithmetic tolerance, default 1e-9</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>boolean determining whether the point is on the Segment</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="geometry.Segment.midpoint">
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">midpoint</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#geometry.Point" title="geometry.Point"><span class="pre">Point</span></a></em><a class="headerlink" href="#geometry.Segment.midpoint" title="Link to this definition"></a></dt>
+<dd><p>Compute a point in between a and b.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>midpoint</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="geometry.intersection">
+<span class="sig-prename descclassname"><span class="pre">geometry.</span></span><span class="sig-name descname"><span class="pre">intersection</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">circle</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#geometry.Circle" title="geometry.Circle"><span class="pre">Circle</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">linear</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#geometry.Line" title="geometry.Line"><span class="pre">Line</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="#geometry.Segment" title="geometry.Segment"><span class="pre">Segment</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span></span></span><a class="headerlink" href="#geometry.intersection" title="Link to this definition"></a></dt>
+<dd><p>Calculate intersects.</p>
+<p>Algorithm based on:
+<a class="reference external" href="https://mathworld.wolfram.com/Circle-LineIntersection.html">https://mathworld.wolfram.com/Circle-LineIntersection.html</a></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>circle</strong> – reference Circle</p></li>
+<li><p><strong>linear</strong> – reference Line or Segment</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>list of intersects</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="geometry.normalize_angle">
+<span class="sig-prename descclassname"><span class="pre">geometry.</span></span><span class="sig-name descname"><span class="pre">normalize_angle</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">angle</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#geometry.normalize_angle" title="Link to this definition"></a></dt>
+<dd><p>Normalize given angle in radians to the range (-π, π].</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>angle</strong> – angle to normalize</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>normalized angle</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="index.html" class="btn btn-neutral float-left" title="TurtleBoss" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="mapping.html" class="btn btn-neutral float-right" title="Mapping" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Jakub Andrlík, Pavel Jána, Štěpán Taláček.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

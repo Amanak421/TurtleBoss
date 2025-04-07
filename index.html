@@ -1,0 +1,193 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TurtleBoss &mdash; Turtleboss 1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+
+  
+    <link rel="shortcut icon" href="_static/favicon.ico"/>
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=f2a433a1"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Geometry" href="geometry.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="#" class="icon icon-home">
+            Turtleboss
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="geometry.html">Geometry</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mapping.html">Mapping</a></li>
+<li class="toctree-l1"><a class="reference internal" href="robot.html">Robot</a></li>
+<li class="toctree-l1"><a class="reference internal" href="rigidobject.html">Rigid Object</a></li>
+<li class="toctree-l1"><a class="reference internal" href="find_ball.html">Find ball</a></li>
+<li class="toctree-l1"><a class="reference internal" href="constants.html">Constants</a></li>
+<li class="toctree-l1"><a class="reference internal" href="utils.html">Utils</a></li>
+<li class="toctree-l1"><a class="reference internal" href="kick_goal.html">Kick goal</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="#">Turtleboss</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="#" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">TurtleBoss</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/index.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="turtleboss">
+<h1>TurtleBoss<a class="headerlink" href="#turtleboss" title="Link to this heading"></a></h1>
+<a class="reference internal image-reference" href="_images/Turtle_Boss.png"><img alt="Project Logo" class="align-center" src="_images/Turtle_Boss.png" style="width: 300px;" />
+</a>
+<p>This is the documentation for our team project for B3B33LAR. The goal of the assignment is to find a ball and two goal posts and score a goal between them. Assignment for the team project can be found <a class="reference external" href="https://cw.fel.cvut.cz/wiki/courses/b3b33lar/tasks/scoregoal_cs">here</a>.</p>
+<section id="project-report">
+<h2>Project report<a class="headerlink" href="#project-report" title="Link to this heading"></a></h2>
+<p>Technical report for the project can be found here.</p>
+</section>
+<section id="authors">
+<h2>Authors<a class="headerlink" href="#authors" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p><strong>Jakub Andrlík</strong> - <em>andrlja4&#64;fel.cvut.cz</em></p></li>
+<li><p><strong>Pavel Jána</strong> - <em>janapav1&#64;fel.cvut.cz</em></p></li>
+<li><p><strong>Štěpán taláček</strong> - <em>talacste&#64;fel.cvut.cz</em></p></li>
+</ul>
+</section>
+<section id="license">
+<h2>License<a class="headerlink" href="#license" title="Link to this heading"></a></h2>
+<p>This project is licensed under the MIT License – see the <a class="reference external" href="https://github.com/Amanak421/TurtleBoss/blob/main/LICENSE">LICENSE</a> file for details.</p>
+</section>
+<section id="usage">
+<h2>Usage<a class="headerlink" href="#usage" title="Link to this heading"></a></h2>
+<p>The program can be started by running following command in the terminal.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">python3</span> <span class="n">kick_goal</span><span class="o">.</span><span class="n">py</span>
+</pre></div>
+</div>
+<p>If any argument are added, the program will run in DEBUG mode.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">python3</span> <span class="n">kick_goal</span><span class="o">.</span><span class="n">py</span> <span class="n">DEBUG</span>
+</pre></div>
+</div>
+<div class="toctree-wrapper compound">
+<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="geometry.html">Geometry</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="geometry.html#geometry.Circle"><code class="docutils literal notranslate"><span class="pre">Circle</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="geometry.html#geometry.Line"><code class="docutils literal notranslate"><span class="pre">Line</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="geometry.html#geometry.Point"><code class="docutils literal notranslate"><span class="pre">Point</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="geometry.html#geometry.Segment"><code class="docutils literal notranslate"><span class="pre">Segment</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="geometry.html#geometry.intersection"><code class="docutils literal notranslate"><span class="pre">intersection()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="geometry.html#geometry.normalize_angle"><code class="docutils literal notranslate"><span class="pre">normalize_angle()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="mapping.html">Mapping</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="mapping.html#mapping.Map"><code class="docutils literal notranslate"><span class="pre">Map</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="mapping.html#mapping.average"><code class="docutils literal notranslate"><span class="pre">average()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="mapping.html#mapping.has_all"><code class="docutils literal notranslate"><span class="pre">has_all()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="mapping.html#mapping.transform"><code class="docutils literal notranslate"><span class="pre">transform()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="robot.html">Robot</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="robot.html#robot.Robot"><code class="docutils literal notranslate"><span class="pre">Robot</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="rigidobject.html">Rigid Object</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="rigidobject.html#rigidobject.ColorType"><code class="docutils literal notranslate"><span class="pre">ColorType</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="rigidobject.html#rigidobject.RigidObject"><code class="docutils literal notranslate"><span class="pre">RigidObject</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="rigidobject.html#rigidobject.RigidType"><code class="docutils literal notranslate"><span class="pre">RigidType</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="find_ball.html">Find ball</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="find_ball.html#find_ball.ColorMaskBounding"><code class="docutils literal notranslate"><span class="pre">ColorMaskBounding</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="find_ball.html#find_ball.draw_circle"><code class="docutils literal notranslate"><span class="pre">draw_circle()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="find_ball.html#find_ball.draw_rectangle"><code class="docutils literal notranslate"><span class="pre">draw_rectangle()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="find_ball.html#find_ball.find_ball"><code class="docutils literal notranslate"><span class="pre">find_ball()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="find_ball.html#find_ball.find_objects"><code class="docutils literal notranslate"><span class="pre">find_objects()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="find_ball.html#find_ball.find_obstacles"><code class="docutils literal notranslate"><span class="pre">find_obstacles()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="find_ball.html#find_ball.load_img"><code class="docutils literal notranslate"><span class="pre">load_img()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="find_ball.html#find_ball.show_objects"><code class="docutils literal notranslate"><span class="pre">show_objects()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="constants.html">Constants</a></li>
+<li class="toctree-l1"><a class="reference internal" href="utils.html">Utils</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="utils.html#utils.ProcessError"><code class="docutils literal notranslate"><span class="pre">ProcessError</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="kick_goal.html">Kick goal</a></li>
+</ul>
+</div>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="geometry.html" class="btn btn-neutral float-right" title="Geometry" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Jakub Andrlík, Pavel Jána, Štěpán Taláček.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
