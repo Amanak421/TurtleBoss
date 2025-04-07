@@ -25,3 +25,4 @@ ANGULAR_KD = 0.5  # 0.3
 # mapping.py
 MAX_OBJECTS = {RigidType.POLE: 2, RigidType.BALL: 1}
 MIN_MATCHES = 2
+DISCRETE_INCREMENT = 0.1
