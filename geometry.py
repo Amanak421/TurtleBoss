@@ -1,5 +1,7 @@
 """
-Geometry module with Point, Line and Segment. Used primarily in mapping.py.
+Geometry module with Point, Line and Segment.
+
+Used primarily in mapping.py.
 """
 
 
@@ -9,7 +11,8 @@ import numpy as np
 
 def normalize_angle(angle: float) -> float:
     """
-    Normalizes given angle in radians to the range (-π, π]
+    Normalize given angle in radians to the range (-π, π].
+
     :param angle: angle to normalize
     :return: normalized angle
     """
@@ -19,47 +22,53 @@ def normalize_angle(angle: float) -> float:
 class Point:
     """
     Vector representing a location of a certain point.
+
     Implemented basic arithmetic operations.
     """
-    def __init__(self, x, y, angle=0):
+
+    def __init__(self, x: float, y: float, angle: float = 0) -> None:
         self.x = x
         self.y = y
         self.angle = angle
 
     def __repr__(self) -> str:
+        """Return string representation of object."""
         return f"({self.x}, {self.y}, {self.angle})"
 
     def __str__(self) -> str:
+        """Return string representation of object."""
         return self.__repr__()
 
-    def __add__(self, point):
+    def __add__(self, point: 'Point') -> 'Point':
         return Point(self.x + point.x, self.y + point.y, self.angle)
 
-    def __sub__(self, point):
+    def __sub__(self, point: 'Point') -> 'Point':
         return Point(self.x - point.x, self.y - point.y, self.angle)
 
-    def __mul__(self, factor):
+    def __mul__(self, factor: float) -> ('Point' | NotImplementedError):
         if isinstance(factor, int):
             return Point(self.x * factor, self.y * factor, self.angle)
         else:
             return NotImplemented
 
-    def __rmul__(self, factor):
+    def __rmul__(self, factor: float) -> ('Point' | NotImplementedError):
         return self.__mul__(factor)
 
-    def __truediv__(self, divisor):
+    def __truediv__(self, divisor: float) -> ('Point' | NotImplementedError):
         # Prevent division by zero
         if isinstance(divisor, (int, float)) and divisor != 0:
             return Point(self.x / divisor, self.y / divisor, self.angle)
         else:
             return NotImplemented
 
-    def __rtruediv__(self, divisor: int):
+    def __rtruediv__(self, divisor: int) -> NotImplementedError:
         return NotImplemented
 
     @property
     def xya(self) -> np.ndarray:
         """
+        Get position of the point.
+
         :return: x, y coordinates and angle
         """
         return np.array((self.x, self.y, self.angle))
@@ -67,6 +76,8 @@ class Point:
     @property
     def xy(self) -> np.ndarray:
         """
+        Get position of the point.
+
         :return: x, y coordinates
         """
         return np.array((self.x, self.y))
@@ -74,6 +85,8 @@ class Point:
     @property
     def sin(self) -> np.ndarray:
         """
+        Get sin of the point angle.
+
         :return: sin of angle
         """
         return np.sin(self.angle)
@@ -81,6 +94,8 @@ class Point:
     @property
     def cos(self) -> np.ndarray:
         """
+        Get cos of the point angle.
+
         :return: cos of angle
         """
         return np.cos(self.angle)
@@ -89,28 +104,32 @@ class Point:
     def homog_xy(self) -> np.ndarray:
         """
         Homogenize (x, y) -> (x, y, 1).
+
         :return: homogenous coordinates
         """
         return np.array((self.x, self.y, 1))
 
-    def add_angle(self, angle) -> None:
+    def add_angle(self, angle: float) -> None:
         """
         Update angle by adding another one.
+
         :param angle: angle to add
         """
         self.angle = normalize_angle(self.angle + angle)
 
-    def distance(self, point) -> float:
+    def distance(self, point: 'Point') -> float:
         """
-        Based on pythagorean theorem, calculate distance from a point
+        Based on pythagorean theorem, calculate distance from a point.
+
         :param point: target point
         :return: distance from the point
         """
         return np.sqrt(np.sum(np.power(self.xy - point.xy, 2)))
 
-    def relative_angle(self, point) -> np.ndarray:
+    def relative_angle(self, point: 'Point') -> np.ndarray:
         """
         Compute angle of connecting line.
+
         :param point: reference point
         :return: angle in the range (-π, π]
         """
@@ -118,16 +137,16 @@ class Point:
 
 
 class Line:
-    """
-    Line object defined by two points a and b.
-    """
-    def __init__(self, a: Point, b: Point):
+    """Line object defined by two points a and b."""
+
+    def __init__(self, a: Point, b: Point) -> None:
         self.a, self.b = a, b
 
     @property
     def direction_vector(self) -> Point:
         """
-        Vector get with b - a
+        Vector get with b - a.
+
         :return: direction vector
         """
         return self.b - self.a
@@ -136,6 +155,7 @@ class Line:
     def norm_vector(self) -> Point:
         """
         Vector perpendicular to directional vector.
+
         :return: normal vector
         """
         dv = self.direction_vector
@@ -144,7 +164,8 @@ class Line:
     @property
     def equation(self) -> np.ndarray:
         """
-        Algebraic equation of the Line in form ax + bx = c
+        Algebraic equation of the Line in form ax + bx = c.
+
         :return: (a, b, c)
         """
         nv = self.norm_vector
@@ -154,34 +175,36 @@ class Line:
     def is_element_of(self, point: Point, atol: float = 1e-9) -> bool:
         """
         Decide whether a given point lies on the Line.
+
         :param point: reference point
         :param atol: arithmetic tolerance, default 1e-9
         :return: boolean determining whether the point is on the Line
         """
-        cross_product = ((point.y - self.a.y) * (self.b.x - self.a.x)
-                         - (self.b.y - self.a.y) * (point.x - self.a.x))
+        cross_product = ((point.y - self.a.y) * (self.b.x - self.a.x) -
+                         (self.b.y - self.a.y) * (point.x - self.a.x))
         collinear = cross_product < atol
         return collinear
 
 
 class Segment(Line):
-    """
-    Line, except is_element_of is adjusted to fit general geometric properties.
-    """
-    def __init__(self, a: Point, b: Point):
+    """Line, except is_element_of is adjusted to fit general geometric properties."""
+
+    def __init__(self, a: Point, b: Point) -> None:
         super().__init__(a, b)
 
     @property
     def midpoint(self) -> Point:
         """
         Compute a point in between a and b.
+
         :return: midpoint
         """
         return (self.a + self.b) / 2
 
-    def is_element_of(self, point: Point, atol=1e-9) -> bool:
+    def is_element_of(self, point: Point, atol: float = 1e-9) -> bool:
         """
         Decide whether a given point lies on the Segment.
+
         :param point: reference point
         :param atol: arithmetic tolerance, default 1e-9
         :return: boolean determining whether the point is on the Segment
@@ -194,15 +217,15 @@ class Segment(Line):
 
 
 class Circle:
-    """
-    Circle object defined by a center point c and radius r.
-    """
-    def __init__(self, c: Point, r: float):
+    """Circle object defined by a center point c and radius r."""
+
+    def __init__(self, c: Point, r: float) -> None:
         self.c, self.r = c, r
 
     def is_inner(self, point: Point) -> bool:
         """
         Decide whether a given point lies in the inner part of the Circle.
+
         :param point: reference point
         :return: boolean determining whether the point is in the Circle
         """
@@ -212,8 +235,10 @@ class Circle:
 
 def intersection(circle: Circle, linear: Union[Line, Segment]) -> list:
     """
-    Com
+    Com.
+    
     https://mathworld.wolfram.com/Circle-LineIntersection.html
+
     :param circle: reference Circle
     :param linear: reference Line or Segment
     :return: list of intersects

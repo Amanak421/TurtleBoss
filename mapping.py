@@ -1,20 +1,19 @@
-"""
-Module to keep, process, evaluate and plan navigational data during a cruise.
-"""
+"""Module to keep, process, evaluate and plan navigational data during a move."""
 
 
-import numpy as np
 import matplotlib.patches as patches
 import matplotlib.pyplot as plt
-from geometry import Point, Circle, Line, Segment, intersection
+import numpy as np
+from geometry import Circle, Line, Point, Segment, intersection
 from rigidobject import RigidObject, RigidType
-from utils import ProcessError
 from constants import MAX_OBJECTS, MIN_MATCHES
+from utils import ProcessError
 
 
 def average(object_a: RigidObject, object_b: RigidObject) -> Point:
     """
-    Get an averagely estimated RigidObject from among two RigidObjects
+    Get an averagely estimated RigidObject from among two RigidObjects.
+
     :param object_a: first reference RigidObject
     :param object_b: second reference RigidObject
     :return: RigidObject estimate
@@ -27,6 +26,7 @@ def transform(position: Point,
               debug_info: bool = False) -> Point:
     """
     Transform a vector to another system with different base.
+
     :param position: vector to transform
     :param base_pos: default system
     :param debug_info: boolean for debug
@@ -47,6 +47,7 @@ def transform(position: Point,
 def has_all(all_objects: list) -> bool:
     """
     Decide whether all known object all_objects contain 2 poles and 1 ball.
+
     :param all_objects: list with all known objects
     :return: boolean
     """
@@ -67,41 +68,48 @@ def has_all(all_objects: list) -> bool:
 
 
 class Map:
-    """
-    Object for keeping known objects and processing them.
-    """
-    def __init__(self, threshold: float = 0.2):
+    """Object for keeping known objects and processing them."""
+
+    def __init__(self, threshold: float = 0.2) -> None:
+        """Set up a Map instance."""
         self.objects = []
         self.threshold = threshold
 
     @property
-    def poles(self, debug_info: bool = False):
+    def poles(self, debug_info: bool = False) -> list:
         """
+        Gets merged positions of poles in one list sorted by merge counter.
+
         :param debug_info: boolean for debug
         :return: merged all known objects of type POLE
         """
-        return self.merge_objects(debug_info)[0][RigidType.POLE]
+        return self.merge_objects(debug_info=debug_info)[0][RigidType.POLE]
 
     @property
-    def ball(self, debug_info: bool = False):
+    def ball(self, debug_info: bool = False) -> list:
         """
+        Gets merged positions of balls in one list sorted by merge counter.
+
         :param debug_info: boolean for debug
         :return: merged all known objects of type BALL
         """
-        return self.merge_objects(debug_info)[0][RigidType.BALL]
+        return self.merge_objects(debug_info=debug_info)[0][RigidType.BALL]
 
     @property
-    def obstacles(self, debug_info: bool = False):
+    def obstacles(self, debug_info: bool = False) -> list:
         """
+        Gets merged positions of obstacles in one list sorted by merge counter.
+
         :param debug_info: boolean for debug
         :return: merged all known objects of type OBST
         """
-        return self.merge_objects(debug_info)[0][RigidType.OBST]
+        return self.merge_objects(debug_info=debug_info)[0][RigidType.OBST]
 
     @property
     def danger_zones(self) -> list:
         """
         Zones that the center of robot should not cross to prevent collisions.
+
         :return: list of danger zones
         """
         obj_dict, _ = self.merge_objects()
@@ -118,6 +126,7 @@ class Map:
     def has_all(self) -> bool:
         """
         Decide whether all known object all_objects contain 2 poles and 1 ball.
+
         :return: boolean
         """
         obj_dict, counter = self.merge_objects()
@@ -133,15 +142,14 @@ class Map:
             return False
 
     def reset(self) -> None:
-        """
-        Set all known object to blank list.
-        """
+        """Set all known object to blank list."""
         self.objects = []
 
     def add_object(self, object_a: RigidObject,
-                   robot_pos: Point, debug_info: bool = False):
+                   robot_pos: Point, debug_info: bool = False) -> None:
         """
-        Introduce a new object to all known objects
+        Introduce a new object to all known objects.
+
         :param object_a: the new object
         :param robot_pos: robot position
         :param debug_info: boolean for debug
@@ -158,6 +166,7 @@ class Map:
     def is_max_reached(o_type: RigidType, count: dict) -> bool:
         """
         Decide whether count is equal or more than requested objects.
+
         :param o_type: reference object type
         :param count: count of known type of reference objects
         :return: boolean
@@ -177,6 +186,7 @@ class Map:
              debug_info: bool = False) -> None:
         """
         Visual representation of all known objects.
+
         :param show_all: show detected objects before merging
         :param show_merged: show detected objects after merging
         :param robot_pos: robot position
@@ -224,10 +234,10 @@ class Map:
             # compute differences
             x_diff = np.diff(points_x)
             y_diff = np.diff(points_y)
-            pos_x = points_x[:-1] + x_diff/2
-            pos_y = points_y[:-1] + y_diff/2
-            norm = np.sqrt(x_diff**2+y_diff**2)
-            ax.quiver(pos_x, pos_y, x_diff/norm, y_diff/norm,
+            pos_x = points_x[:-1] + x_diff / 2
+            pos_y = points_y[:-1] + y_diff / 2
+            norm = np.sqrt(x_diff**2 + y_diff**2)
+            ax.quiver(pos_x, pos_y, x_diff / norm, y_diff / norm,
                       angles="xy", zorder=5, pivot="mid")
         if danger_zones is not None:
             for zone in danger_zones:
@@ -246,9 +256,10 @@ class Map:
         plt.axvline(0, color='black', linewidth=1, linestyle='--')
         plt.show()
 
-    def merge_objects(self, debug_info: bool = False):
+    def merge_objects(self, debug_info: bool = False) -> tuple:
         """
         Reduce duplicates of objects to their respective most probable amount.
+
         :param debug_info: boolean for debug
         :return: most probable objects and their amounts of sources
         """
@@ -293,6 +304,7 @@ class Map:
     def determine_kick_pos(self, dist: float = 1) -> Point:
         """
         Calculate Kick position.
+
         :param dist: requested distance from ball, default = 1 m
         :return: Kick position
         """
@@ -315,8 +327,8 @@ class Map:
 
     def routing(self, s_pos: Point, f_pos: Point) -> list:
         """
-        Algorithm for avoiding objects (precisely their respective danger
-        zones).
+        Algorithm for avoiding objects (precisely their respective danger zones).
+
         :param s_pos: starting position
         :param f_pos: finish position
         :return: list of positions along the route
@@ -364,10 +376,8 @@ class Map:
 if __name__ == "__main__":
     mapA = Map()
 
-    def ao(x, y, t):
-        """
-        add object, testing function
-        """
+    def ao(x: float, y: float, t: int) -> None:
+        """Add object, testing function."""
         obj = RigidObject(0, 0, 0, 0, RigidType(t))
         obj.set_position(Point(x, y))
         mapA.add_object(obj, Point(0, 0))

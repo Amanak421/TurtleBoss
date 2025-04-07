@@ -1,12 +1,11 @@
-"""
-File combining all implemented features in order to complete challenge no. 2.
-"""
+"""File combining all implemented features in order to complete challenge no. 2."""
 
 
-from robolab_turtlebot import Turtlebot, sleep, Rate
-from mapping import Map
-from robot import Robot
 import sys
+
+from mapping import Map
+from robolab_turtlebot import Rate, Turtlebot, sleep
+from robot import Robot
 
 
 if len(sys.argv) > 1:

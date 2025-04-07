@@ -1,9 +1,8 @@
-"""
-Robot control module.
-"""
+"""Robot control module."""
 
 
 import sys
+
 import numpy as np
 from geometry import Point, normalize_angle
 import find_ball
@@ -17,10 +16,10 @@ from constants import (LINEAR_CORRECTION, ANGULAR_CORRECTION, POSITION_NAMES,
 
 
 class Robot:
-    """
-    Robot object.
-    """
-    def __init__(self, turtle, rate, sleep_func=lambda _: None):
+    """Robot object."""
+
+    def __init__(self, turtle: any, rate: any,
+                 sleep_func: any = lambda _: None) -> None:
         self.robot_pos = BASE_POSITION
 
         self.kick_ball = False
@@ -35,64 +34,68 @@ class Robot:
         turtle.register_bumper_event_cb(self.bumper_cb)
         turtle.register_button_event_cb(self.button_cb)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
+        """Return string representation of object."""
         return (f"X: {self.robot_pos.x}, Y: {self.robot_pos.y}, "
                 f"ANGLE: {self.angle}\t")
 
-    def __str__(self):
+    def __str__(self) -> str:
+        """Return string representation of object."""
         return self.__repr__()
 
     @property
     def position(self) -> Point:
         """
-        :return: Position of the robot.
+        Get position of the robot.
+
+        :return: Position of the robot
         """
         return self.robot_pos
 
     @property
-    def xya(self):
+    def xya(self) -> np.ndarray:
         """
+        Get position of the robot.
+
         :return: x, y coordinates and angle
         """
         return self.robot_pos.xya
 
     @property
-    def xy(self):
+    def xy(self) -> np.ndarray:
         """
+        Get position of the robot.
+
         :return: x, y coordinates
         """
         return self.robot_pos.xy
 
     @property
-    def angle(self):
+    def angle(self) -> float:
         """
+        Get the angle of the robot.
+
         :return: angle (rotation from base position)
         """
         return self.robot_pos.angle
 
-    def bumper_cb(self, msg):
-        """
-        Bumper callback.
-        """
+    def bumper_cb(self, msg: any) -> None:
+        """Bumper callback."""
         bumper = POSITION_NAMES[msg.bumper]
         state = STATE_NAMES[msg.state]
         print(f"{bumper} bumper {state}")
         print("Bumped! -> Emergency stop!")
         self.bumped = True
 
-    def button_cb(self, msg) -> None:
-        """
-        Button callback.
-        """
+    def button_cb(self, msg: any) -> None:
+        """Button callback."""
         button = POSITION_NAMES[msg.button]
         state = STATE_NAMES[msg.state]
         print(f"{button} button {state}")
         self.button = True
 
-    def check_bumper(self):
-        """
-        Stop the robot (and its program) if bumped.
-        """
+    def check_bumper(self) -> None:
+        """Stop the robot (and its program) if bumped."""
         if self.bumped and self.kick_ball:
             self.turtle.cmd_velocity()
             self.sleep_func(2)
@@ -103,31 +106,29 @@ class Robot:
             sys.exit(66)
 
     def reset(self) -> None:
-        """
-        Data reset.
-        """
+        """Reset data."""
         self.robot_pos = BASE_POSITION
         self.turtle.reset_odometry()
         self.turtle.wait_for_odometry()
 
     def reset_odometry(self) -> None:
-        """
-        Odometry reset.
-        """
+        """Odometry reset."""
         self.turtle.reset_odometry()
         self.turtle.wait_for_odometry()
 
-    def update_odometry_linear(self, x) -> None:
+    def update_odometry_linear(self, x: float) -> None:
         """
         Call this after going forward (or backward) to update internal data.
+
         :param x: movement difference
         """
         self.robot_pos = self.robot_pos + Point(x * self.robot_pos.cos,
                                                 x * self.robot_pos.sin)
 
-    def update_odometry_angular(self, angle) -> None:
+    def update_odometry_angular(self, angle: float) -> None:
         """
         Call this after rotating to update internal data.
+
         :param angle: rotation difference
         """
         self.robot_pos.add_angle(angle)
@@ -135,6 +136,7 @@ class Robot:
     def get_odometry_angle(self, use_correction: bool = True) -> float:
         """
         Angle getter.
+
         :param use_correction: boolean for using predefined correction
         :return: angle
         """
@@ -146,6 +148,7 @@ class Robot:
     def get_odometry_x(self, use_correction: bool = True) -> float:
         """
         Directional move getter.
+
         :param use_correction: boolean for using predefined correction
         :return: x move
         """
@@ -157,6 +160,7 @@ class Robot:
     def estimate_position(self) -> Point:
         """
         Estimate position with available odometry data.
+
         :return: newly estimated position
         """
         x, _, angle = self.turtle.get_odometry()
@@ -167,13 +171,14 @@ class Robot:
 
     def go(self,
            length: float,
-           set_speed=None,
+           set_speed: float = None,
            stop: bool = True,
            simulate: bool = False,
            use_correction: bool = True,
            debug_info: bool = False) -> None:
         """
         Directional move with PD regulator.
+
         :param length: directional move length
         :param set_speed: desired speed
         :param stop: boolean for hard brake (True) or soft stop (False)
@@ -224,18 +229,20 @@ class Robot:
             print("UPDATING ODOMETRY BY DISTANCE: ", real_distance)
         self.update_odometry_linear(real_distance)
 
-    def go_until(self, speed=0.3) -> None:
+    def go_until(self, speed: float = 0.3) -> None:
         """
-        No stoppin' now! (well, except for bumping...)
+        No stoppin' now! (well, except for bumping...).
+
         :param speed: desired move speed
         """
         self.turtle.cmd_velocity(linear=speed)
         self.check_bumper()
         self.rate.sleep()
 
-    def kick(self, target_distance, speed=1.5) -> None:
+    def kick(self, target_distance: float, speed: float = 1.5) -> None:
         """
         Kick the ball. Should be run only from the Kick position.
+
         :param target_distance: distance corresponding to Kick position
         :param speed: move speed
         """
@@ -256,13 +263,14 @@ class Robot:
 
     def rotate(self,
                target_angle: float,
-               set_speed = None,
+               set_speed: float = None,
                stop: bool = True,
                simulate: bool = False,
                use_correction: bool = True,
                debug_info: bool = False) -> None:
         """
         Rotational move with PD regulator.
+
         :param target_angle: rotational move angle
         :param set_speed: desired speed
         :param stop: boolean for hard brake (True) or soft stop (False)
@@ -295,13 +303,13 @@ class Robot:
             if debug_info:
                 print(self.estimate_position())
 
-            regulator = ANGULAR_KP*error + ANGULAR_KD*(error - last_error)
+            regulator = ANGULAR_KP * error + ANGULAR_KD * (error - last_error)
             speed = min(max(regulator, MIN_ANGULAR_VELOCITY),
                         MAX_ANGULAR_VELOCITY)
             if set_speed:
                 speed = set_speed
 
-            self.turtle.cmd_velocity(angular=dir_coef*speed)
+            self.turtle.cmd_velocity(angular=(dir_coef * speed))
             self.check_bumper()
             self.rate.sleep()
 
@@ -319,7 +327,8 @@ class Robot:
 
     def rotate_until(self, speed: float = 0.5) -> None:
         """
-        No stoppin' now! (well, except for bumping...)
+        No stoppin' now! (well, except for bumping...).
+
         :param speed: desired rotate speed
         """
         self.turtle.cmd_velocity(angular=speed)
@@ -327,18 +336,19 @@ class Robot:
         self.rate.sleep()
 
     def turn(self,
-             target_angle,
+             target_angle: float,
              set_speed: float = 0.5,
              debug_info: bool = False,
              simulate: bool = False) -> None:
         """
         Ensure correct angle manipulation while rotating.
+
         :param target_angle: angle to turn
         :param set_speed: desired move speed
         :param debug_info: boolean for debug
         :param simulate: boolean for virtual setup during debug
         """
-        if abs(target_angle) > (7/8) * np.pi:
+        if abs(target_angle) > (7 / 8) * np.pi:
             self.rotate(target_angle / 2, set_speed=set_speed,
                         debug_info=debug_info, simulate=simulate)
             self.rotate(target_angle / 2, set_speed=set_speed,
@@ -350,6 +360,7 @@ class Robot:
     def go_to(self, point: Point, debug_info: bool = False) -> None:
         """
         Move to (x, y).
+
         :param point: (x, y) point
         :param debug_info: boolean for debug
         """
@@ -381,6 +392,7 @@ class Robot:
     def get_objects_from_camera(self, debug_info: bool = False) -> list:
         """
         Save all visible objects.
+
         :param debug_info: boolean for debug
         :return: list of all visible objects
         """
@@ -400,11 +412,12 @@ class Robot:
     def scan_environment(self,
                          robot_map: Map,
                          max_angle: float = 2 * np.pi,
-                         big: float = np.pi/6,
-                         small: float = np.pi/8,
+                         big: float = np.pi / 6,
+                         small: float = np.pi / 8,
                          debug_info: bool = False) -> bool:
         """
         Scan objects around 360 ° or until or expected objects are found.
+
         :param robot_map: Map with internal data
         :param max_angle: 2pi for full rotation
         :param big: angle to rotate if there are no objects on the camera
@@ -451,6 +464,7 @@ class Robot:
                     debug_info: bool = False) -> None:
         """
         Set correctly in front of the ball.
+
         :param center: center of the screen in px
         :param offset: offset of the camera in px
         :param debug_info: boolean for debug
