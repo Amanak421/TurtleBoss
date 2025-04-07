@@ -8,4 +8,9 @@ __pycache__
 ./.venv
 # figures
 ./.figures
+<<<<<<< HEAD
 .flake8
+=======
+# flake8
+.flake8
+>>>>>>> 848a75d0c68ac2ed81c009cc5060516d77e9e338
